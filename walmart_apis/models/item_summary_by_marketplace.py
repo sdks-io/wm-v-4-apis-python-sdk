@@ -6,7 +6,7 @@ from typing_extensions import NotRequired, TypedDict
 from ..core import UNSET, Optional, RFC3339DateTime, SdkBaseModel
 from .enums.condition_type import ConditionTypeOrStr
 from .enums.status import StatusOrStr
-from .item_image1 import ItemImage1, ItemImage1Dict
+from .item_image_listings_items import ItemImageListingsItems, ItemImageListingsItemsDict
 
 
 class ItemSummaryByMarketplace(SdkBaseModel):
@@ -18,7 +18,7 @@ class ItemSummaryByMarketplace(SdkBaseModel):
     item_name: Optional[str] = Field(default=UNSET, alias="itemName")
     created_date: Optional[RFC3339DateTime] = Field(default=UNSET, alias="createdDate")
     last_updated_date: Optional[RFC3339DateTime] = Field(default=UNSET, alias="lastUpdatedDate")
-    main_image: Optional[ItemImage1] = Field(default=UNSET, alias="mainImage")
+    main_image: Optional[ItemImageListingsItems] = Field(default=UNSET, alias="mainImage")
 
 
 class ItemSummaryByMarketplaceDict(TypedDict):
@@ -30,4 +30,4 @@ class ItemSummaryByMarketplaceDict(TypedDict):
     item_name: NotRequired[str]
     created_date: NotRequired[RFC3339DateTime]
     last_updated_date: NotRequired[RFC3339DateTime]
-    main_image: NotRequired[ItemImage1Dict]
+    main_image: NotRequired[ItemImageListingsItemsDict]

@@ -14,7 +14,8 @@ class CommonShipmentDestination(SdkBaseModel):
     """Specific details to identify a place."""
 
     destination_type: str = Field(alias="destinationType")
-    """The type of destination for this shipment. Possible values: ``WALMART_OPTIMIZED``, ``WALMART_SHIP_NODE``."""
+    """The type of destination for this shipment. Possible values: ``WFS_FC``, ``WFS_ICC``. (aligned with the Inbound
+    Order Workflow upstream vocabulary)"""
 
     warehouse_id: Optional[str] = Field(default=UNSET, alias="warehouseId")
     """The Ship Node that the shipment should be sent to. This can be empty if the destination type is

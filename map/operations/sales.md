@@ -10,7 +10,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /sales/v4/orderMetrics`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_order_metrics(marketplace_ids: list[str], interval: str, granularity: GranularityOrStr, *, granularity_time_zone: str | None = None, buyer_type: BuyerTypeOrStr | None = None, fulfillment_network: str | None = None, first_day_of_week: FirstDayOfWeekOrStr | None = None, asin: str | None = None, sku: str | None = None, sp_api_program: str | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `marketplace_ids`, `interval`, `granularity`
 - **Params**: `marketplace_ids` — query `marketplaceIds` · `interval` — query · `granularity` — query · `granularity_time_zone` — query `granularityTimeZone` · `buyer_type` — query `buyerType` · `fulfillment_network` — query `fulfillmentNetwork` · `first_day_of_week` — query `firstDayOfWeek` · `asin` — query · `sku` — query · `sp_api_program` — query `sp-apiProgram`

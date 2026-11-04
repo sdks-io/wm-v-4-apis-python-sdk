@@ -7,13 +7,13 @@ from ..core import SdkBaseModel
 
 
 class SalesRankType(SdkBaseModel):
-    """Sales rank information for the item, by category."""
+    """Sales rank information for the item within a specific category."""
 
     product_category_id: str = Field(alias="ProductCategoryId")
-    """Identifies the item category from which the sales rank is taken."""
+    """Identifies the item category used to determine the sales rank."""
 
     rank: int = Field(alias="Rank")
-    """The sales rank of the item within the item category."""
+    """Sales rank of the item within the specified category."""
 
 
 class SalesRankTypeDict(TypedDict):

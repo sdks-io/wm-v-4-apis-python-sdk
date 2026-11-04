@@ -8,19 +8,20 @@ from .enums.availability_type import AvailabilityTypeOrStr
 
 
 class DetailedShippingTimeType(SdkBaseModel):
-    """The time range in which an item will likely be shipped once an order has been placed."""
+    """Estimated time range in which an item is likely to ship after an order is placed."""
 
     minimum_hours: Optional[int] = Field(default=UNSET, alias="minimumHours")
-    """The minimum time, in hours, that the item will likely be shipped after the order has been placed."""
+    """Minimum estimated time, in hours, until the item is likely to ship after the order is placed."""
 
     maximum_hours: Optional[int] = Field(default=UNSET, alias="maximumHours")
-    """The maximum time, in hours, that the item will likely be shipped after the order has been placed."""
+    """Maximum estimated time, in hours, until the item is likely to ship after the order is placed."""
 
     available_date: Optional[str] = Field(default=UNSET, alias="availableDate")
-    """The date when the item will be available for shipping."""
+    """Date when the item will be available for shipping."""
 
     availability_type: Optional[AvailabilityTypeOrStr] = Field(default=UNSET, alias="availabilityType")
-    """Indicates whether the item is available for shipping now, or on a known or an unknown date in the future."""
+    """Indicates whether the item is available for shipping now, on a known future date, or on an unspecified future
+    date."""
 
 
 class DetailedShippingTimeTypeDict(TypedDict):

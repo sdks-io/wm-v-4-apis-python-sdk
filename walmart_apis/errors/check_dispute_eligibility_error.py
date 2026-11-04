@@ -13,7 +13,7 @@ CheckDisputeEligibilityErrorBody: TypeAlias = ErrorList | RawError
 class _CheckDisputeEligibilityError:
     def map(self, status_code: int, content: bytes) -> CheckDisputeEligibilityErrorBody:
         match status_code:
-            case 400 | 401 | 500:
+            case 400 | 401 | 500 | 501:
                 return decode_json[ErrorList](content)
             case _:
                 return RawError(status_code, content)

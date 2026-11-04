@@ -42,20 +42,17 @@ class ProductFees:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> GetMyFeesEstimateResponse:
-        """Returns an estimated fee for a single item identified by Walmart Item ID. Walmart Item ID replaces the SP-API
-        ASIN path parameter.
-
-        SP-API equivalent: ``getMyFeesEstimateForASIN`` (identifier changed from ASIN to Walmart Item ID;
-        request/response shape is otherwise 1:1).
+        """Returns the estimated fees for an item identified by Walmart Item ID, based on the pricing and fulfillment
+        information provided in the request.
 
         Args:
-            walmart_item_id: The Walmart Item ID of the item. Replaces SP-API ASIN.
-            body: The request body.
+            walmart_item_id: Walmart Item ID of the item.
+            body: Pricing and fulfillment information used to estimate fees for the item.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
         Returns:
-            Success
+            Returns the fee estimate result for the requested item.
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
@@ -74,17 +71,18 @@ class ProductFees:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> GetMyFeesEstimateResponse:
-        """Returns an estimated fee for a seller listing identified by Seller SKU.
+        """Returns the estimated fees for a seller listing identified by seller SKU using the pricing and fulfillment
+        information provided in the request.
 
         Args:
-            seller_sku: The seller's SKU for the listing. Scoped to the authenticated seller.
+            seller_sku: Seller SKU for the listing. Scoped to the authenticated seller.
             marketplace_id: Marketplace identifier.
-            body: The request body.
+            body: Pricing and fulfillment information used to estimate fees for the listing.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
         Returns:
-            Success
+            Returns the fee estimate result for the specified listing.
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
@@ -101,15 +99,16 @@ class ProductFees:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> list[FeesEstimateResult]:
-        """Returns estimated Walmart fees for a list of items identified by Walmart Item ID or Seller SKU.
+        """Returns estimated Walmart fees for multiple items identified by Walmart Item ID or seller SKU.
 
         Args:
-            body: The request body.
+            body: Fee estimate requests for items identified by Walmart Item ID or seller SKU, including pricing and
+                fulfillment information.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
         Returns:
-            Success
+            Returns fee estimate results for the requested items.
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
@@ -132,20 +131,17 @@ class AsyncProductFees:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> GetMyFeesEstimateResponse:
-        """Returns an estimated fee for a single item identified by Walmart Item ID. Walmart Item ID replaces the SP-API
-        ASIN path parameter.
-
-        SP-API equivalent: ``getMyFeesEstimateForASIN`` (identifier changed from ASIN to Walmart Item ID;
-        request/response shape is otherwise 1:1).
+        """Returns the estimated fees for an item identified by Walmart Item ID, based on the pricing and fulfillment
+        information provided in the request.
 
         Args:
-            walmart_item_id: The Walmart Item ID of the item. Replaces SP-API ASIN.
-            body: The request body.
+            walmart_item_id: Walmart Item ID of the item.
+            body: Pricing and fulfillment information used to estimate fees for the item.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
         Returns:
-            Success
+            Returns the fee estimate result for the requested item.
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
@@ -164,17 +160,18 @@ class AsyncProductFees:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> GetMyFeesEstimateResponse:
-        """Returns an estimated fee for a seller listing identified by Seller SKU.
+        """Returns the estimated fees for a seller listing identified by seller SKU using the pricing and fulfillment
+        information provided in the request.
 
         Args:
-            seller_sku: The seller's SKU for the listing. Scoped to the authenticated seller.
+            seller_sku: Seller SKU for the listing. Scoped to the authenticated seller.
             marketplace_id: Marketplace identifier.
-            body: The request body.
+            body: Pricing and fulfillment information used to estimate fees for the listing.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
         Returns:
-            Success
+            Returns the fee estimate result for the specified listing.
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
@@ -191,15 +188,16 @@ class AsyncProductFees:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> list[FeesEstimateResult]:
-        """Returns estimated Walmart fees for a list of items identified by Walmart Item ID or Seller SKU.
+        """Returns estimated Walmart fees for multiple items identified by Walmart Item ID or seller SKU.
 
         Args:
-            body: The request body.
+            body: Fee estimate requests for items identified by Walmart Item ID or seller SKU, including pricing and
+                fulfillment information.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
         Returns:
-            Success
+            Returns fee estimate results for the requested items.
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
@@ -219,15 +217,12 @@ class ProductFeesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[GetMyFeesEstimateResponse, GetMyFeesEstimateForItemErrorBody]:
-        """Returns an estimated fee for a single item identified by Walmart Item ID. Walmart Item ID replaces the SP-API
-        ASIN path parameter.
-
-        SP-API equivalent: ``getMyFeesEstimateForASIN`` (identifier changed from ASIN to Walmart Item ID;
-        request/response shape is otherwise 1:1).
+        """Returns the estimated fees for an item identified by Walmart Item ID, based on the pricing and fulfillment
+        information provided in the request.
 
         Args:
-            walmart_item_id: The Walmart Item ID of the item. Replaces SP-API ASIN.
-            body: The request body.
+            walmart_item_id: Walmart Item ID of the item.
+            body: Pricing and fulfillment information used to estimate fees for the item.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -235,7 +230,7 @@ class ProductFeesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/products/fees/v4/items/{WalmartItemId}/feesEstimate"),
+            url_template=self._server.default_catalog_items("/products/fees/v4/items/{WalmartItemId}/feesEstimate"),
             path_params=[param[str]("WalmartItemId", walmart_item_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GetMyFeesEstimateRequest | GetMyFeesEstimateRequestDict](body),
@@ -253,12 +248,13 @@ class ProductFeesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[GetMyFeesEstimateResponse, GetMyFeesEstimateForSkuErrorBody]:
-        """Returns an estimated fee for a seller listing identified by Seller SKU.
+        """Returns the estimated fees for a seller listing identified by seller SKU using the pricing and fulfillment
+        information provided in the request.
 
         Args:
-            seller_sku: The seller's SKU for the listing. Scoped to the authenticated seller.
+            seller_sku: Seller SKU for the listing. Scoped to the authenticated seller.
             marketplace_id: Marketplace identifier.
-            body: The request body.
+            body: Pricing and fulfillment information used to estimate fees for the listing.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -266,7 +262,7 @@ class ProductFeesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/products/fees/v4/listings/{SellerSKU}/feesEstimate"),
+            url_template=self._server.default_catalog_items("/products/fees/v4/listings/{SellerSKU}/feesEstimate"),
             path_params=[param[str]("SellerSKU", seller_sku)],
             query_params=[param[str]("MarketplaceId", marketplace_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -283,10 +279,11 @@ class ProductFeesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[list[FeesEstimateResult], GetMyFeesEstimatesErrorBody]:
-        """Returns estimated Walmart fees for a list of items identified by Walmart Item ID or Seller SKU.
+        """Returns estimated Walmart fees for multiple items identified by Walmart Item ID or seller SKU.
 
         Args:
-            body: The request body.
+            body: Fee estimate requests for items identified by Walmart Item ID or seller SKU, including pricing and
+                fulfillment information.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -294,7 +291,7 @@ class ProductFeesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/products/fees/v4/feesEstimate"),
+            url_template=self._server.default_catalog_items("/products/fees/v4/feesEstimate"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[list[FeesEstimateByIdRequest | FeesEstimateByIdRequestDict]](body),
             auth_scheme=self._auth.wallet_auth,
@@ -312,15 +309,12 @@ class AsyncProductFeesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[GetMyFeesEstimateResponse, GetMyFeesEstimateForItemErrorBody]:
-        """Returns an estimated fee for a single item identified by Walmart Item ID. Walmart Item ID replaces the SP-API
-        ASIN path parameter.
-
-        SP-API equivalent: ``getMyFeesEstimateForASIN`` (identifier changed from ASIN to Walmart Item ID;
-        request/response shape is otherwise 1:1).
+        """Returns the estimated fees for an item identified by Walmart Item ID, based on the pricing and fulfillment
+        information provided in the request.
 
         Args:
-            walmart_item_id: The Walmart Item ID of the item. Replaces SP-API ASIN.
-            body: The request body.
+            walmart_item_id: Walmart Item ID of the item.
+            body: Pricing and fulfillment information used to estimate fees for the item.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -328,7 +322,7 @@ class AsyncProductFeesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/products/fees/v4/items/{WalmartItemId}/feesEstimate"),
+            url_template=self._server.default_catalog_items("/products/fees/v4/items/{WalmartItemId}/feesEstimate"),
             path_params=[param[str]("WalmartItemId", walmart_item_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GetMyFeesEstimateRequest | GetMyFeesEstimateRequestDict](body),
@@ -346,12 +340,13 @@ class AsyncProductFeesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[GetMyFeesEstimateResponse, GetMyFeesEstimateForSkuErrorBody]:
-        """Returns an estimated fee for a seller listing identified by Seller SKU.
+        """Returns the estimated fees for a seller listing identified by seller SKU using the pricing and fulfillment
+        information provided in the request.
 
         Args:
-            seller_sku: The seller's SKU for the listing. Scoped to the authenticated seller.
+            seller_sku: Seller SKU for the listing. Scoped to the authenticated seller.
             marketplace_id: Marketplace identifier.
-            body: The request body.
+            body: Pricing and fulfillment information used to estimate fees for the listing.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -359,7 +354,7 @@ class AsyncProductFeesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/products/fees/v4/listings/{SellerSKU}/feesEstimate"),
+            url_template=self._server.default_catalog_items("/products/fees/v4/listings/{SellerSKU}/feesEstimate"),
             path_params=[param[str]("SellerSKU", seller_sku)],
             query_params=[param[str]("MarketplaceId", marketplace_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -376,10 +371,11 @@ class AsyncProductFeesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[list[FeesEstimateResult], GetMyFeesEstimatesErrorBody]:
-        """Returns estimated Walmart fees for a list of items identified by Walmart Item ID or Seller SKU.
+        """Returns estimated Walmart fees for multiple items identified by Walmart Item ID or seller SKU.
 
         Args:
-            body: The request body.
+            body: Fee estimate requests for items identified by Walmart Item ID or seller SKU, including pricing and
+                fulfillment information.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -387,7 +383,7 @@ class AsyncProductFeesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/products/fees/v4/feesEstimate"),
+            url_template=self._server.default_catalog_items("/products/fees/v4/feesEstimate"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[list[FeesEstimateByIdRequest | FeesEstimateByIdRequestDict]](body),
             auth_scheme=self._auth.wallet_auth,

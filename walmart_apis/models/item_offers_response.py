@@ -10,19 +10,19 @@ from .item_offers_request import ItemOffersRequest, ItemOffersRequestDict
 
 
 class ItemOffersResponse(SdkBaseModel):
-    """Schema for an individual ItemOffersResponse."""
+    """Result for one Walmart Item ID offer request in a batch, including the corresponding request information."""
 
     headers: Optional[HttpResponseHeaders] = UNSET
-    """A mapping of additional HTTP headers to receive for the individual batch request."""
+    """Additional HTTP headers returned for an individual batch request."""
 
     status: Optional[GetOffersHttpStatusLine] = UNSET
-    """The HTTP status line associated with the response."""
+    """HTTP status information associated with the response."""
 
     body: GetOffersResponse
-    """The response schema for the getListingOffers and getItemOffers operations."""
+    """Response schema for ``getListingOffers`` and ``getItemOffers`` operations."""
 
     request: ItemOffersRequest
-    """List of request parameters accepted by the getItemOffers operation."""
+    """Request parameters for one ``getItemOffers`` operation in the batch."""
 
 
 class ItemOffersResponseDict(TypedDict):

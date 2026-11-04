@@ -16,7 +16,7 @@ from ..errors.get_listings_restrictions_error import (
     GetListingsRestrictionsErrorBody,
     get_listings_restrictions_error_mapper,
 )
-from ..models.enums.condition_type1 import ConditionType1OrStr
+from ..models.enums.condition_type_listings_restrictions import ConditionTypeListingsRestrictionsOrStr
 from ..models.restriction_list import RestrictionList
 from ..server.server import Server
 
@@ -28,7 +28,7 @@ class ListingsRestrictions:
     def get_listings_restrictions(
         self,
         asin: str,
-        condition_type: ConditionType1OrStr,
+        condition_type: ConditionTypeListingsRestrictionsOrStr,
         seller_id: str,
         marketplace_ids: list[str],
         *,
@@ -76,7 +76,7 @@ class AsyncListingsRestrictions:
     async def get_listings_restrictions(
         self,
         asin: str,
-        condition_type: ConditionType1OrStr,
+        condition_type: ConditionTypeListingsRestrictionsOrStr,
         seller_id: str,
         marketplace_ids: list[str],
         *,
@@ -121,7 +121,7 @@ class ListingsRestrictionsWithRawResponse(SecuredRawResponse[RawClient, Server, 
     def get_listings_restrictions(
         self,
         asin: str,
-        condition_type: ConditionType1OrStr,
+        condition_type: ConditionTypeListingsRestrictionsOrStr,
         seller_id: str,
         marketplace_ids: list[str],
         *,
@@ -144,10 +144,10 @@ class ListingsRestrictionsWithRawResponse(SecuredRawResponse[RawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/listings/v4/restrictions"),
+            url_template=self._server.default_catalog_items("/listings/v4/restrictions"),
             query_params=[
                 param[str]("asin", asin),
-                param[ConditionType1OrStr]("conditionType", condition_type),
+                param[ConditionTypeListingsRestrictionsOrStr]("conditionType", condition_type),
                 param[str]("sellerId", seller_id),
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[str | None]("reasonLocale", reason_locale),
@@ -163,7 +163,7 @@ class AsyncListingsRestrictionsWithRawResponse(SecuredRawResponse[AsyncRawClient
     async def get_listings_restrictions(
         self,
         asin: str,
-        condition_type: ConditionType1OrStr,
+        condition_type: ConditionTypeListingsRestrictionsOrStr,
         seller_id: str,
         marketplace_ids: list[str],
         *,
@@ -186,10 +186,10 @@ class AsyncListingsRestrictionsWithRawResponse(SecuredRawResponse[AsyncRawClient
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/listings/v4/restrictions"),
+            url_template=self._server.default_catalog_items("/listings/v4/restrictions"),
             query_params=[
                 param[str]("asin", asin),
-                param[ConditionType1OrStr]("conditionType", condition_type),
+                param[ConditionTypeListingsRestrictionsOrStr]("conditionType", condition_type),
                 param[str]("sellerId", seller_id),
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[str | None]("reasonLocale", reason_locale),

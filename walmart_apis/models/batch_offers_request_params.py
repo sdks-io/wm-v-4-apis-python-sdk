@@ -4,24 +4,22 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .enums.condition_type2 import ConditionType2OrStr
+from .enums.condition_type_product_pricing import ConditionTypeProductPricingOrStr
 from .enums.customer_type import CustomerTypeOrStr
 
 
 class BatchOffersRequestParams(SdkBaseModel):
-    """Common request parameters for ItemOffersRequest and ListingOffersRequest."""
+    """Common request parameters for ``ItemOffersRequest`` and ``ListingOffersRequest``. Does not carry a MarketplaceId
+    -- the marketplace is resolved from the gateway-derived tenant context (x-o-tenant), same as every other pricing
+    endpoint. See PricingValidation#currentMarketplaceId."""
 
-    marketplace_id: str = Field(alias="MarketplaceId")
-    """A marketplace identifier."""
-
-    item_condition: ConditionType2OrStr = Field(alias="ItemCondition")
-    """Indicates the condition of the item. Possible values: New, Used, Collectible, Refurbished, Club."""
+    item_condition: ConditionTypeProductPricingOrStr = Field(alias="ItemCondition")
+    """Indicates the item condition. Possible values are ``New``, ``Restored``, and ``Pre-Owned``."""
 
     customer_type: Optional[CustomerTypeOrStr] = Field(default=UNSET, alias="CustomerType")
-    """Indicates whether to request Consumer or Business offers. Default is Consumer."""
+    """Indicates whether to request ``Consumer`` or ``Business`` offers. The default is ``Consumer``."""
 
 
 class BatchOffersRequestParamsDict(TypedDict):
-    marketplace_id: str
-    item_condition: ConditionType2OrStr
+    item_condition: ConditionTypeProductPricingOrStr
     customer_type: NotRequired[CustomerTypeOrStr]

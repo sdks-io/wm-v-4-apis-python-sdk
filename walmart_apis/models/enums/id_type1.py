@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class IdType1(str, Enum):
+    """Type of item identifier associated with the fee estimate result."""
+
     WALMART_ITEM_ID = "WalmartItemId"
     SELLER_SKU = "SellerSKU"
 

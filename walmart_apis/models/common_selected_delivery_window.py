@@ -18,16 +18,18 @@ class CommonSelectedDeliveryWindow(SdkBaseModel):
     editable_until: Optional[RFC3339DateTime] = Field(default=UNSET, alias="editableUntil")
     """The timestamp at which this window can no longer be edited."""
 
-    end_date: RFC3339DateTime = Field(alias="endDate")
-    """The end timestamp of the window."""
+    end_date: str = Field(alias="endDate")
+    """The end timestamp of the window. In ISO 8601 local datetime format with pattern ``yyyy-MM-ddTHH:mm``, in the
+    local time of the destination fulfillment center, so it carries no UTC offset."""
 
-    start_date: RFC3339DateTime = Field(alias="startDate")
-    """The start timestamp of the window."""
+    start_date: str = Field(alias="startDate")
+    """The start timestamp of the window. In ISO 8601 local datetime format with pattern ``yyyy-MM-ddTHH:mm``, in the
+    local time of the destination fulfillment center, so it carries no UTC offset."""
 
 
 class CommonSelectedDeliveryWindowDict(TypedDict):
     availability_type: str
     delivery_window_option_id: str
     editable_until: NotRequired[RFC3339DateTime]
-    end_date: RFC3339DateTime
-    start_date: RFC3339DateTime
+    end_date: str
+    start_date: str

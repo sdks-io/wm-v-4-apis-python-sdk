@@ -5,8 +5,7 @@ from ...core import open_enum_validator
 
 
 class ShipmentStatus1(str, Enum):
-    """Non-terminal shipment-lifecycle state. Mirrors Amazon SP-API Orders v0 ``shipmentStatus``. For terminal
-    ``Delivered`` use the dedicated ``/deliver`` endpoint."""
+    """Shipment status recorded for the specified order lines."""
 
     READY_FOR_PICKUP = "READY_FOR_PICKUP"
     PICKED_UP = "PICKED_UP"

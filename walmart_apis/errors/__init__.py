@@ -1,5 +1,4 @@
 from .acknowledge_order_error import AcknowledgeOrderErrorBody, acknowledge_order_error_mapper
-from .authorize_error import AuthorizeErrorBody, authorize_error_mapper
 from .bulk_update_inventory_error import BulkUpdateInventoryErrorBody, bulk_update_inventory_error_mapper
 from .cancel_feed_error import CancelFeedErrorBody, cancel_feed_error_mapper
 from .cancel_fulfillment_order_error import CancelFulfillmentOrderErrorBody, cancel_fulfillment_order_error_mapper
@@ -69,6 +68,7 @@ from .create_report_error import CreateReportErrorBody, create_report_error_mapp
 from .create_report_schedule_error import CreateReportScheduleErrorBody, create_report_schedule_error_mapper
 from .create_shipment_error import CreateShipmentErrorBody, create_shipment_error_mapper
 from .create_subscription_error import CreateSubscriptionErrorBody, create_subscription_error_mapper
+from .create_supply_source_error import CreateSupplySourceErrorBody, create_supply_source_error_mapper
 from .create_token_error import CreateTokenErrorBody, create_token_error_mapper
 from .create_unexpected_problem_error import CreateUnexpectedProblemErrorBody, create_unexpected_problem_error_mapper
 from .create_upload_destination_for_resource_error import (
@@ -109,6 +109,11 @@ from .get_account_error import GetAccountErrorBody, get_account_error_mapper
 from .get_additional_inputs_error import GetAdditionalInputsErrorBody, get_additional_inputs_error_mapper
 from .get_annual_statement_opts_error import GetAnnualStatementOptsErrorBody, get_annual_statement_opts_error_mapper
 from .get_attributes_error import GetAttributesErrorBody, get_attributes_error_mapper
+from .get_bill_of_lading_error import GetBillOfLadingErrorBody, get_bill_of_lading_error_mapper
+from .get_buybox_offer_expected_price_batch_error import (
+    GetBuyboxOfferExpectedPriceBatchErrorBody,
+    get_buybox_offer_expected_price_batch_error_mapper,
+)
 from .get_catalog_item_error import GetCatalogItemErrorBody, get_catalog_item_error_mapper
 from .get_competitive_pricing_error import GetCompetitivePricingErrorBody, get_competitive_pricing_error_mapper
 from .get_competitive_summary_error import GetCompetitiveSummaryErrorBody, get_competitive_summary_error_mapper
@@ -131,10 +136,6 @@ from .get_faster_payout_eligibility_error import (
     GetFasterPayoutEligibilityErrorBody,
     get_faster_payout_eligibility_error_mapper,
 )
-from .get_featured_offer_expected_price_batch_error import (
-    GetFeaturedOfferExpectedPriceBatchErrorBody,
-    get_featured_offer_expected_price_batch_error_mapper,
-)
 from .get_feed_document_error import GetFeedDocumentErrorBody, get_feed_document_error_mapper
 from .get_feed_error import GetFeedErrorBody, get_feed_error_mapper
 from .get_feeds_error import GetFeedsErrorBody, get_feeds_error_mapper
@@ -155,9 +156,14 @@ from .get_inbound_operation_status_error import (
 from .get_inbound_plan_error import GetInboundPlanErrorBody, get_inbound_plan_error_mapper
 from .get_inventory_for_sku_error import GetInventoryForSkuErrorBody, get_inventory_for_sku_error_mapper
 from .get_inventory_summaries_error import GetInventorySummariesErrorBody, get_inventory_summaries_error_mapper
+from .get_item_eligibility_preview_error import (
+    GetItemEligibilityPreviewErrorBody,
+    get_item_eligibility_preview_error_mapper,
+)
 from .get_item_offers_batch_error import GetItemOffersBatchErrorBody, get_item_offers_batch_error_mapper
 from .get_item_offers_error import GetItemOffersErrorBody, get_item_offers_error_mapper
 from .get_label_error import GetLabelErrorBody, get_label_error_mapper
+from .get_labels_error import GetLabelsErrorBody, get_labels_error_mapper
 from .get_listing_offers_batch_error import GetListingOffersBatchErrorBody, get_listing_offers_batch_error_mapper
 from .get_listing_offers_error import GetListingOffersErrorBody, get_listing_offers_error_mapper
 from .get_listings_item_error import GetListingsItemErrorBody, get_listings_item_error_mapper
@@ -187,6 +193,7 @@ from .get_order_metrics_error import GetOrderMetricsErrorBody, get_order_metrics
 from .get_order_regulated_info_error import GetOrderRegulatedInfoErrorBody, get_order_regulated_info_error_mapper
 from .get_orders_error import GetOrdersErrorBody, get_orders_error_mapper
 from .get_payment_status_error import GetPaymentStatusErrorBody, get_payment_status_error_mapper
+from .get_prep_instructions_error import GetPrepInstructionsErrorBody, get_prep_instructions_error_mapper
 from .get_pricing_error import GetPricingErrorBody, get_pricing_error_mapper
 from .get_queries_error import GetQueriesErrorBody, get_queries_error_mapper
 from .get_query_error import GetQueryErrorBody, get_query_error_mapper
@@ -207,12 +214,20 @@ from .get_shipment_content_update_preview_error import (
 )
 from .get_shipment_documents_error import GetShipmentDocumentsErrorBody, get_shipment_documents_error_mapper
 from .get_shipment_error import GetShipmentErrorBody, get_shipment_error_mapper
+from .get_shipment_items_by_shipment_id_error import (
+    GetShipmentItemsByShipmentIdErrorBody,
+    get_shipment_items_by_shipment_id_error_mapper,
+)
+from .get_shipment_items_error import GetShipmentItemsErrorBody, get_shipment_items_error_mapper
+from .get_shipments_error import GetShipmentsErrorBody, get_shipments_error_mapper
 from .get_solicitation_actions_for_order_error import (
     GetSolicitationActionsForOrderErrorBody,
     get_solicitation_actions_for_order_error_mapper,
 )
 from .get_subscription_by_id_error import GetSubscriptionByIdErrorBody, get_subscription_by_id_error_mapper
 from .get_subscription_error import GetSubscriptionErrorBody, get_subscription_error_mapper
+from .get_supply_source_error import GetSupplySourceErrorBody, get_supply_source_error_mapper
+from .get_taxonomy_error import GetTaxonomyErrorBody, get_taxonomy_error_mapper
 from .get_tracking_error import GetTrackingErrorBody, get_tracking_error_mapper
 from .get_wfs_inventory_items_error import GetWfsInventoryItemsErrorBody, get_wfs_inventory_items_error_mapper
 from .initiate_faster_payout_error import InitiateFasterPayoutErrorBody, initiate_faster_payout_error_mapper
@@ -260,6 +275,7 @@ from .list_shipment_content_update_previews_error import (
 )
 from .list_shipment_items_error import ListShipmentItemsErrorBody, list_shipment_items_error_mapper
 from .list_shipment_pallets_error import ListShipmentPalletsErrorBody, list_shipment_pallets_error_mapper
+from .list_supply_sources_error import ListSupplySourcesErrorBody, list_supply_sources_error_mapper
 from .list_transportation_options_error import (
     ListTransportationOptionsErrorBody,
     list_transportation_options_error_mapper,
@@ -269,7 +285,6 @@ from .patch_listings_item_error import PatchListingsItemErrorBody, patch_listing
 from .purchase_shipment_error import PurchaseShipmentErrorBody, purchase_shipment_error_mapper
 from .put_listings_item_error import PutListingsItemErrorBody, put_listings_item_error_mapper
 from .refund_order_lines_error import RefundOrderLinesErrorBody, refund_order_lines_error_mapper
-from .register_client_error import RegisterClientErrorBody, register_client_error_mapper
 from .schedule_self_ship_appointment_error import (
     ScheduleSelfShipAppointmentErrorBody,
     schedule_self_ship_appointment_error_mapper,
@@ -309,11 +324,11 @@ from .update_shipment_tracking_details_error import (
     UpdateShipmentTrackingDetailsErrorBody,
     update_shipment_tracking_details_error_mapper,
 )
+from .update_supply_source_error import UpdateSupplySourceErrorBody, update_supply_source_error_mapper
 from .update_verification_status_error import UpdateVerificationStatusErrorBody, update_verification_status_error_mapper
 
 __all__ = [
     "AcknowledgeOrderErrorBody",
-    "AuthorizeErrorBody",
     "BulkUpdateInventoryErrorBody",
     "CancelFeedErrorBody",
     "CancelFulfillmentOrderErrorBody",
@@ -350,6 +365,7 @@ __all__ = [
     "CreateReportScheduleErrorBody",
     "CreateShipmentErrorBody",
     "CreateSubscriptionErrorBody",
+    "CreateSupplySourceErrorBody",
     "CreateTokenErrorBody",
     "CreateUnexpectedProblemErrorBody",
     "CreateUploadDestinationForResourceErrorBody",
@@ -372,6 +388,8 @@ __all__ = [
     "GetAdditionalInputsErrorBody",
     "GetAnnualStatementOptsErrorBody",
     "GetAttributesErrorBody",
+    "GetBillOfLadingErrorBody",
+    "GetBuyboxOfferExpectedPriceBatchErrorBody",
     "GetCatalogItemErrorBody",
     "GetCompetitivePricingErrorBody",
     "GetCompetitiveSummaryErrorBody",
@@ -382,7 +400,6 @@ __all__ = [
     "GetDocumentErrorBody",
     "GetEligibleShippingServicesErrorBody",
     "GetFasterPayoutEligibilityErrorBody",
-    "GetFeaturedOfferExpectedPriceBatchErrorBody",
     "GetFeedDocumentErrorBody",
     "GetFeedErrorBody",
     "GetFeedsErrorBody",
@@ -394,9 +411,11 @@ __all__ = [
     "GetInboundPlanErrorBody",
     "GetInventoryForSkuErrorBody",
     "GetInventorySummariesErrorBody",
+    "GetItemEligibilityPreviewErrorBody",
     "GetItemOffersBatchErrorBody",
     "GetItemOffersErrorBody",
     "GetLabelErrorBody",
+    "GetLabelsErrorBody",
     "GetListingOffersBatchErrorBody",
     "GetListingOffersErrorBody",
     "GetListingsItemErrorBody",
@@ -414,6 +433,7 @@ __all__ = [
     "GetOrderRegulatedInfoErrorBody",
     "GetOrdersErrorBody",
     "GetPaymentStatusErrorBody",
+    "GetPrepInstructionsErrorBody",
     "GetPricingErrorBody",
     "GetQueriesErrorBody",
     "GetQueryErrorBody",
@@ -428,9 +448,14 @@ __all__ = [
     "GetShipmentContentUpdatePreviewErrorBody",
     "GetShipmentDocumentsErrorBody",
     "GetShipmentErrorBody",
+    "GetShipmentItemsByShipmentIdErrorBody",
+    "GetShipmentItemsErrorBody",
+    "GetShipmentsErrorBody",
     "GetSolicitationActionsForOrderErrorBody",
     "GetSubscriptionByIdErrorBody",
     "GetSubscriptionErrorBody",
+    "GetSupplySourceErrorBody",
+    "GetTaxonomyErrorBody",
     "GetTrackingErrorBody",
     "GetWfsInventoryItemsErrorBody",
     "InitiateFasterPayoutErrorBody",
@@ -457,13 +482,13 @@ __all__ = [
     "ListShipmentContentUpdatePreviewsErrorBody",
     "ListShipmentItemsErrorBody",
     "ListShipmentPalletsErrorBody",
+    "ListSupplySourcesErrorBody",
     "ListTransportationOptionsErrorBody",
     "OneClickShipmentErrorBody",
     "PatchListingsItemErrorBody",
     "PurchaseShipmentErrorBody",
     "PutListingsItemErrorBody",
     "RefundOrderLinesErrorBody",
-    "RegisterClientErrorBody",
     "ScheduleSelfShipAppointmentErrorBody",
     "SearchCatalogItemsErrorBody",
     "SearchDefinitionsProductTypesErrorBody",
@@ -485,9 +510,9 @@ __all__ = [
     "UpdateShipmentSourceAddressErrorBody",
     "UpdateShipmentStatusErrorBody",
     "UpdateShipmentTrackingDetailsErrorBody",
+    "UpdateSupplySourceErrorBody",
     "UpdateVerificationStatusErrorBody",
     "acknowledge_order_error_mapper",
-    "authorize_error_mapper",
     "bulk_update_inventory_error_mapper",
     "cancel_feed_error_mapper",
     "cancel_fulfillment_order_error_mapper",
@@ -524,6 +549,7 @@ __all__ = [
     "create_report_schedule_error_mapper",
     "create_shipment_error_mapper",
     "create_subscription_error_mapper",
+    "create_supply_source_error_mapper",
     "create_token_error_mapper",
     "create_unexpected_problem_error_mapper",
     "create_upload_destination_for_resource_error_mapper",
@@ -546,6 +572,8 @@ __all__ = [
     "get_additional_inputs_error_mapper",
     "get_annual_statement_opts_error_mapper",
     "get_attributes_error_mapper",
+    "get_bill_of_lading_error_mapper",
+    "get_buybox_offer_expected_price_batch_error_mapper",
     "get_catalog_item_error_mapper",
     "get_competitive_pricing_error_mapper",
     "get_competitive_summary_error_mapper",
@@ -556,7 +584,6 @@ __all__ = [
     "get_document_error_mapper",
     "get_eligible_shipping_services_error_mapper",
     "get_faster_payout_eligibility_error_mapper",
-    "get_featured_offer_expected_price_batch_error_mapper",
     "get_feed_document_error_mapper",
     "get_feed_error_mapper",
     "get_feeds_error_mapper",
@@ -568,9 +595,11 @@ __all__ = [
     "get_inbound_plan_error_mapper",
     "get_inventory_for_sku_error_mapper",
     "get_inventory_summaries_error_mapper",
+    "get_item_eligibility_preview_error_mapper",
     "get_item_offers_batch_error_mapper",
     "get_item_offers_error_mapper",
     "get_label_error_mapper",
+    "get_labels_error_mapper",
     "get_listing_offers_batch_error_mapper",
     "get_listing_offers_error_mapper",
     "get_listings_item_error_mapper",
@@ -588,6 +617,7 @@ __all__ = [
     "get_order_regulated_info_error_mapper",
     "get_orders_error_mapper",
     "get_payment_status_error_mapper",
+    "get_prep_instructions_error_mapper",
     "get_pricing_error_mapper",
     "get_queries_error_mapper",
     "get_query_error_mapper",
@@ -602,9 +632,14 @@ __all__ = [
     "get_shipment_content_update_preview_error_mapper",
     "get_shipment_documents_error_mapper",
     "get_shipment_error_mapper",
+    "get_shipment_items_by_shipment_id_error_mapper",
+    "get_shipment_items_error_mapper",
+    "get_shipments_error_mapper",
     "get_solicitation_actions_for_order_error_mapper",
     "get_subscription_by_id_error_mapper",
     "get_subscription_error_mapper",
+    "get_supply_source_error_mapper",
+    "get_taxonomy_error_mapper",
     "get_tracking_error_mapper",
     "get_wfs_inventory_items_error_mapper",
     "initiate_faster_payout_error_mapper",
@@ -631,13 +666,13 @@ __all__ = [
     "list_shipment_content_update_previews_error_mapper",
     "list_shipment_items_error_mapper",
     "list_shipment_pallets_error_mapper",
+    "list_supply_sources_error_mapper",
     "list_transportation_options_error_mapper",
     "one_click_shipment_error_mapper",
     "patch_listings_item_error_mapper",
     "purchase_shipment_error_mapper",
     "put_listings_item_error_mapper",
     "refund_order_lines_error_mapper",
-    "register_client_error_mapper",
     "schedule_self_ship_appointment_error_mapper",
     "search_catalog_items_error_mapper",
     "search_definitions_product_types_error_mapper",
@@ -659,5 +694,6 @@ __all__ = [
     "update_shipment_source_address_error_mapper",
     "update_shipment_status_error_mapper",
     "update_shipment_tracking_details_error_mapper",
+    "update_supply_source_error_mapper",
     "update_verification_status_error_mapper",
 ]

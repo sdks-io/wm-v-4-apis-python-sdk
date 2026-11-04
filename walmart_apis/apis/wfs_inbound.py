@@ -68,6 +68,7 @@ from ..errors.generate_transportation_options_error import (
     GenerateTransportationOptionsErrorBody,
     generate_transportation_options_error_mapper,
 )
+from ..errors.get_bill_of_lading_error import GetBillOfLadingErrorBody, get_bill_of_lading_error_mapper
 from ..errors.get_delivery_challan_document_error import (
     GetDeliveryChallanDocumentErrorBody,
     get_delivery_challan_document_error_mapper,
@@ -77,6 +78,12 @@ from ..errors.get_inbound_operation_status_error import (
     get_inbound_operation_status_error_mapper,
 )
 from ..errors.get_inbound_plan_error import GetInboundPlanErrorBody, get_inbound_plan_error_mapper
+from ..errors.get_item_eligibility_preview_error import (
+    GetItemEligibilityPreviewErrorBody,
+    get_item_eligibility_preview_error_mapper,
+)
+from ..errors.get_labels_error import GetLabelsErrorBody, get_labels_error_mapper
+from ..errors.get_prep_instructions_error import GetPrepInstructionsErrorBody, get_prep_instructions_error_mapper
 from ..errors.get_self_ship_appointment_slots_error import (
     GetSelfShipAppointmentSlotsErrorBody,
     get_self_ship_appointment_slots_error_mapper,
@@ -86,6 +93,12 @@ from ..errors.get_shipment_content_update_preview_error import (
     get_shipment_content_update_preview_error_mapper,
 )
 from ..errors.get_shipment_error import GetShipmentErrorBody, get_shipment_error_mapper
+from ..errors.get_shipment_items_by_shipment_id_error import (
+    GetShipmentItemsByShipmentIdErrorBody,
+    get_shipment_items_by_shipment_id_error_mapper,
+)
+from ..errors.get_shipment_items_error import GetShipmentItemsErrorBody, get_shipment_items_error_mapper
+from ..errors.get_shipments_error import GetShipmentsErrorBody, get_shipments_error_mapper
 from ..errors.list_delivery_window_options_error import (
     ListDeliveryWindowOptionsErrorBody,
     list_delivery_window_options_error_mapper,
@@ -151,13 +164,19 @@ from ..models.cancel_self_ship_appointment_request import (
     CancelSelfShipAppointmentRequest,
     CancelSelfShipAppointmentRequestDict,
 )
+from ..models.cancel_self_ship_appointment_response import CancelSelfShipAppointmentResponse
 from ..models.common_content_update_preview import CommonContentUpdatePreview
 from ..models.common_inbound_operation_status import CommonInboundOperationStatus
 from ..models.common_shipment import CommonShipment
+from ..models.confirm_delivery_window_options_response import ConfirmDeliveryWindowOptionsResponse
+from ..models.confirm_packing_option_response import ConfirmPackingOptionResponse
+from ..models.confirm_placement_option_response import ConfirmPlacementOptionResponse
+from ..models.confirm_shipment_content_update_preview_response import ConfirmShipmentContentUpdatePreviewResponse
 from ..models.confirm_transportation_options_request import (
     ConfirmTransportationOptionsRequest,
     ConfirmTransportationOptionsRequestDict,
 )
+from ..models.confirm_transportation_options_response import ConfirmTransportationOptionsResponse
 from ..models.create_inbound_plan_request import CreateInboundPlanRequest, CreateInboundPlanRequestDict
 from ..models.create_inbound_plan_response import CreateInboundPlanResponse
 from ..models.create_marketplace_item_labels_request import (
@@ -165,24 +184,43 @@ from ..models.create_marketplace_item_labels_request import (
     CreateMarketplaceItemLabelsRequestDict,
 )
 from ..models.create_marketplace_item_labels_response import CreateMarketplaceItemLabelsResponse
+from ..models.enums.date_range_filter import DateRangeFilterOrStr
+from ..models.enums.label_type import LabelTypeOrStr
+from ..models.enums.page_type import PageTypeOrStr
+from ..models.enums.program1 import Program1OrStr
+from ..models.enums.shipment_status import ShipmentStatusOrStr
+from ..models.enums.shipments_query_type import ShipmentsQueryTypeOrStr
+from ..models.generate_delivery_window_options_response import GenerateDeliveryWindowOptionsResponse
+from ..models.generate_packing_options_response import GeneratePackingOptionsResponse
 from ..models.generate_placement_options_request import (
     GeneratePlacementOptionsRequest,
     GeneratePlacementOptionsRequestDict,
 )
+from ..models.generate_placement_options_response import GeneratePlacementOptionsResponse
 from ..models.generate_self_ship_appointment_slots_request import (
     GenerateSelfShipAppointmentSlotsRequest,
     GenerateSelfShipAppointmentSlotsRequestDict,
 )
+from ..models.generate_self_ship_appointment_slots_response import GenerateSelfShipAppointmentSlotsResponse
 from ..models.generate_shipment_content_update_previews_request import (
     GenerateShipmentContentUpdatePreviewsRequest,
     GenerateShipmentContentUpdatePreviewsRequestDict,
 )
+from ..models.generate_shipment_content_update_previews_response import GenerateShipmentContentUpdatePreviewsResponse
 from ..models.generate_transportation_options_request import (
     GenerateTransportationOptionsRequest,
     GenerateTransportationOptionsRequestDict,
 )
+from ..models.generate_transportation_options_response import GenerateTransportationOptionsResponse
+from ..models.get_bill_of_lading_response import GetBillOfLadingResponse
 from ..models.get_delivery_challan_document_response import GetDeliveryChallanDocumentResponse
+from ..models.get_item_eligibility_preview_response import GetItemEligibilityPreviewResponse
+from ..models.get_labels_response import GetLabelsResponse
+from ..models.get_prep_instructions_response import GetPrepInstructionsResponse
 from ..models.get_self_ship_appointment_slots_response import GetSelfShipAppointmentSlotsResponse
+from ..models.get_shipment_items_by_shipment_id_response import GetShipmentItemsByShipmentIdResponse
+from ..models.get_shipment_items_response import GetShipmentItemsResponse
+from ..models.get_shipments_response import GetShipmentsResponse
 from ..models.inbound_plan import InboundPlan
 from ..models.list_delivery_window_options_response import ListDeliveryWindowOptionsResponse
 from ..models.list_inbound_plan_boxes_response import ListInboundPlanBoxesResponse
@@ -190,10 +228,15 @@ from ..models.list_inbound_plan_items_response import ListInboundPlanItemsRespon
 from ..models.list_inbound_plan_pallets_response import ListInboundPlanPalletsResponse
 from ..models.list_inbound_plans_response import ListInboundPlansResponse
 from ..models.list_item_compliance_details_response import ListItemComplianceDetailsResponse
+from ..models.list_packing_group_boxes_response import ListPackingGroupBoxesResponse
+from ..models.list_packing_group_items_response import ListPackingGroupItemsResponse
 from ..models.list_packing_options_response import ListPackingOptionsResponse
 from ..models.list_placement_options_response import ListPlacementOptionsResponse
 from ..models.list_prep_details_response import ListPrepDetailsResponse
+from ..models.list_shipment_boxes_response import ListShipmentBoxesResponse
 from ..models.list_shipment_content_update_previews_response import ListShipmentContentUpdatePreviewsResponse
+from ..models.list_shipment_items_response import ListShipmentItemsResponse
+from ..models.list_shipment_pallets_response import ListShipmentPalletsResponse
 from ..models.list_transportation_options_response import ListTransportationOptionsResponse
 from ..models.schedule_self_ship_appointment_request import (
     ScheduleSelfShipAppointmentRequest,
@@ -201,21 +244,26 @@ from ..models.schedule_self_ship_appointment_request import (
 )
 from ..models.schedule_self_ship_appointment_response import ScheduleSelfShipAppointmentResponse
 from ..models.set_packing_information_request import SetPackingInformationRequest, SetPackingInformationRequestDict
+from ..models.set_packing_information_response import SetPackingInformationResponse
 from ..models.set_prep_details_request import SetPrepDetailsRequest, SetPrepDetailsRequestDict
+from ..models.set_prep_details_response import SetPrepDetailsResponse
 from ..models.update_inbound_plan_name_request import UpdateInboundPlanNameRequest, UpdateInboundPlanNameRequestDict
 from ..models.update_item_compliance_details_request import (
     UpdateItemComplianceDetailsRequest,
     UpdateItemComplianceDetailsRequestDict,
 )
+from ..models.update_item_compliance_details_response import UpdateItemComplianceDetailsResponse
 from ..models.update_shipment_name_request import UpdateShipmentNameRequest, UpdateShipmentNameRequestDict
 from ..models.update_shipment_source_address_request import (
     UpdateShipmentSourceAddressRequest,
     UpdateShipmentSourceAddressRequestDict,
 )
+from ..models.update_shipment_source_address_response import UpdateShipmentSourceAddressResponse
 from ..models.update_shipment_tracking_details_request import (
     UpdateShipmentTrackingDetailsRequest,
     UpdateShipmentTrackingDetailsRequestDict,
 )
+from ..models.update_shipment_tracking_details_response import UpdateShipmentTrackingDetailsResponse
 from ..server.server import Server
 
 
@@ -224,12 +272,12 @@ class WfsInbound:
         self._with_raw_response = WfsInboundWithRawResponse(client, server, auth)
 
     def cancel_inbound_plan(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> CancelInboundPlanResponse:
-        """Send a ``PUT`` request.
+        """Cancels an inbound plan when its current status allows cancellation.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -238,21 +286,21 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(self._with_raw_response.cancel_inbound_plan(inbound_plan_id, request_options=request_options))
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(self._with_raw_response.cancel_inbound_plan(plan_id, request_options=request_options))
 
     def cancel_self_ship_appointment(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: CancelSelfShipAppointmentRequest | CancelSelfShipAppointmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> CancelSelfShipAppointmentResponse:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -263,25 +311,25 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.cancel_self_ship_appointment(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
     def confirm_delivery_window_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         delivery_window_option_id: str,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> ConfirmDeliveryWindowOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to confirm the delivery window option for.
             delivery_window_option_id: The ID of the delivery window option to be confirmed.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -292,20 +340,20 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.confirm_delivery_window_options(
-                inbound_plan_id, shipment_id, delivery_window_option_id, request_options=request_options
+                plan_id, shipment_id, delivery_window_option_id, request_options=request_options
             ),
         )
 
     def confirm_packing_option(
-        self, inbound_plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelInboundPlanResponse:
+        self, plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ConfirmPackingOptionResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_option_id: Identifier of a packing option.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -315,20 +363,18 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            self._with_raw_response.confirm_packing_option(
-                inbound_plan_id, packing_option_id, request_options=request_options
-            ),
+            self._with_raw_response.confirm_packing_option(plan_id, packing_option_id, request_options=request_options)
         )
 
     def confirm_placement_option(
-        self, inbound_plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelInboundPlanResponse:
+        self, plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ConfirmPlacementOptionResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             placement_option_id: The identifier of a placement option.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -338,25 +384,25 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.confirm_placement_option(
-                inbound_plan_id, placement_option_id, request_options=request_options
+                plan_id, placement_option_id, request_options=request_options
             ),
         )
 
     def confirm_shipment_content_update_preview(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         content_update_preview_id: str,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> ConfirmShipmentContentUpdatePreviewResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             content_update_preview_id: Identifier of a content update preview.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -367,24 +413,24 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.confirm_shipment_content_update_preview(
-                inbound_plan_id, shipment_id, content_update_preview_id, request_options=request_options
+                plan_id, shipment_id, content_update_preview_id, request_options=request_options
             ),
         )
 
     def confirm_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: ConfirmTransportationOptionsRequest | ConfirmTransportationOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> ConfirmTransportationOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -394,11 +440,9 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            self._with_raw_response.confirm_transportation_options(
-                inbound_plan_id, body, request_options=request_options
-            ),
+            self._with_raw_response.confirm_transportation_options(plan_id, body, request_options=request_options)
         )
 
     def create_inbound_plan(
@@ -407,7 +451,7 @@ class WfsInbound:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CreateInboundPlanResponse:
-        """Send a ``POST`` request.
+        """Creates an inbound plan for items to be shipped to Walmart fulfillment centers.
 
         Args:
             body: The request body.
@@ -419,7 +463,7 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(self._with_raw_response.create_inbound_plan(body, request_options=request_options))
 
     def create_marketplace_item_labels(
@@ -440,17 +484,26 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(self._with_raw_response.create_marketplace_item_labels(body, request_options=request_options))
 
     def generate_delivery_window_options(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelInboundPlanResponse:
+        self,
+        plan_id: str,
+        shipment_id: str,
+        *,
+        scac: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GenerateDeliveryWindowOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to generate delivery window options for.
+            scac: Walmart extension (not in SP-API). Standard Carrier Alpha Code of the carrier delivering the shipment,
+                case preserved. Supplying it generates drop trailer windows; omitting it generates live unload windows.
+                The delivery type chosen here is kept when a generated window is confirmed. Carrier existence and drop
+                trailer eligibility are validated when the window is confirmed.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -459,20 +512,20 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.generate_delivery_window_options(
-                inbound_plan_id, shipment_id, request_options=request_options
+                plan_id, shipment_id, scac=scac, request_options=request_options
             ),
         )
 
     def generate_packing_options(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelInboundPlanResponse:
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> GeneratePackingOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -481,22 +534,20 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(
-            self._with_raw_response.generate_packing_options(inbound_plan_id, request_options=request_options)
-        )
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(self._with_raw_response.generate_packing_options(plan_id, request_options=request_options))
 
     def generate_placement_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: GeneratePlacementOptionsRequest | GeneratePlacementOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> GeneratePlacementOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -506,23 +557,23 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            self._with_raw_response.generate_placement_options(inbound_plan_id, body, request_options=request_options)
+            self._with_raw_response.generate_placement_options(plan_id, body, request_options=request_options)
         )
 
     def generate_self_ship_appointment_slots(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: GenerateSelfShipAppointmentSlotsRequest | GenerateSelfShipAppointmentSlotsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> GenerateSelfShipAppointmentSlotsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -533,25 +584,25 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.generate_self_ship_appointment_slots(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
     def generate_shipment_content_update_previews(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: GenerateShipmentContentUpdatePreviewsRequest | GenerateShipmentContentUpdatePreviewsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> GenerateShipmentContentUpdatePreviewsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -562,24 +613,24 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.generate_shipment_content_update_previews(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
     def generate_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: GenerateTransportationOptionsRequest | GenerateTransportationOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> GenerateTransportationOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -589,20 +640,17 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            self._with_raw_response.generate_transportation_options(
-                inbound_plan_id, body, request_options=request_options
-            ),
+            self._with_raw_response.generate_transportation_options(plan_id, body, request_options=request_options)
         )
 
-    def get_delivery_challan_document(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> GetDeliveryChallanDocumentResponse:
+    def get_bill_of_lading(
+        self, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> GetBillOfLadingResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -612,20 +660,37 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(self._with_raw_response.get_bill_of_lading(shipment_id, request_options=request_options))
+
+    def get_delivery_challan_document(
+        self, plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> GetDeliveryChallanDocumentResponse:
+        """Send a ``GET`` request.
+
+        Args:
+            plan_id: Identifier of an inbound plan.
+            shipment_id: Identifier of a shipment.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            self._with_raw_response.get_delivery_challan_document(
-                inbound_plan_id, shipment_id, request_options=request_options
-            ),
+            self._with_raw_response.get_delivery_challan_document(plan_id, shipment_id, request_options=request_options)
         )
 
     def get_inbound_operation_status(
         self, operation_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> CommonInboundOperationStatus:
-        """Send a ``GET`` request.
+        """Retrieves the status of an inbound plan operation, such as creating or canceling a plan.
 
         Args:
-            operation_id: Identifier of an asynchronous operation.
+            operation_id: Unique identifier for the operation.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -634,18 +699,16 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.get_inbound_operation_status(operation_id, request_options=request_options)
         )
 
-    def get_inbound_plan(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> InboundPlan:
-        """Send a ``GET`` request.
+    def get_inbound_plan(self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None) -> InboundPlan:
+        """Retrieves the details of an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -654,12 +717,117 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(self._with_raw_response.get_inbound_plan(inbound_plan_id, request_options=request_options))
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(self._with_raw_response.get_inbound_plan(plan_id, request_options=request_options))
+
+    def get_item_eligibility_preview(
+        self,
+        item_id: str,
+        program: Program1OrStr,
+        *,
+        marketplace_ids: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetItemEligibilityPreviewResponse:
+        """Checks whether an item is eligible for the specified program.
+
+        Args:
+            item_id: Walmart item identifier for which to retrieve an eligibility preview.
+            program: Program for which to evaluate item eligibility.
+            marketplace_ids: Marketplace identifier to use when determining item eligibility.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Eligibility preview resolved successfully.
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            self._with_raw_response.get_item_eligibility_preview(
+                item_id, program, marketplace_ids=marketplace_ids, request_options=request_options
+            ),
+        )
+
+    def get_labels(
+        self,
+        shipment_id: str,
+        page_type: PageTypeOrStr,
+        label_type: LabelTypeOrStr,
+        *,
+        page_size: int | None = None,
+        page_start_index: int | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetLabelsResponse:
+        """Returns package/pallet labels for faster and more accurate shipment processing at the Walmart fulfillment
+        center.
+
+        Args:
+            shipment_id: Identifier of a shipment.
+            page_type: The page size/format to use for label printing (upstream ``PageType``). Determines the physical
+                layout of the generated label file.
+            label_type: The type of label to retrieve (upstream ``LabelType``). ``UNIQUE`` is a carrier-assigned unique
+                shipping label (PARCEL shipments only); ``BARCODE_2D`` is a 2D barcode receiving/box label; ``PALLET``
+                is a pallet receiving label (non-PARCEL modes only).
+            page_size: The page size for paginating through the total packages' labels. Maximum 1000 (upstream
+                ``PageSize``, default 100).
+            page_start_index: The zero-based page start index for paginating through the total packages' labels
+                (upstream ``PageStartIndex``, default 0).
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            self._with_raw_response.get_labels(
+                shipment_id,
+                page_type,
+                label_type,
+                page_size=page_size,
+                page_start_index=page_start_index,
+                request_options=request_options,
+            ),
+        )
+
+    def get_prep_instructions(
+        self,
+        ship_to_country_code: str,
+        *,
+        seller_sku_list: list[str] | None = None,
+        asin_list: list[str] | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetPrepInstructionsResponse:
+        """Send a ``GET`` request.
+
+        Args:
+            ship_to_country_code: The two-letter country code of the destination the item(s) will ship to.
+            seller_sku_list: A list of seller SKUs to retrieve prep instructions for.
+            asin_list: A list of ASINs to retrieve prep instructions for.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            self._with_raw_response.get_prep_instructions(
+                ship_to_country_code,
+                seller_sku_list=seller_sku_list,
+                asin_list=asin_list,
+                request_options=request_options,
+            ),
+        )
 
     def get_self_ship_appointment_slots(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -669,7 +837,7 @@ class WfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of self ship appointment slots to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -681,10 +849,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.get_self_ship_appointment_slots(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -693,12 +861,12 @@ class WfsInbound:
         )
 
     def get_shipment(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> CommonShipment:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -708,14 +876,12 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(
-            self._with_raw_response.get_shipment(inbound_plan_id, shipment_id, request_options=request_options)
-        )
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(self._with_raw_response.get_shipment(plan_id, shipment_id, request_options=request_options))
 
     def get_shipment_content_update_preview(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         content_update_preview_id: str,
         *,
@@ -724,7 +890,7 @@ class WfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             content_update_preview_id: Identifier of a content update preview.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -735,16 +901,154 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.get_shipment_content_update_preview(
-                inbound_plan_id, shipment_id, content_update_preview_id, request_options=request_options
+                plan_id, shipment_id, content_update_preview_id, request_options=request_options
+            ),
+        )
+
+    def get_shipment_items(
+        self,
+        *,
+        date_range_filter: DateRangeFilterOrStr | None = None,
+        date_range_value: str | None = None,
+        page_size: int | None = 10,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetShipmentItemsResponse:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike
+            ``getShipmentItemsByShipmentId`` and ``listShipmentItems``, this op is NOT shipment- or plan-scoped -- it
+            searches item rows across ALL of a seller's shipments, date- filtered. Field naming deliberately uses the
+            Amazon SP-API-parity names ``sellerSku``/ ``fulfillmentNetworkSKU`` (per explicit mapping instructions)
+            rather than the ``msku``/``fnsku`` shorthand its shipment-/plan-scoped siblings settled on -- this is a
+            genuinely new v4 response shape with no naming precedent of its own to preserve.
+
+        Args:
+            date_range_filter: Which date field ``dateRangeValue`` filters on (upstream ``dateRangeFilter``).
+            date_range_value: ISO 8601 datetime paired with ``dateRangeFilter`` (upstream ``dateRangeValue``).
+            page_size: The number of items to return in the response matching the given query.
+            pagination_token: A token to fetch the next page of a previous ``getShipmentItems`` query. Pass the value of
+                ``pagination.nextToken`` from a previous response. Forwarded upstream as ``nextToken`` (already
+                lowerCamelCase on this op, unlike ``getShipments``' ``NextToken``).
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            self._with_raw_response.get_shipment_items(
+                date_range_filter=date_range_filter,
+                date_range_value=date_range_value,
+                page_size=page_size,
+                pagination_token=pagination_token,
+                request_options=request_options,
+            ),
+        )
+
+    def get_shipment_items_by_shipment_id(
+        self,
+        shipment_id: str,
+        *,
+        page_size: int | None = 10,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetShipmentItemsByShipmentIdResponse:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike
+            listShipmentItems, this op is NOT inboundPlan-scoped -- it reads a CONFIRMED shipment directly by shipmentId
+            (the upstream shipmentRefId / externalReferenceId), with no draft-lookup fallback.
+
+        Args:
+            shipment_id: Identifier of a confirmed shipment (shipmentRefId / externalReferenceId).
+            page_size: The number of items to return in the response matching the given query.
+            pagination_token: A token to fetch a certain page when there are multiple pages worth of results. Pass the
+                value of ``pagination.nextToken`` from a previous response to fetch the next page. Upstream Inbound
+                Order Workflow returns this cursor as ``NextToken`` in the response payload ; it is mapped through
+                unchanged into ``pagination.nextToken`` here -- the request-side parameter name stays
+                ``paginationToken`` for consistency with every other list operation in this API.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            self._with_raw_response.get_shipment_items_by_shipment_id(
+                shipment_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+            ),
+        )
+
+    def get_shipments(
+        self,
+        query_type: ShipmentsQueryTypeOrStr,
+        *,
+        shipment_id_list: list[str] | None = None,
+        shipment_status_list: list[ShipmentStatusOrStr] | None = None,
+        last_updated_after: str | None = None,
+        last_updated_before: str | None = None,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetShipmentsResponse:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike every shipment op
+            above, this is NOT plan- or shipment-scoped -- it searches across ALL of a seller's shipments. Behavior is
+            driven by ``queryType``:
+          - ``SHIPMENT``: requires exactly one of ``shipmentIdList`` or ``shipmentStatusList`` (never
+            both, never neither -- , tightened to match an upstream spec update).
+          - ``DATE_RANGE``: requires ``lastUpdatedAfter`` (``lastUpdatedBefore`` is optional);
+            ``shipmentStatusList`` may be supplied as an additional filter.
+          - ``NEXT_TOKEN``: requires ``paginationToken`` (the value returned in a previous response's
+            ``pagination.nextToken``) to fetch the next page of the SAME query; resend the original
+            ``shipmentIdList``/``shipmentStatusList``/``lastUpdatedAfter``/``lastUpdatedBefore`` filters,
+            since ``paginationToken`` only encodes the paging cursor, not the filters themselves.
+
+        Args:
+            query_type: Determines which combination of filters below is required (upstream ``QueryType``).
+            shipment_id_list: Shipment identifiers (external reference ids) to filter by. When ``queryType=SHIPMENT``,
+                exactly one of ``shipmentIdList``/``shipmentStatusList`` is required -- never both, never neither .
+                Maximum 999 entries (upstream ``ShipmentIdList``).
+            shipment_status_list: Shipment statuses to filter by (upstream ``ShipmentStatusList``; same vocabulary as
+                ``getShipment``'s free-string ``status`` field, minus ``UNCONFIRMED``, which upstream documents as never
+                applying to a confirmed shipment). When ``queryType=SHIPMENT``, exactly one of
+                ``shipmentIdList``/``shipmentStatusList`` is required -- never both, never neither ; for
+                ``queryType=DATE_RANGE`` it remains an optional additional filter.
+            last_updated_after: Only return shipments last updated at or after this date, ISO 8601 datetime. Required
+                when ``queryType=DATE_RANGE`` (upstream ``LastUpdatedAfter``).
+            last_updated_before: Only return shipments last updated at or before this date, ISO 8601 datetime. Optional
+                when ``queryType=DATE_RANGE``, defaults to now (upstream ``LastUpdatedBefore``).
+            pagination_token: A token to fetch the next page of a previous ``getShipments`` query. Pass the value of
+                ``pagination.nextToken`` from a previous response. Required when ``queryType=NEXT_TOKEN``. Forwarded
+                upstream as ``NextToken``.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            self._with_raw_response.get_shipments(
+                query_type,
+                shipment_id_list=shipment_id_list,
+                shipment_status_list=shipment_status_list,
+                last_updated_after=last_updated_after,
+                last_updated_before=last_updated_before,
+                pagination_token=pagination_token,
+                request_options=request_options,
             ),
         )
 
     def list_delivery_window_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -754,7 +1058,7 @@ class WfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to get delivery window options for.
             page_size: The number of delivery window options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -766,10 +1070,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_delivery_window_options(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -779,18 +1083,19 @@ class WfsInbound:
 
     def list_inbound_plan_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ListInboundPlanBoxesResponse:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of shipping boxes included in an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of boxes to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of boxes to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -799,27 +1104,28 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_inbound_plan_boxes(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
     def list_inbound_plan_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ListInboundPlanItemsResponse:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of items in an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of items to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of items to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -828,16 +1134,16 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_inbound_plan_items(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
     def list_inbound_plan_pallets(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -846,9 +1152,10 @@ class WfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of pallets to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of pallets to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -857,10 +1164,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_inbound_plan_pallets(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
@@ -874,14 +1181,17 @@ class WfsInbound:
         sort_order: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ListInboundPlansResponse:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of inbound plans. Filter by status, sort the results, and use ``paginationToken``
+        to retrieve subsequent pages.
 
         Args:
-            page_size: The number of inbound plans to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
-            status: The status of an inbound plan. Possible values: ``ACTIVE``, ``VOIDED``, ``SHIPPED``, ``ERRORED``.
-            sort_by: Sort by field.
-            sort_order: The sort order. Possible values: ``ASC``, ``DESC``.
+            page_size: Maximum number of inbound plans to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
+            status: Filters results by inbound plan status. Supported values are ``ACTIVE``, ``VOIDED``, ``SHIPPED``,
+                and ``ERRORED``.
+            sort_by: Field used to sort the returned inbound plans.
+            sort_order: Sort direction for the returned inbound plans. Supported values are ``ASC`` and ``DESC``.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -890,7 +1200,7 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_inbound_plans(
                 page_size=page_size,
@@ -919,24 +1229,24 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_item_compliance_details(mskus, marketplace_id, request_options=request_options)
         )
 
     def list_packing_group_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         packing_group_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanBoxesResponse:
+    ) -> ListPackingGroupBoxesResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_group_id: Identifier of a packing group.
             page_size: The number of packing group boxes to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -948,10 +1258,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_packing_group_boxes(
-                inbound_plan_id,
+                plan_id,
                 packing_group_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -961,17 +1271,17 @@ class WfsInbound:
 
     def list_packing_group_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         packing_group_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanItemsResponse:
+    ) -> ListPackingGroupItemsResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_group_id: Identifier of a packing group.
             page_size: The number of packing group items to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -983,10 +1293,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_packing_group_items(
-                inbound_plan_id,
+                plan_id,
                 packing_group_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -996,7 +1306,7 @@ class WfsInbound:
 
     def list_packing_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -1005,7 +1315,7 @@ class WfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of packing options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1016,16 +1326,16 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_packing_options(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
     def list_placement_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -1034,7 +1344,7 @@ class WfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of placement options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1045,10 +1355,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_placement_options(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
@@ -1069,22 +1379,22 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(self._with_raw_response.list_prep_details(marketplace_id, mskus, request_options=request_options))
 
     def list_shipment_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanBoxesResponse:
+    ) -> ListShipmentBoxesResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             page_size: The number of boxes to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -1096,10 +1406,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_shipment_boxes(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -1109,7 +1419,7 @@ class WfsInbound:
 
     def list_shipment_content_update_previews(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -1119,7 +1429,7 @@ class WfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of content update previews to return.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -1131,10 +1441,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_shipment_content_update_previews(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -1144,17 +1454,17 @@ class WfsInbound:
 
     def list_shipment_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanItemsResponse:
+    ) -> ListShipmentItemsResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             page_size: The number of items to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -1166,10 +1476,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_shipment_items(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -1179,17 +1489,17 @@ class WfsInbound:
 
     def list_shipment_pallets(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanPalletsResponse:
+    ) -> ListShipmentPalletsResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of pallets to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -1201,10 +1511,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_shipment_pallets(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -1214,7 +1524,7 @@ class WfsInbound:
 
     def list_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -1225,7 +1535,7 @@ class WfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of transportation options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             placement_option_id: The placement option to get transportation options for. Either ``placementOptionId`` or
@@ -1240,10 +1550,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.list_transportation_options(
-                inbound_plan_id,
+                plan_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
                 placement_option_id=placement_option_id,
@@ -1254,7 +1564,7 @@ class WfsInbound:
 
     def schedule_self_ship_appointment(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         slot_id: str,
         body: ScheduleSelfShipAppointmentRequest | ScheduleSelfShipAppointmentRequestDict,
@@ -1264,7 +1574,7 @@ class WfsInbound:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             slot_id: An identifier to a self-ship appointment slot.
             body: The request body.
@@ -1276,24 +1586,24 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.schedule_self_ship_appointment(
-                inbound_plan_id, shipment_id, slot_id, body, request_options=request_options
+                plan_id, shipment_id, slot_id, body, request_options=request_options
             ),
         )
 
     def set_packing_information(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: SetPackingInformationRequest | SetPackingInformationRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> SetPackingInformationResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1303,17 +1613,15 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(
-            self._with_raw_response.set_packing_information(inbound_plan_id, body, request_options=request_options)
-        )
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(self._with_raw_response.set_packing_information(plan_id, body, request_options=request_options))
 
     def set_prep_details(
         self,
         body: SetPrepDetailsRequest | SetPrepDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> SetPrepDetailsResponse:
         """Send a ``POST`` request.
 
         Args:
@@ -1326,20 +1634,20 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(self._with_raw_response.set_prep_details(body, request_options=request_options))
 
     def update_inbound_plan_name(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: UpdateInboundPlanNameRequest | UpdateInboundPlanNameRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> None:
-        """Send a ``PUT`` request.
+        """Updates the name of an existing inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1349,10 +1657,8 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(
-            self._with_raw_response.update_inbound_plan_name(inbound_plan_id, body, request_options=request_options)
-        )
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(self._with_raw_response.update_inbound_plan_name(plan_id, body, request_options=request_options))
 
     def update_item_compliance_details(
         self,
@@ -1360,7 +1666,7 @@ class WfsInbound:
         body: UpdateItemComplianceDetailsRequest | UpdateItemComplianceDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> UpdateItemComplianceDetailsResponse:
         """Send a ``PUT`` request.
 
         Args:
@@ -1375,7 +1681,7 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.update_item_compliance_details(
                 marketplace_id, body, request_options=request_options
@@ -1384,7 +1690,7 @@ class WfsInbound:
 
     def update_shipment_name(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentNameRequest | UpdateShipmentNameRequestDict,
         *,
@@ -1393,7 +1699,7 @@ class WfsInbound:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1404,25 +1710,23 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            self._with_raw_response.update_shipment_name(
-                inbound_plan_id, shipment_id, body, request_options=request_options
-            ),
+            self._with_raw_response.update_shipment_name(plan_id, shipment_id, body, request_options=request_options)
         )
 
     def update_shipment_source_address(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentSourceAddressRequest | UpdateShipmentSourceAddressRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> UpdateShipmentSourceAddressResponse:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1433,25 +1737,25 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.update_shipment_source_address(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
     def update_shipment_tracking_details(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentTrackingDetailsRequest | UpdateShipmentTrackingDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> UpdateShipmentTrackingDetailsResponse:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1462,10 +1766,10 @@ class WfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             self._with_raw_response.update_shipment_tracking_details(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
@@ -1479,12 +1783,12 @@ class AsyncWfsInbound:
         self._with_raw_response = AsyncWfsInboundWithRawResponse(client, server, auth)
 
     async def cancel_inbound_plan(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> CancelInboundPlanResponse:
-        """Send a ``PUT`` request.
+        """Cancels an inbound plan when its current status allows cancellation.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1493,23 +1797,21 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(
-            await self._with_raw_response.cancel_inbound_plan(inbound_plan_id, request_options=request_options)
-        )
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(await self._with_raw_response.cancel_inbound_plan(plan_id, request_options=request_options))
 
     async def cancel_self_ship_appointment(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: CancelSelfShipAppointmentRequest | CancelSelfShipAppointmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> CancelSelfShipAppointmentResponse:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1520,25 +1822,25 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.cancel_self_ship_appointment(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
     async def confirm_delivery_window_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         delivery_window_option_id: str,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> ConfirmDeliveryWindowOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to confirm the delivery window option for.
             delivery_window_option_id: The ID of the delivery window option to be confirmed.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1549,20 +1851,20 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.confirm_delivery_window_options(
-                inbound_plan_id, shipment_id, delivery_window_option_id, request_options=request_options
+                plan_id, shipment_id, delivery_window_option_id, request_options=request_options
             ),
         )
 
     async def confirm_packing_option(
-        self, inbound_plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelInboundPlanResponse:
+        self, plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ConfirmPackingOptionResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_option_id: Identifier of a packing option.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1572,20 +1874,20 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.confirm_packing_option(
-                inbound_plan_id, packing_option_id, request_options=request_options
+                plan_id, packing_option_id, request_options=request_options
             ),
         )
 
     async def confirm_placement_option(
-        self, inbound_plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelInboundPlanResponse:
+        self, plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ConfirmPlacementOptionResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             placement_option_id: The identifier of a placement option.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1595,25 +1897,25 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.confirm_placement_option(
-                inbound_plan_id, placement_option_id, request_options=request_options
+                plan_id, placement_option_id, request_options=request_options
             ),
         )
 
     async def confirm_shipment_content_update_preview(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         content_update_preview_id: str,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> ConfirmShipmentContentUpdatePreviewResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             content_update_preview_id: Identifier of a content update preview.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1624,24 +1926,24 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.confirm_shipment_content_update_preview(
-                inbound_plan_id, shipment_id, content_update_preview_id, request_options=request_options
+                plan_id, shipment_id, content_update_preview_id, request_options=request_options
             ),
         )
 
     async def confirm_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: ConfirmTransportationOptionsRequest | ConfirmTransportationOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> ConfirmTransportationOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1651,11 +1953,9 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            await self._with_raw_response.confirm_transportation_options(
-                inbound_plan_id, body, request_options=request_options
-            ),
+            await self._with_raw_response.confirm_transportation_options(plan_id, body, request_options=request_options)
         )
 
     async def create_inbound_plan(
@@ -1664,7 +1964,7 @@ class AsyncWfsInbound:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CreateInboundPlanResponse:
-        """Send a ``POST`` request.
+        """Creates an inbound plan for items to be shipped to Walmart fulfillment centers.
 
         Args:
             body: The request body.
@@ -1676,7 +1976,7 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(await self._with_raw_response.create_inbound_plan(body, request_options=request_options))
 
     async def create_marketplace_item_labels(
@@ -1697,19 +1997,28 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.create_marketplace_item_labels(body, request_options=request_options)
         )
 
     async def generate_delivery_window_options(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelInboundPlanResponse:
+        self,
+        plan_id: str,
+        shipment_id: str,
+        *,
+        scac: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GenerateDeliveryWindowOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to generate delivery window options for.
+            scac: Walmart extension (not in SP-API). Standard Carrier Alpha Code of the carrier delivering the shipment,
+                case preserved. Supplying it generates drop trailer windows; omitting it generates live unload windows.
+                The delivery type chosen here is kept when a generated window is confirmed. Carrier existence and drop
+                trailer eligibility are validated when the window is confirmed.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1718,20 +2027,20 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.generate_delivery_window_options(
-                inbound_plan_id, shipment_id, request_options=request_options
+                plan_id, shipment_id, scac=scac, request_options=request_options
             ),
         )
 
     async def generate_packing_options(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelInboundPlanResponse:
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> GeneratePackingOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1740,22 +2049,20 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(
-            await self._with_raw_response.generate_packing_options(inbound_plan_id, request_options=request_options)
-        )
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(await self._with_raw_response.generate_packing_options(plan_id, request_options=request_options))
 
     async def generate_placement_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: GeneratePlacementOptionsRequest | GeneratePlacementOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> GeneratePlacementOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1765,25 +2072,23 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            await self._with_raw_response.generate_placement_options(
-                inbound_plan_id, body, request_options=request_options
-            ),
+            await self._with_raw_response.generate_placement_options(plan_id, body, request_options=request_options)
         )
 
     async def generate_self_ship_appointment_slots(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: GenerateSelfShipAppointmentSlotsRequest | GenerateSelfShipAppointmentSlotsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> GenerateSelfShipAppointmentSlotsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1794,25 +2099,25 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.generate_self_ship_appointment_slots(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
     async def generate_shipment_content_update_previews(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: GenerateShipmentContentUpdatePreviewsRequest | GenerateShipmentContentUpdatePreviewsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> GenerateShipmentContentUpdatePreviewsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1823,24 +2128,24 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.generate_shipment_content_update_previews(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
     async def generate_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: GenerateTransportationOptionsRequest | GenerateTransportationOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> GenerateTransportationOptionsResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1850,20 +2155,19 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.generate_transportation_options(
-                inbound_plan_id, body, request_options=request_options
+                plan_id, body, request_options=request_options
             ),
         )
 
-    async def get_delivery_challan_document(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> GetDeliveryChallanDocumentResponse:
+    async def get_bill_of_lading(
+        self, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> GetBillOfLadingResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1873,20 +2177,39 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(await self._with_raw_response.get_bill_of_lading(shipment_id, request_options=request_options))
+
+    async def get_delivery_challan_document(
+        self, plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> GetDeliveryChallanDocumentResponse:
+        """Send a ``GET`` request.
+
+        Args:
+            plan_id: Identifier of an inbound plan.
+            shipment_id: Identifier of a shipment.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.get_delivery_challan_document(
-                inbound_plan_id, shipment_id, request_options=request_options
+                plan_id, shipment_id, request_options=request_options
             ),
         )
 
     async def get_inbound_operation_status(
         self, operation_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> CommonInboundOperationStatus:
-        """Send a ``GET`` request.
+        """Retrieves the status of an inbound plan operation, such as creating or canceling a plan.
 
         Args:
-            operation_id: Identifier of an asynchronous operation.
+            operation_id: Unique identifier for the operation.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1895,18 +2218,18 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.get_inbound_operation_status(operation_id, request_options=request_options)
         )
 
     async def get_inbound_plan(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> InboundPlan:
-        """Send a ``GET`` request.
+        """Retrieves the details of an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1915,12 +2238,117 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(await self._with_raw_response.get_inbound_plan(inbound_plan_id, request_options=request_options))
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(await self._with_raw_response.get_inbound_plan(plan_id, request_options=request_options))
+
+    async def get_item_eligibility_preview(
+        self,
+        item_id: str,
+        program: Program1OrStr,
+        *,
+        marketplace_ids: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetItemEligibilityPreviewResponse:
+        """Checks whether an item is eligible for the specified program.
+
+        Args:
+            item_id: Walmart item identifier for which to retrieve an eligibility preview.
+            program: Program for which to evaluate item eligibility.
+            marketplace_ids: Marketplace identifier to use when determining item eligibility.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Eligibility preview resolved successfully.
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            await self._with_raw_response.get_item_eligibility_preview(
+                item_id, program, marketplace_ids=marketplace_ids, request_options=request_options
+            ),
+        )
+
+    async def get_labels(
+        self,
+        shipment_id: str,
+        page_type: PageTypeOrStr,
+        label_type: LabelTypeOrStr,
+        *,
+        page_size: int | None = None,
+        page_start_index: int | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetLabelsResponse:
+        """Returns package/pallet labels for faster and more accurate shipment processing at the Walmart fulfillment
+        center.
+
+        Args:
+            shipment_id: Identifier of a shipment.
+            page_type: The page size/format to use for label printing (upstream ``PageType``). Determines the physical
+                layout of the generated label file.
+            label_type: The type of label to retrieve (upstream ``LabelType``). ``UNIQUE`` is a carrier-assigned unique
+                shipping label (PARCEL shipments only); ``BARCODE_2D`` is a 2D barcode receiving/box label; ``PALLET``
+                is a pallet receiving label (non-PARCEL modes only).
+            page_size: The page size for paginating through the total packages' labels. Maximum 1000 (upstream
+                ``PageSize``, default 100).
+            page_start_index: The zero-based page start index for paginating through the total packages' labels
+                (upstream ``PageStartIndex``, default 0).
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            await self._with_raw_response.get_labels(
+                shipment_id,
+                page_type,
+                label_type,
+                page_size=page_size,
+                page_start_index=page_start_index,
+                request_options=request_options,
+            ),
+        )
+
+    async def get_prep_instructions(
+        self,
+        ship_to_country_code: str,
+        *,
+        seller_sku_list: list[str] | None = None,
+        asin_list: list[str] | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetPrepInstructionsResponse:
+        """Send a ``GET`` request.
+
+        Args:
+            ship_to_country_code: The two-letter country code of the destination the item(s) will ship to.
+            seller_sku_list: A list of seller SKUs to retrieve prep instructions for.
+            asin_list: A list of ASINs to retrieve prep instructions for.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            await self._with_raw_response.get_prep_instructions(
+                ship_to_country_code,
+                seller_sku_list=seller_sku_list,
+                asin_list=asin_list,
+                request_options=request_options,
+            ),
+        )
 
     async def get_self_ship_appointment_slots(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -1930,7 +2358,7 @@ class AsyncWfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of self ship appointment slots to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -1942,10 +2370,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.get_self_ship_appointment_slots(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -1954,12 +2382,12 @@ class AsyncWfsInbound:
         )
 
     async def get_shipment(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> CommonShipment:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1969,14 +2397,12 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
-        return unwrap(
-            await self._with_raw_response.get_shipment(inbound_plan_id, shipment_id, request_options=request_options)
-        )
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(await self._with_raw_response.get_shipment(plan_id, shipment_id, request_options=request_options))
 
     async def get_shipment_content_update_preview(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         content_update_preview_id: str,
         *,
@@ -1985,7 +2411,7 @@ class AsyncWfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             content_update_preview_id: Identifier of a content update preview.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -1996,16 +2422,154 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.get_shipment_content_update_preview(
-                inbound_plan_id, shipment_id, content_update_preview_id, request_options=request_options
+                plan_id, shipment_id, content_update_preview_id, request_options=request_options
+            ),
+        )
+
+    async def get_shipment_items(
+        self,
+        *,
+        date_range_filter: DateRangeFilterOrStr | None = None,
+        date_range_value: str | None = None,
+        page_size: int | None = 10,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetShipmentItemsResponse:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike
+            ``getShipmentItemsByShipmentId`` and ``listShipmentItems``, this op is NOT shipment- or plan-scoped -- it
+            searches item rows across ALL of a seller's shipments, date- filtered. Field naming deliberately uses the
+            Amazon SP-API-parity names ``sellerSku``/ ``fulfillmentNetworkSKU`` (per explicit mapping instructions)
+            rather than the ``msku``/``fnsku`` shorthand its shipment-/plan-scoped siblings settled on -- this is a
+            genuinely new v4 response shape with no naming precedent of its own to preserve.
+
+        Args:
+            date_range_filter: Which date field ``dateRangeValue`` filters on (upstream ``dateRangeFilter``).
+            date_range_value: ISO 8601 datetime paired with ``dateRangeFilter`` (upstream ``dateRangeValue``).
+            page_size: The number of items to return in the response matching the given query.
+            pagination_token: A token to fetch the next page of a previous ``getShipmentItems`` query. Pass the value of
+                ``pagination.nextToken`` from a previous response. Forwarded upstream as ``nextToken`` (already
+                lowerCamelCase on this op, unlike ``getShipments``' ``NextToken``).
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            await self._with_raw_response.get_shipment_items(
+                date_range_filter=date_range_filter,
+                date_range_value=date_range_value,
+                page_size=page_size,
+                pagination_token=pagination_token,
+                request_options=request_options,
+            ),
+        )
+
+    async def get_shipment_items_by_shipment_id(
+        self,
+        shipment_id: str,
+        *,
+        page_size: int | None = 10,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetShipmentItemsByShipmentIdResponse:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike
+            listShipmentItems, this op is NOT inboundPlan-scoped -- it reads a CONFIRMED shipment directly by shipmentId
+            (the upstream shipmentRefId / externalReferenceId), with no draft-lookup fallback.
+
+        Args:
+            shipment_id: Identifier of a confirmed shipment (shipmentRefId / externalReferenceId).
+            page_size: The number of items to return in the response matching the given query.
+            pagination_token: A token to fetch a certain page when there are multiple pages worth of results. Pass the
+                value of ``pagination.nextToken`` from a previous response to fetch the next page. Upstream Inbound
+                Order Workflow returns this cursor as ``NextToken`` in the response payload ; it is mapped through
+                unchanged into ``pagination.nextToken`` here -- the request-side parameter name stays
+                ``paginationToken`` for consistency with every other list operation in this API.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            await self._with_raw_response.get_shipment_items_by_shipment_id(
+                shipment_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+            ),
+        )
+
+    async def get_shipments(
+        self,
+        query_type: ShipmentsQueryTypeOrStr,
+        *,
+        shipment_id_list: list[str] | None = None,
+        shipment_status_list: list[ShipmentStatusOrStr] | None = None,
+        last_updated_after: str | None = None,
+        last_updated_before: str | None = None,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> GetShipmentsResponse:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike every shipment op
+            above, this is NOT plan- or shipment-scoped -- it searches across ALL of a seller's shipments. Behavior is
+            driven by ``queryType``:
+          - ``SHIPMENT``: requires exactly one of ``shipmentIdList`` or ``shipmentStatusList`` (never
+            both, never neither -- , tightened to match an upstream spec update).
+          - ``DATE_RANGE``: requires ``lastUpdatedAfter`` (``lastUpdatedBefore`` is optional);
+            ``shipmentStatusList`` may be supplied as an additional filter.
+          - ``NEXT_TOKEN``: requires ``paginationToken`` (the value returned in a previous response's
+            ``pagination.nextToken``) to fetch the next page of the SAME query; resend the original
+            ``shipmentIdList``/``shipmentStatusList``/``lastUpdatedAfter``/``lastUpdatedBefore`` filters,
+            since ``paginationToken`` only encodes the paging cursor, not the filters themselves.
+
+        Args:
+            query_type: Determines which combination of filters below is required (upstream ``QueryType``).
+            shipment_id_list: Shipment identifiers (external reference ids) to filter by. When ``queryType=SHIPMENT``,
+                exactly one of ``shipmentIdList``/``shipmentStatusList`` is required -- never both, never neither .
+                Maximum 999 entries (upstream ``ShipmentIdList``).
+            shipment_status_list: Shipment statuses to filter by (upstream ``ShipmentStatusList``; same vocabulary as
+                ``getShipment``'s free-string ``status`` field, minus ``UNCONFIRMED``, which upstream documents as never
+                applying to a confirmed shipment). When ``queryType=SHIPMENT``, exactly one of
+                ``shipmentIdList``/``shipmentStatusList`` is required -- never both, never neither ; for
+                ``queryType=DATE_RANGE`` it remains an optional additional filter.
+            last_updated_after: Only return shipments last updated at or after this date, ISO 8601 datetime. Required
+                when ``queryType=DATE_RANGE`` (upstream ``LastUpdatedAfter``).
+            last_updated_before: Only return shipments last updated at or before this date, ISO 8601 datetime. Optional
+                when ``queryType=DATE_RANGE``, defaults to now (upstream ``LastUpdatedBefore``).
+            pagination_token: A token to fetch the next page of a previous ``getShipments`` query. Pass the value of
+                ``pagination.nextToken`` from a previous response. Required when ``queryType=NEXT_TOKEN``. Forwarded
+                upstream as ``NextToken``.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Success
+
+        Raises:
+            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
+        return unwrap(
+            await self._with_raw_response.get_shipments(
+                query_type,
+                shipment_id_list=shipment_id_list,
+                shipment_status_list=shipment_status_list,
+                last_updated_after=last_updated_after,
+                last_updated_before=last_updated_before,
+                pagination_token=pagination_token,
+                request_options=request_options,
             ),
         )
 
     async def list_delivery_window_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -2015,7 +2579,7 @@ class AsyncWfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to get delivery window options for.
             page_size: The number of delivery window options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -2027,10 +2591,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_delivery_window_options(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -2040,18 +2604,19 @@ class AsyncWfsInbound:
 
     async def list_inbound_plan_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ListInboundPlanBoxesResponse:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of shipping boxes included in an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of boxes to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of boxes to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -2060,27 +2625,28 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_inbound_plan_boxes(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
     async def list_inbound_plan_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ListInboundPlanItemsResponse:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of items in an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of items to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of items to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -2089,16 +2655,16 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_inbound_plan_items(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
     async def list_inbound_plan_pallets(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -2107,9 +2673,10 @@ class AsyncWfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of pallets to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of pallets to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -2118,10 +2685,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_inbound_plan_pallets(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
@@ -2135,14 +2702,17 @@ class AsyncWfsInbound:
         sort_order: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ListInboundPlansResponse:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of inbound plans. Filter by status, sort the results, and use ``paginationToken``
+        to retrieve subsequent pages.
 
         Args:
-            page_size: The number of inbound plans to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
-            status: The status of an inbound plan. Possible values: ``ACTIVE``, ``VOIDED``, ``SHIPPED``, ``ERRORED``.
-            sort_by: Sort by field.
-            sort_order: The sort order. Possible values: ``ASC``, ``DESC``.
+            page_size: Maximum number of inbound plans to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
+            status: Filters results by inbound plan status. Supported values are ``ACTIVE``, ``VOIDED``, ``SHIPPED``,
+                and ``ERRORED``.
+            sort_by: Field used to sort the returned inbound plans.
+            sort_order: Sort direction for the returned inbound plans. Supported values are ``ASC`` and ``DESC``.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -2151,7 +2721,7 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_inbound_plans(
                 page_size=page_size,
@@ -2180,7 +2750,7 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_item_compliance_details(
                 mskus, marketplace_id, request_options=request_options
@@ -2189,17 +2759,17 @@ class AsyncWfsInbound:
 
     async def list_packing_group_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         packing_group_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanBoxesResponse:
+    ) -> ListPackingGroupBoxesResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_group_id: Identifier of a packing group.
             page_size: The number of packing group boxes to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -2211,10 +2781,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_packing_group_boxes(
-                inbound_plan_id,
+                plan_id,
                 packing_group_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -2224,17 +2794,17 @@ class AsyncWfsInbound:
 
     async def list_packing_group_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         packing_group_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanItemsResponse:
+    ) -> ListPackingGroupItemsResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_group_id: Identifier of a packing group.
             page_size: The number of packing group items to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -2246,10 +2816,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_packing_group_items(
-                inbound_plan_id,
+                plan_id,
                 packing_group_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -2259,7 +2829,7 @@ class AsyncWfsInbound:
 
     async def list_packing_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -2268,7 +2838,7 @@ class AsyncWfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of packing options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -2279,16 +2849,16 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_packing_options(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
     async def list_placement_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -2297,7 +2867,7 @@ class AsyncWfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of placement options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -2308,10 +2878,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_placement_options(
-                inbound_plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
+                plan_id, page_size=page_size, pagination_token=pagination_token, request_options=request_options
             ),
         )
 
@@ -2332,24 +2902,24 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_prep_details(marketplace_id, mskus, request_options=request_options)
         )
 
     async def list_shipment_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanBoxesResponse:
+    ) -> ListShipmentBoxesResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             page_size: The number of boxes to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -2361,10 +2931,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_shipment_boxes(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -2374,7 +2944,7 @@ class AsyncWfsInbound:
 
     async def list_shipment_content_update_previews(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -2384,7 +2954,7 @@ class AsyncWfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of content update previews to return.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -2396,10 +2966,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_shipment_content_update_previews(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -2409,17 +2979,17 @@ class AsyncWfsInbound:
 
     async def list_shipment_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanItemsResponse:
+    ) -> ListShipmentItemsResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             page_size: The number of items to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -2431,10 +3001,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_shipment_items(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -2444,17 +3014,17 @@ class AsyncWfsInbound:
 
     async def list_shipment_pallets(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ListInboundPlanPalletsResponse:
+    ) -> ListShipmentPalletsResponse:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of pallets to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -2466,10 +3036,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_shipment_pallets(
-                inbound_plan_id,
+                plan_id,
                 shipment_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
@@ -2479,7 +3049,7 @@ class AsyncWfsInbound:
 
     async def list_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -2490,7 +3060,7 @@ class AsyncWfsInbound:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of transportation options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             placement_option_id: The placement option to get transportation options for. Either ``placementOptionId`` or
@@ -2505,10 +3075,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.list_transportation_options(
-                inbound_plan_id,
+                plan_id,
                 page_size=page_size,
                 pagination_token=pagination_token,
                 placement_option_id=placement_option_id,
@@ -2519,7 +3089,7 @@ class AsyncWfsInbound:
 
     async def schedule_self_ship_appointment(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         slot_id: str,
         body: ScheduleSelfShipAppointmentRequest | ScheduleSelfShipAppointmentRequestDict,
@@ -2529,7 +3099,7 @@ class AsyncWfsInbound:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             slot_id: An identifier to a self-ship appointment slot.
             body: The request body.
@@ -2541,24 +3111,24 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.schedule_self_ship_appointment(
-                inbound_plan_id, shipment_id, slot_id, body, request_options=request_options
+                plan_id, shipment_id, slot_id, body, request_options=request_options
             ),
         )
 
     async def set_packing_information(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: SetPackingInformationRequest | SetPackingInformationRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> SetPackingInformationResponse:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -2568,11 +3138,9 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            await self._with_raw_response.set_packing_information(
-                inbound_plan_id, body, request_options=request_options
-            ),
+            await self._with_raw_response.set_packing_information(plan_id, body, request_options=request_options)
         )
 
     async def set_prep_details(
@@ -2580,7 +3148,7 @@ class AsyncWfsInbound:
         body: SetPrepDetailsRequest | SetPrepDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> SetPrepDetailsResponse:
         """Send a ``POST`` request.
 
         Args:
@@ -2593,20 +3161,20 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(await self._with_raw_response.set_prep_details(body, request_options=request_options))
 
     async def update_inbound_plan_name(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: UpdateInboundPlanNameRequest | UpdateInboundPlanNameRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> None:
-        """Send a ``PUT`` request.
+        """Updates the name of an existing inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -2616,11 +3184,9 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
-            await self._with_raw_response.update_inbound_plan_name(
-                inbound_plan_id, body, request_options=request_options
-            ),
+            await self._with_raw_response.update_inbound_plan_name(plan_id, body, request_options=request_options)
         )
 
     async def update_item_compliance_details(
@@ -2629,7 +3195,7 @@ class AsyncWfsInbound:
         body: UpdateItemComplianceDetailsRequest | UpdateItemComplianceDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> UpdateItemComplianceDetailsResponse:
         """Send a ``PUT`` request.
 
         Args:
@@ -2644,7 +3210,7 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.update_item_compliance_details(
                 marketplace_id, body, request_options=request_options
@@ -2653,7 +3219,7 @@ class AsyncWfsInbound:
 
     async def update_shipment_name(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentNameRequest | UpdateShipmentNameRequestDict,
         *,
@@ -2662,7 +3228,7 @@ class AsyncWfsInbound:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -2673,25 +3239,25 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.update_shipment_name(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
     async def update_shipment_source_address(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentSourceAddressRequest | UpdateShipmentSourceAddressRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> UpdateShipmentSourceAddressResponse:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -2702,25 +3268,25 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.update_shipment_source_address(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
     async def update_shipment_tracking_details(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentTrackingDetailsRequest | UpdateShipmentTrackingDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> CancelInboundPlanResponse:
+    ) -> UpdateShipmentTrackingDetailsResponse:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -2731,10 +3297,10 @@ class AsyncWfsInbound:
 
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``CommonErrorList | RawError``."""
+                ``CommonErrorListFulfillmentInboundPlans | RawError``."""
         return unwrap(
             await self._with_raw_response.update_shipment_tracking_details(
-                inbound_plan_id, shipment_id, body, request_options=request_options
+                plan_id, shipment_id, body, request_options=request_options
             ),
         )
 
@@ -2745,12 +3311,12 @@ class AsyncWfsInbound:
 
 class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
     def cancel_inbound_plan(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CancelInboundPlanResponse, CancelInboundPlanErrorBody]:
-        """Send a ``PUT`` request.
+        """Cancels an inbound plan when its current status allows cancellation.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -2758,8 +3324,8 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/cancellation"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/cancel"),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[CancelInboundPlanResponse],
@@ -2769,16 +3335,16 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def cancel_self_ship_appointment(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: CancelSelfShipAppointmentRequest | CancelSelfShipAppointmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, CancelSelfShipAppointmentErrorBody]:
+    ) -> ApiResult[CancelSelfShipAppointmentResponse, CancelSelfShipAppointmentErrorBody]:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -2788,30 +3354,30 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/selfShipAppointmentCancellation"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/self-ship-appointment-cancel"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CancelSelfShipAppointmentRequest | CancelSelfShipAppointmentRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[CancelSelfShipAppointmentResponse],
             error_mapper=cancel_self_ship_appointment_error_mapper,
             request_options=request_options,
         )
 
     def confirm_delivery_window_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         delivery_window_option_id: str,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmDeliveryWindowOptionsErrorBody]:
+    ) -> ApiResult[ConfirmDeliveryWindowOptionsResponse, ConfirmDeliveryWindowOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to confirm the delivery window option for.
             delivery_window_option_id: The ID of the delivery window option to be confirmed.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -2821,28 +3387,28 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/deliveryWindowOptions/{deliveryWindowOptionId}/confirmation",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/delivery-window-options/{delivery-window-option-id}/confirm",
             ),
             path_params=[
-                param[str]("inboundPlanId", inbound_plan_id),
-                param[str]("shipmentId", shipment_id),
-                param[str]("deliveryWindowOptionId", delivery_window_option_id),
+                param[str]("plan-id", plan_id),
+                param[str]("shipment-id", shipment_id),
+                param[str]("delivery-window-option-id", delivery_window_option_id),
             ],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[ConfirmDeliveryWindowOptionsResponse],
             error_mapper=confirm_delivery_window_options_error_mapper,
             request_options=request_options,
         )
 
     def confirm_packing_option(
-        self, inbound_plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmPackingOptionErrorBody]:
+        self, plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[ConfirmPackingOptionResponse, ConfirmPackingOptionErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_option_id: Identifier of a packing option.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -2851,26 +3417,24 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingOptions/{packingOptionId}/confirmation"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/packing-options/{packing-option-id}/confirm"
             ),
-            path_params=[
-                param[str]("inboundPlanId", inbound_plan_id), param[str]("packingOptionId", packing_option_id)
-            ],
+            path_params=[param[str]("plan-id", plan_id), param[str]("packing-option-id", packing_option_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[ConfirmPackingOptionResponse],
             error_mapper=confirm_packing_option_error_mapper,
             request_options=request_options,
         )
 
     def confirm_placement_option(
-        self, inbound_plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmPlacementOptionErrorBody]:
+        self, plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[ConfirmPlacementOptionResponse, ConfirmPlacementOptionErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             placement_option_id: The identifier of a placement option.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -2879,31 +3443,29 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/placementOptions/{placementOptionId}/confirmation"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/placement-options/{placement-option-id}/confirm"
             ),
-            path_params=[
-                param[str]("inboundPlanId", inbound_plan_id), param[str]("placementOptionId", placement_option_id)
-            ],
+            path_params=[param[str]("plan-id", plan_id), param[str]("placement-option-id", placement_option_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[ConfirmPlacementOptionResponse],
             error_mapper=confirm_placement_option_error_mapper,
             request_options=request_options,
         )
 
     def confirm_shipment_content_update_preview(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         content_update_preview_id: str,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmShipmentContentUpdatePreviewErrorBody]:
+    ) -> ApiResult[ConfirmShipmentContentUpdatePreviewResponse, ConfirmShipmentContentUpdatePreviewErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             content_update_preview_id: Identifier of a content update preview.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -2913,32 +3475,32 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/contentUpdatePreviews/{contentUpdatePreviewId}/confirmation",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/content-update-previews/{content-update-preview-id}/confirm",
             ),
             path_params=[
-                param[str]("inboundPlanId", inbound_plan_id),
-                param[str]("shipmentId", shipment_id),
-                param[str]("contentUpdatePreviewId", content_update_preview_id),
+                param[str]("plan-id", plan_id),
+                param[str]("shipment-id", shipment_id),
+                param[str]("content-update-preview-id", content_update_preview_id),
             ],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[ConfirmShipmentContentUpdatePreviewResponse],
             error_mapper=confirm_shipment_content_update_preview_error_mapper,
             request_options=request_options,
         )
 
     def confirm_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: ConfirmTransportationOptionsRequest | ConfirmTransportationOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmTransportationOptionsErrorBody]:
+    ) -> ApiResult[ConfirmTransportationOptionsResponse, ConfirmTransportationOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -2947,14 +3509,14 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/transportationOptions/confirmation"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/transportation-options/confirm"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[ConfirmTransportationOptionsRequest | ConfirmTransportationOptionsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[ConfirmTransportationOptionsResponse],
             error_mapper=confirm_transportation_options_error_mapper,
             request_options=request_options,
         )
@@ -2965,7 +3527,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CreateInboundPlanResponse, CreateInboundPlanErrorBody]:
-        """Send a ``POST`` request.
+        """Creates an inbound plan for items to be shipped to Walmart fulfillment centers.
 
         Args:
             body: The request body.
@@ -2976,7 +3538,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateInboundPlanRequest | CreateInboundPlanRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -3002,7 +3564,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/items/labels"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/labels"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateMarketplaceItemLabelsRequest | CreateMarketplaceItemLabelsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -3012,13 +3574,22 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         )
 
     def generate_delivery_window_options(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelInboundPlanResponse, GenerateDeliveryWindowOptionsErrorBody]:
+        self,
+        plan_id: str,
+        shipment_id: str,
+        *,
+        scac: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GenerateDeliveryWindowOptionsResponse, GenerateDeliveryWindowOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to generate delivery window options for.
+            scac: Walmart extension (not in SP-API). Standard Carrier Alpha Code of the carrier delivering the shipment,
+                case preserved. Supplying it generates drop trailer windows; omitting it generates live unload windows.
+                The delivery type chosen here is kept when a generated window is confirmed. Carrier existence and drop
+                trailer eligibility are validated when the window is confirmed.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -3026,24 +3597,25 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/deliveryWindowOptions"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/delivery-window-options"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
+            query_params=[param[str | None]("scac", scac)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[GenerateDeliveryWindowOptionsResponse],
             error_mapper=generate_delivery_window_options_error_mapper,
             request_options=request_options,
         )
 
     def generate_packing_options(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelInboundPlanResponse, GeneratePackingOptionsErrorBody]:
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[GeneratePackingOptionsResponse, GeneratePackingOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -3051,26 +3623,26 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/packing-options"),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[GeneratePackingOptionsResponse],
             error_mapper=generate_packing_options_error_mapper,
             request_options=request_options,
         )
 
     def generate_placement_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: GeneratePlacementOptionsRequest | GeneratePlacementOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, GeneratePlacementOptionsErrorBody]:
+    ) -> ApiResult[GeneratePlacementOptionsResponse, GeneratePlacementOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -3079,28 +3651,30 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/placementOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/placement-options"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GeneratePlacementOptionsRequest | GeneratePlacementOptionsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[GeneratePlacementOptionsResponse],
             error_mapper=generate_placement_options_error_mapper,
             request_options=request_options,
         )
 
     def generate_self_ship_appointment_slots(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: GenerateSelfShipAppointmentSlotsRequest | GenerateSelfShipAppointmentSlotsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, GenerateSelfShipAppointmentSlotsErrorBody]:
+    ) -> ApiResult[GenerateSelfShipAppointmentSlotsResponse, GenerateSelfShipAppointmentSlotsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -3110,30 +3684,30 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/selfShipAppointmentSlots"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/self-ship-appointment-slots"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GenerateSelfShipAppointmentSlotsRequest | GenerateSelfShipAppointmentSlotsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[GenerateSelfShipAppointmentSlotsResponse],
             error_mapper=generate_self_ship_appointment_slots_error_mapper,
             request_options=request_options,
         )
 
     def generate_shipment_content_update_previews(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: GenerateShipmentContentUpdatePreviewsRequest | GenerateShipmentContentUpdatePreviewsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, GenerateShipmentContentUpdatePreviewsErrorBody]:
+    ) -> ApiResult[GenerateShipmentContentUpdatePreviewsResponse, GenerateShipmentContentUpdatePreviewsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -3143,31 +3717,31 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/contentUpdatePreviews"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/content-update-previews"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[
                 GenerateShipmentContentUpdatePreviewsRequest | GenerateShipmentContentUpdatePreviewsRequestDict
             ](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[GenerateShipmentContentUpdatePreviewsResponse],
             error_mapper=generate_shipment_content_update_previews_error_mapper,
             request_options=request_options,
         )
 
     def generate_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: GenerateTransportationOptionsRequest | GenerateTransportationOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, GenerateTransportationOptionsErrorBody]:
+    ) -> ApiResult[GenerateTransportationOptionsResponse, GenerateTransportationOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -3176,23 +3750,24 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/transportationOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/transportation-options"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GenerateTransportationOptionsRequest | GenerateTransportationOptionsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[GenerateTransportationOptionsResponse],
             error_mapper=generate_transportation_options_error_mapper,
             request_options=request_options,
         )
 
-    def get_delivery_challan_document(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[GetDeliveryChallanDocumentResponse, GetDeliveryChallanDocumentErrorBody]:
+    def get_bill_of_lading(
+        self, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[GetBillOfLadingResponse, GetBillOfLadingErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -3201,10 +3776,35 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/deliveryChallanDocument"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/shipments/{shipment-id}/bill-of-lading"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("shipment-id", shipment_id)],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=json_decoder[GetBillOfLadingResponse],
+            error_mapper=get_bill_of_lading_error_mapper,
+            request_options=request_options,
+        )
+
+    def get_delivery_challan_document(
+        self, plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[GetDeliveryChallanDocumentResponse, GetDeliveryChallanDocumentErrorBody]:
+        """Send a ``GET`` request.
+
+        Args:
+            plan_id: Identifier of an inbound plan.
+            shipment_id: Identifier of a shipment.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/delivery-challan-document"
+            ),
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetDeliveryChallanDocumentResponse],
             error_mapper=get_delivery_challan_document_error_mapper,
@@ -3214,10 +3814,10 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
     def get_inbound_operation_status(
         self, operation_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CommonInboundOperationStatus, GetInboundOperationStatusErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves the status of an inbound plan operation, such as creating or canceling a plan.
 
         Args:
-            operation_id: Identifier of an asynchronous operation.
+            operation_id: Unique identifier for the operation.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -3225,8 +3825,8 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/operations/{operationId}"),
-            path_params=[param[str]("operationId", operation_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/operations/{operation-id}"),
+            path_params=[param[str]("operation-id", operation_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[CommonInboundOperationStatus],
             error_mapper=get_inbound_operation_status_error_mapper,
@@ -3234,12 +3834,12 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         )
 
     def get_inbound_plan(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[InboundPlan, GetInboundPlanErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves the details of an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -3247,17 +3847,128 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}"),
+            path_params=[param[str]("plan-id", plan_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[InboundPlan],
             error_mapper=get_inbound_plan_error_mapper,
             request_options=request_options,
         )
 
+    def get_item_eligibility_preview(
+        self,
+        item_id: str,
+        program: Program1OrStr,
+        *,
+        marketplace_ids: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetItemEligibilityPreviewResponse, GetItemEligibilityPreviewErrorBody]:
+        """Checks whether an item is eligible for the specified program.
+
+        Args:
+            item_id: Walmart item identifier for which to retrieve an eligibility preview.
+            program: Program for which to evaluate item eligibility.
+            marketplace_ids: Marketplace identifier to use when determining item eligibility.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/eligibility/item-preview"),
+            query_params=[
+                param[str]("itemId", item_id),
+                param[Program1OrStr]("program", program),
+                param[str | None]("marketplaceIds", marketplace_ids),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=json_decoder[GetItemEligibilityPreviewResponse],
+            error_mapper=get_item_eligibility_preview_error_mapper,
+            request_options=request_options,
+        )
+
+    def get_labels(
+        self,
+        shipment_id: str,
+        page_type: PageTypeOrStr,
+        label_type: LabelTypeOrStr,
+        *,
+        page_size: int | None = None,
+        page_start_index: int | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetLabelsResponse, GetLabelsErrorBody]:
+        """Returns package/pallet labels for faster and more accurate shipment processing at the Walmart fulfillment
+        center.
+
+        Args:
+            shipment_id: Identifier of a shipment.
+            page_type: The page size/format to use for label printing (upstream ``PageType``). Determines the physical
+                layout of the generated label file.
+            label_type: The type of label to retrieve (upstream ``LabelType``). ``UNIQUE`` is a carrier-assigned unique
+                shipping label (PARCEL shipments only); ``BARCODE_2D`` is a 2D barcode receiving/box label; ``PALLET``
+                is a pallet receiving label (non-PARCEL modes only).
+            page_size: The page size for paginating through the total packages' labels. Maximum 1000 (upstream
+                ``PageSize``, default 100).
+            page_start_index: The zero-based page start index for paginating through the total packages' labels
+                (upstream ``PageStartIndex``, default 0).
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/shipments/{shipment-id}/labels"),
+            path_params=[param[str]("shipment-id", shipment_id)],
+            query_params=[
+                param[PageTypeOrStr]("pageType", page_type),
+                param[LabelTypeOrStr]("labelType", label_type),
+                param[int | None]("pageSize", page_size),
+                param[int | None]("pageStartIndex", page_start_index),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=json_decoder[GetLabelsResponse],
+            error_mapper=get_labels_error_mapper,
+            request_options=request_options,
+        )
+
+    def get_prep_instructions(
+        self,
+        ship_to_country_code: str,
+        *,
+        seller_sku_list: list[str] | None = None,
+        asin_list: list[str] | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetPrepInstructionsResponse, GetPrepInstructionsErrorBody]:
+        """Send a ``GET`` request.
+
+        Args:
+            ship_to_country_code: The two-letter country code of the destination the item(s) will ship to.
+            seller_sku_list: A list of seller SKUs to retrieve prep instructions for.
+            asin_list: A list of ASINs to retrieve prep instructions for.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/prep-instructions"),
+            query_params=[
+                param[str]("shipToCountryCode", ship_to_country_code),
+                param[list[str] | None]("sellerSkuList", seller_sku_list),
+                param[list[str] | None]("asinList", asin_list),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=json_decoder[GetPrepInstructionsResponse],
+            error_mapper=get_prep_instructions_error_mapper,
+            request_options=request_options,
+        )
+
     def get_self_ship_appointment_slots(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -3267,7 +3978,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of self ship appointment slots to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -3278,10 +3989,10 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/selfShipAppointmentSlots"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/self-ship-appointment-slots"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -3292,12 +4003,12 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         )
 
     def get_shipment(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CommonShipment, GetShipmentErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -3306,8 +4017,10 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}"
+            ),
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[CommonShipment],
             error_mapper=get_shipment_error_mapper,
@@ -3316,7 +4029,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def get_shipment_content_update_preview(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         content_update_preview_id: str,
         *,
@@ -3325,7 +4038,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             content_update_preview_id: Identifier of a content update preview.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -3335,13 +4048,13 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/contentUpdatePreviews/{contentUpdatePreviewId}",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/content-update-previews/{content-update-preview-id}",
             ),
             path_params=[
-                param[str]("inboundPlanId", inbound_plan_id),
-                param[str]("shipmentId", shipment_id),
-                param[str]("contentUpdatePreviewId", content_update_preview_id),
+                param[str]("plan-id", plan_id),
+                param[str]("shipment-id", shipment_id),
+                param[str]("content-update-preview-id", content_update_preview_id),
             ],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[CommonContentUpdatePreview],
@@ -3349,9 +4062,152 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             request_options=request_options,
         )
 
+    def get_shipment_items(
+        self,
+        *,
+        date_range_filter: DateRangeFilterOrStr | None = None,
+        date_range_value: str | None = None,
+        page_size: int | None = 10,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetShipmentItemsResponse, GetShipmentItemsErrorBody]:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike
+            ``getShipmentItemsByShipmentId`` and ``listShipmentItems``, this op is NOT shipment- or plan-scoped -- it
+            searches item rows across ALL of a seller's shipments, date- filtered. Field naming deliberately uses the
+            Amazon SP-API-parity names ``sellerSku``/ ``fulfillmentNetworkSKU`` (per explicit mapping instructions)
+            rather than the ``msku``/``fnsku`` shorthand its shipment-/plan-scoped siblings settled on -- this is a
+            genuinely new v4 response shape with no naming precedent of its own to preserve.
+
+        Args:
+            date_range_filter: Which date field ``dateRangeValue`` filters on (upstream ``dateRangeFilter``).
+            date_range_value: ISO 8601 datetime paired with ``dateRangeFilter`` (upstream ``dateRangeValue``).
+            page_size: The number of items to return in the response matching the given query.
+            pagination_token: A token to fetch the next page of a previous ``getShipmentItems`` query. Pass the value of
+                ``pagination.nextToken`` from a previous response. Forwarded upstream as ``nextToken`` (already
+                lowerCamelCase on this op, unlike ``getShipments``' ``NextToken``).
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/shipment-items"),
+            query_params=[
+                param[DateRangeFilterOrStr | None]("dateRangeFilter", date_range_filter),
+                param[str | None]("dateRangeValue", date_range_value),
+                param[int | None]("pageSize", page_size),
+                param[str | None]("paginationToken", pagination_token),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=json_decoder[GetShipmentItemsResponse],
+            error_mapper=get_shipment_items_error_mapper,
+            request_options=request_options,
+        )
+
+    def get_shipment_items_by_shipment_id(
+        self,
+        shipment_id: str,
+        *,
+        page_size: int | None = 10,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetShipmentItemsByShipmentIdResponse, GetShipmentItemsByShipmentIdErrorBody]:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike
+            listShipmentItems, this op is NOT inboundPlan-scoped -- it reads a CONFIRMED shipment directly by shipmentId
+            (the upstream shipmentRefId / externalReferenceId), with no draft-lookup fallback.
+
+        Args:
+            shipment_id: Identifier of a confirmed shipment (shipmentRefId / externalReferenceId).
+            page_size: The number of items to return in the response matching the given query.
+            pagination_token: A token to fetch a certain page when there are multiple pages worth of results. Pass the
+                value of ``pagination.nextToken`` from a previous response to fetch the next page. Upstream Inbound
+                Order Workflow returns this cursor as ``NextToken`` in the response payload ; it is mapped through
+                unchanged into ``pagination.nextToken`` here -- the request-side parameter name stays
+                ``paginationToken`` for consistency with every other list operation in this API.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/shipments/{shipment-id}/items"),
+            path_params=[param[str]("shipment-id", shipment_id)],
+            query_params=[
+                param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=json_decoder[GetShipmentItemsByShipmentIdResponse],
+            error_mapper=get_shipment_items_by_shipment_id_error_mapper,
+            request_options=request_options,
+        )
+
+    def get_shipments(
+        self,
+        query_type: ShipmentsQueryTypeOrStr,
+        *,
+        shipment_id_list: list[str] | None = None,
+        shipment_status_list: list[ShipmentStatusOrStr] | None = None,
+        last_updated_after: str | None = None,
+        last_updated_before: str | None = None,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetShipmentsResponse, GetShipmentsErrorBody]:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike every shipment op
+            above, this is NOT plan- or shipment-scoped -- it searches across ALL of a seller's shipments. Behavior is
+            driven by ``queryType``:
+          - ``SHIPMENT``: requires exactly one of ``shipmentIdList`` or ``shipmentStatusList`` (never
+            both, never neither -- , tightened to match an upstream spec update).
+          - ``DATE_RANGE``: requires ``lastUpdatedAfter`` (``lastUpdatedBefore`` is optional);
+            ``shipmentStatusList`` may be supplied as an additional filter.
+          - ``NEXT_TOKEN``: requires ``paginationToken`` (the value returned in a previous response's
+            ``pagination.nextToken``) to fetch the next page of the SAME query; resend the original
+            ``shipmentIdList``/``shipmentStatusList``/``lastUpdatedAfter``/``lastUpdatedBefore`` filters,
+            since ``paginationToken`` only encodes the paging cursor, not the filters themselves.
+
+        Args:
+            query_type: Determines which combination of filters below is required (upstream ``QueryType``).
+            shipment_id_list: Shipment identifiers (external reference ids) to filter by. When ``queryType=SHIPMENT``,
+                exactly one of ``shipmentIdList``/``shipmentStatusList`` is required -- never both, never neither .
+                Maximum 999 entries (upstream ``ShipmentIdList``).
+            shipment_status_list: Shipment statuses to filter by (upstream ``ShipmentStatusList``; same vocabulary as
+                ``getShipment``'s free-string ``status`` field, minus ``UNCONFIRMED``, which upstream documents as never
+                applying to a confirmed shipment). When ``queryType=SHIPMENT``, exactly one of
+                ``shipmentIdList``/``shipmentStatusList`` is required -- never both, never neither ; for
+                ``queryType=DATE_RANGE`` it remains an optional additional filter.
+            last_updated_after: Only return shipments last updated at or after this date, ISO 8601 datetime. Required
+                when ``queryType=DATE_RANGE`` (upstream ``LastUpdatedAfter``).
+            last_updated_before: Only return shipments last updated at or before this date, ISO 8601 datetime. Optional
+                when ``queryType=DATE_RANGE``, defaults to now (upstream ``LastUpdatedBefore``).
+            pagination_token: A token to fetch the next page of a previous ``getShipments`` query. Pass the value of
+                ``pagination.nextToken`` from a previous response. Required when ``queryType=NEXT_TOKEN``. Forwarded
+                upstream as ``NextToken``.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/shipments"),
+            query_params=[
+                param[ShipmentsQueryTypeOrStr]("queryType", query_type),
+                param[list[str] | None]("shipmentIdList", shipment_id_list),
+                param[list[ShipmentStatusOrStr] | None]("shipmentStatusList", shipment_status_list),
+                param[str | None]("lastUpdatedAfter", last_updated_after),
+                param[str | None]("lastUpdatedBefore", last_updated_before),
+                param[str | None]("paginationToken", pagination_token),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=json_decoder[GetShipmentsResponse],
+            error_mapper=get_shipments_error_mapper,
+            request_options=request_options,
+        )
+
     def list_delivery_window_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -3361,7 +4217,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to get delivery window options for.
             page_size: The number of delivery window options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -3372,10 +4228,10 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/deliveryWindowOptions"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/delivery-window-options"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -3387,18 +4243,19 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def list_inbound_plan_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ListInboundPlanBoxesResponse, ListInboundPlanBoxesErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of shipping boxes included in an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of boxes to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of boxes to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -3406,8 +4263,8 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/boxes"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/boxes"),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -3419,18 +4276,19 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def list_inbound_plan_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ListInboundPlanItemsResponse, ListInboundPlanItemsErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of items in an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of items to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of items to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -3438,8 +4296,8 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/items"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/items"),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -3451,7 +4309,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def list_inbound_plan_pallets(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -3460,9 +4318,10 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of pallets to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of pallets to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -3470,8 +4329,8 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/pallets"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/pallets"),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -3491,14 +4350,17 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         sort_order: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ListInboundPlansResponse, ListInboundPlansErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of inbound plans. Filter by status, sort the results, and use ``paginationToken``
+        to retrieve subsequent pages.
 
         Args:
-            page_size: The number of inbound plans to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
-            status: The status of an inbound plan. Possible values: ``ACTIVE``, ``VOIDED``, ``SHIPPED``, ``ERRORED``.
-            sort_by: Sort by field.
-            sort_order: The sort order. Possible values: ``ASC``, ``DESC``.
+            page_size: Maximum number of inbound plans to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
+            status: Filters results by inbound plan status. Supported values are ``ACTIVE``, ``VOIDED``, ``SHIPPED``,
+                and ``ERRORED``.
+            sort_by: Field used to sort the returned inbound plans.
+            sort_order: Sort direction for the returned inbound plans. Supported values are ``ASC`` and ``DESC``.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -3506,7 +4368,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans"),
             query_params=[
                 param[int | None]("pageSize", page_size),
                 param[str | None]("paginationToken", pagination_token),
@@ -3536,7 +4398,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/items/compliance"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/compliance"),
             query_params=[param[list[str]]("mskus", mskus), param[str]("marketplaceId", marketplace_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[ListItemComplianceDetailsResponse],
@@ -3546,17 +4408,17 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def list_packing_group_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         packing_group_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanBoxesResponse, ListPackingGroupBoxesErrorBody]:
+    ) -> ApiResult[ListPackingGroupBoxesResponse, ListPackingGroupBoxesErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_group_id: Identifier of a packing group.
             page_size: The number of packing group boxes to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -3567,32 +4429,32 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingGroups/{packingGroupId}/boxes"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/packing-groups/{packing-group-id}/boxes"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("packingGroupId", packing_group_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("packing-group-id", packing_group_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[ListInboundPlanBoxesResponse],
+            decoder=json_decoder[ListPackingGroupBoxesResponse],
             error_mapper=list_packing_group_boxes_error_mapper,
             request_options=request_options,
         )
 
     def list_packing_group_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         packing_group_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanItemsResponse, ListPackingGroupItemsErrorBody]:
+    ) -> ApiResult[ListPackingGroupItemsResponse, ListPackingGroupItemsErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_group_id: Identifier of a packing group.
             page_size: The number of packing group items to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -3603,22 +4465,22 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingGroups/{packingGroupId}/items"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/packing-groups/{packing-group-id}/items"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("packingGroupId", packing_group_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("packing-group-id", packing_group_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[ListInboundPlanItemsResponse],
+            decoder=json_decoder[ListPackingGroupItemsResponse],
             error_mapper=list_packing_group_items_error_mapper,
             request_options=request_options,
         )
 
     def list_packing_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -3627,7 +4489,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of packing options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -3637,8 +4499,8 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/packing-options"),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -3650,7 +4512,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def list_placement_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -3659,7 +4521,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of placement options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -3669,8 +4531,10 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/placementOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/placement-options"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -3696,7 +4560,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/items/prepDetails"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/prep-details"),
             query_params=[param[str]("marketplaceId", marketplace_id), param[list[str]]("mskus", mskus)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[ListPrepDetailsResponse],
@@ -3706,17 +4570,17 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def list_shipment_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanBoxesResponse, ListShipmentBoxesErrorBody]:
+    ) -> ApiResult[ListShipmentBoxesResponse, ListShipmentBoxesErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             page_size: The number of boxes to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -3727,22 +4591,22 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/boxes"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/boxes"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[ListInboundPlanBoxesResponse],
+            decoder=json_decoder[ListShipmentBoxesResponse],
             error_mapper=list_shipment_boxes_error_mapper,
             request_options=request_options,
         )
 
     def list_shipment_content_update_previews(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -3752,7 +4616,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of content update previews to return.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -3763,10 +4627,10 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/contentUpdatePreviews"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/content-update-previews"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -3778,17 +4642,17 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def list_shipment_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanItemsResponse, ListShipmentItemsErrorBody]:
+    ) -> ApiResult[ListShipmentItemsResponse, ListShipmentItemsErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             page_size: The number of items to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -3799,32 +4663,32 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/items"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/items"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[ListInboundPlanItemsResponse],
+            decoder=json_decoder[ListShipmentItemsResponse],
             error_mapper=list_shipment_items_error_mapper,
             request_options=request_options,
         )
 
     def list_shipment_pallets(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanPalletsResponse, ListShipmentPalletsErrorBody]:
+    ) -> ApiResult[ListShipmentPalletsResponse, ListShipmentPalletsErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of pallets to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -3835,22 +4699,22 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/pallets"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/pallets"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[ListInboundPlanPalletsResponse],
+            decoder=json_decoder[ListShipmentPalletsResponse],
             error_mapper=list_shipment_pallets_error_mapper,
             request_options=request_options,
         )
 
     def list_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -3861,7 +4725,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of transportation options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             placement_option_id: The placement option to get transportation options for. Either ``placementOptionId`` or
@@ -3875,8 +4739,10 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/transportationOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/transportation-options"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size),
                 param[str | None]("paginationToken", pagination_token),
@@ -3891,7 +4757,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def schedule_self_ship_appointment(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         slot_id: str,
         body: ScheduleSelfShipAppointmentRequest | ScheduleSelfShipAppointmentRequestDict,
@@ -3901,7 +4767,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             slot_id: An identifier to a self-ship appointment slot.
             body: The request body.
@@ -3912,13 +4778,11 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/selfShipAppointmentSlots/{slotId}/schedule",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/self-ship-appointment-slots/{slot-id}/schedule",
             ),
             path_params=[
-                param[str]("inboundPlanId", inbound_plan_id),
-                param[str]("shipmentId", shipment_id),
-                param[str]("slotId", slot_id),
+                param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id), param[str]("slot-id", slot_id)
             ],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[ScheduleSelfShipAppointmentRequest | ScheduleSelfShipAppointmentRequestDict](body),
@@ -3930,15 +4794,15 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def set_packing_information(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: SetPackingInformationRequest | SetPackingInformationRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, SetPackingInformationErrorBody]:
+    ) -> ApiResult[SetPackingInformationResponse, SetPackingInformationErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -3947,12 +4811,14 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingInformation"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/packing-information"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[SetPackingInformationRequest | SetPackingInformationRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[SetPackingInformationResponse],
             error_mapper=set_packing_information_error_mapper,
             request_options=request_options,
         )
@@ -3962,7 +4828,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         body: SetPrepDetailsRequest | SetPrepDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, SetPrepDetailsErrorBody]:
+    ) -> ApiResult[SetPrepDetailsResponse, SetPrepDetailsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
@@ -3974,26 +4840,26 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/items/prepDetails"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/prep-details"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[SetPrepDetailsRequest | SetPrepDetailsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[SetPrepDetailsResponse],
             error_mapper=set_prep_details_error_mapper,
             request_options=request_options,
         )
 
     def update_inbound_plan_name(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: UpdateInboundPlanNameRequest | UpdateInboundPlanNameRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[None, UpdateInboundPlanNameErrorBody]:
-        """Send a ``PUT`` request.
+        """Updates the name of an existing inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -4002,8 +4868,8 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/name"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/name"),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateInboundPlanNameRequest | UpdateInboundPlanNameRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -4018,7 +4884,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         body: UpdateItemComplianceDetailsRequest | UpdateItemComplianceDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, UpdateItemComplianceDetailsErrorBody]:
+    ) -> ApiResult[UpdateItemComplianceDetailsResponse, UpdateItemComplianceDetailsErrorBody]:
         """Send a ``PUT`` request.
 
         Args:
@@ -4032,19 +4898,19 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/inbound/wfs/v4/items/compliance"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/compliance"),
             query_params=[param[str]("marketplaceId", marketplace_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateItemComplianceDetailsRequest | UpdateItemComplianceDetailsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[UpdateItemComplianceDetailsResponse],
             error_mapper=update_item_compliance_details_error_mapper,
             request_options=request_options,
         )
 
     def update_shipment_name(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentNameRequest | UpdateShipmentNameRequestDict,
         *,
@@ -4053,7 +4919,7 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -4063,10 +4929,10 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/name"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/name"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateShipmentNameRequest | UpdateShipmentNameRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -4077,16 +4943,16 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
     def update_shipment_source_address(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentSourceAddressRequest | UpdateShipmentSourceAddressRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, UpdateShipmentSourceAddressErrorBody]:
+    ) -> ApiResult[UpdateShipmentSourceAddressResponse, UpdateShipmentSourceAddressErrorBody]:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -4096,30 +4962,30 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/sourceAddress"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/source-address"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateShipmentSourceAddressRequest | UpdateShipmentSourceAddressRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[UpdateShipmentSourceAddressResponse],
             error_mapper=update_shipment_source_address_error_mapper,
             request_options=request_options,
         )
 
     def update_shipment_tracking_details(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentTrackingDetailsRequest | UpdateShipmentTrackingDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, UpdateShipmentTrackingDetailsErrorBody]:
+    ) -> ApiResult[UpdateShipmentTrackingDetailsResponse, UpdateShipmentTrackingDetailsErrorBody]:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -4129,14 +4995,14 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/trackingDetails"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/tracking-details"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateShipmentTrackingDetailsRequest | UpdateShipmentTrackingDetailsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelInboundPlanResponse],
+            decoder=json_decoder[UpdateShipmentTrackingDetailsResponse],
             error_mapper=update_shipment_tracking_details_error_mapper,
             request_options=request_options,
         )
@@ -4144,12 +5010,12 @@ class WfsInboundWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
 
 class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, AsyncAuthSchemes]):
     async def cancel_inbound_plan(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CancelInboundPlanResponse, CancelInboundPlanErrorBody]:
-        """Send a ``PUT`` request.
+        """Cancels an inbound plan when its current status allows cancellation.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -4157,8 +5023,8 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/cancellation"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/cancel"),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[CancelInboundPlanResponse],
@@ -4168,16 +5034,16 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def cancel_self_ship_appointment(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: CancelSelfShipAppointmentRequest | CancelSelfShipAppointmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, CancelSelfShipAppointmentErrorBody]:
+    ) -> ApiResult[CancelSelfShipAppointmentResponse, CancelSelfShipAppointmentErrorBody]:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -4187,30 +5053,30 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/selfShipAppointmentCancellation"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/self-ship-appointment-cancel"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CancelSelfShipAppointmentRequest | CancelSelfShipAppointmentRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[CancelSelfShipAppointmentResponse],
             error_mapper=cancel_self_ship_appointment_error_mapper,
             request_options=request_options,
         )
 
     async def confirm_delivery_window_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         delivery_window_option_id: str,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmDeliveryWindowOptionsErrorBody]:
+    ) -> ApiResult[ConfirmDeliveryWindowOptionsResponse, ConfirmDeliveryWindowOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to confirm the delivery window option for.
             delivery_window_option_id: The ID of the delivery window option to be confirmed.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -4220,28 +5086,28 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/deliveryWindowOptions/{deliveryWindowOptionId}/confirmation",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/delivery-window-options/{delivery-window-option-id}/confirm",
             ),
             path_params=[
-                param[str]("inboundPlanId", inbound_plan_id),
-                param[str]("shipmentId", shipment_id),
-                param[str]("deliveryWindowOptionId", delivery_window_option_id),
+                param[str]("plan-id", plan_id),
+                param[str]("shipment-id", shipment_id),
+                param[str]("delivery-window-option-id", delivery_window_option_id),
             ],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[ConfirmDeliveryWindowOptionsResponse],
             error_mapper=confirm_delivery_window_options_error_mapper,
             request_options=request_options,
         )
 
     async def confirm_packing_option(
-        self, inbound_plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmPackingOptionErrorBody]:
+        self, plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[ConfirmPackingOptionResponse, ConfirmPackingOptionErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_option_id: Identifier of a packing option.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -4250,26 +5116,24 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingOptions/{packingOptionId}/confirmation"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/packing-options/{packing-option-id}/confirm"
             ),
-            path_params=[
-                param[str]("inboundPlanId", inbound_plan_id), param[str]("packingOptionId", packing_option_id)
-            ],
+            path_params=[param[str]("plan-id", plan_id), param[str]("packing-option-id", packing_option_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[ConfirmPackingOptionResponse],
             error_mapper=confirm_packing_option_error_mapper,
             request_options=request_options,
         )
 
     async def confirm_placement_option(
-        self, inbound_plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmPlacementOptionErrorBody]:
+        self, plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[ConfirmPlacementOptionResponse, ConfirmPlacementOptionErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             placement_option_id: The identifier of a placement option.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -4278,31 +5142,29 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/placementOptions/{placementOptionId}/confirmation"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/placement-options/{placement-option-id}/confirm"
             ),
-            path_params=[
-                param[str]("inboundPlanId", inbound_plan_id), param[str]("placementOptionId", placement_option_id)
-            ],
+            path_params=[param[str]("plan-id", plan_id), param[str]("placement-option-id", placement_option_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[ConfirmPlacementOptionResponse],
             error_mapper=confirm_placement_option_error_mapper,
             request_options=request_options,
         )
 
     async def confirm_shipment_content_update_preview(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         content_update_preview_id: str,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmShipmentContentUpdatePreviewErrorBody]:
+    ) -> ApiResult[ConfirmShipmentContentUpdatePreviewResponse, ConfirmShipmentContentUpdatePreviewErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             content_update_preview_id: Identifier of a content update preview.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -4312,32 +5174,32 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/contentUpdatePreviews/{contentUpdatePreviewId}/confirmation",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/content-update-previews/{content-update-preview-id}/confirm",
             ),
             path_params=[
-                param[str]("inboundPlanId", inbound_plan_id),
-                param[str]("shipmentId", shipment_id),
-                param[str]("contentUpdatePreviewId", content_update_preview_id),
+                param[str]("plan-id", plan_id),
+                param[str]("shipment-id", shipment_id),
+                param[str]("content-update-preview-id", content_update_preview_id),
             ],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[ConfirmShipmentContentUpdatePreviewResponse],
             error_mapper=confirm_shipment_content_update_preview_error_mapper,
             request_options=request_options,
         )
 
     async def confirm_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: ConfirmTransportationOptionsRequest | ConfirmTransportationOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, ConfirmTransportationOptionsErrorBody]:
+    ) -> ApiResult[ConfirmTransportationOptionsResponse, ConfirmTransportationOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -4346,14 +5208,14 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/transportationOptions/confirmation"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/transportation-options/confirm"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[ConfirmTransportationOptionsRequest | ConfirmTransportationOptionsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[ConfirmTransportationOptionsResponse],
             error_mapper=confirm_transportation_options_error_mapper,
             request_options=request_options,
         )
@@ -4364,7 +5226,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CreateInboundPlanResponse, CreateInboundPlanErrorBody]:
-        """Send a ``POST`` request.
+        """Creates an inbound plan for items to be shipped to Walmart fulfillment centers.
 
         Args:
             body: The request body.
@@ -4375,7 +5237,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateInboundPlanRequest | CreateInboundPlanRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -4401,7 +5263,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/items/labels"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/labels"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateMarketplaceItemLabelsRequest | CreateMarketplaceItemLabelsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -4411,13 +5273,22 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         )
 
     async def generate_delivery_window_options(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelInboundPlanResponse, GenerateDeliveryWindowOptionsErrorBody]:
+        self,
+        plan_id: str,
+        shipment_id: str,
+        *,
+        scac: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GenerateDeliveryWindowOptionsResponse, GenerateDeliveryWindowOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to generate delivery window options for.
+            scac: Walmart extension (not in SP-API). Standard Carrier Alpha Code of the carrier delivering the shipment,
+                case preserved. Supplying it generates drop trailer windows; omitting it generates live unload windows.
+                The delivery type chosen here is kept when a generated window is confirmed. Carrier existence and drop
+                trailer eligibility are validated when the window is confirmed.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -4425,24 +5296,25 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/deliveryWindowOptions"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/delivery-window-options"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
+            query_params=[param[str | None]("scac", scac)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[GenerateDeliveryWindowOptionsResponse],
             error_mapper=generate_delivery_window_options_error_mapper,
             request_options=request_options,
         )
 
     async def generate_packing_options(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelInboundPlanResponse, GeneratePackingOptionsErrorBody]:
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[GeneratePackingOptionsResponse, GeneratePackingOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -4450,26 +5322,26 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/packing-options"),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[GeneratePackingOptionsResponse],
             error_mapper=generate_packing_options_error_mapper,
             request_options=request_options,
         )
 
     async def generate_placement_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: GeneratePlacementOptionsRequest | GeneratePlacementOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, GeneratePlacementOptionsErrorBody]:
+    ) -> ApiResult[GeneratePlacementOptionsResponse, GeneratePlacementOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -4478,28 +5350,30 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/placementOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/placement-options"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GeneratePlacementOptionsRequest | GeneratePlacementOptionsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[GeneratePlacementOptionsResponse],
             error_mapper=generate_placement_options_error_mapper,
             request_options=request_options,
         )
 
     async def generate_self_ship_appointment_slots(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: GenerateSelfShipAppointmentSlotsRequest | GenerateSelfShipAppointmentSlotsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, GenerateSelfShipAppointmentSlotsErrorBody]:
+    ) -> ApiResult[GenerateSelfShipAppointmentSlotsResponse, GenerateSelfShipAppointmentSlotsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -4509,30 +5383,30 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/selfShipAppointmentSlots"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/self-ship-appointment-slots"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GenerateSelfShipAppointmentSlotsRequest | GenerateSelfShipAppointmentSlotsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[GenerateSelfShipAppointmentSlotsResponse],
             error_mapper=generate_self_ship_appointment_slots_error_mapper,
             request_options=request_options,
         )
 
     async def generate_shipment_content_update_previews(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: GenerateShipmentContentUpdatePreviewsRequest | GenerateShipmentContentUpdatePreviewsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, GenerateShipmentContentUpdatePreviewsErrorBody]:
+    ) -> ApiResult[GenerateShipmentContentUpdatePreviewsResponse, GenerateShipmentContentUpdatePreviewsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -4542,31 +5416,31 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/contentUpdatePreviews"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/content-update-previews"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[
                 GenerateShipmentContentUpdatePreviewsRequest | GenerateShipmentContentUpdatePreviewsRequestDict
             ](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[GenerateShipmentContentUpdatePreviewsResponse],
             error_mapper=generate_shipment_content_update_previews_error_mapper,
             request_options=request_options,
         )
 
     async def generate_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: GenerateTransportationOptionsRequest | GenerateTransportationOptionsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, GenerateTransportationOptionsErrorBody]:
+    ) -> ApiResult[GenerateTransportationOptionsResponse, GenerateTransportationOptionsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -4575,23 +5449,24 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/transportationOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/transportation-options"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GenerateTransportationOptionsRequest | GenerateTransportationOptionsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[GenerateTransportationOptionsResponse],
             error_mapper=generate_transportation_options_error_mapper,
             request_options=request_options,
         )
 
-    async def get_delivery_challan_document(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[GetDeliveryChallanDocumentResponse, GetDeliveryChallanDocumentErrorBody]:
+    async def get_bill_of_lading(
+        self, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[GetBillOfLadingResponse, GetBillOfLadingErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -4600,10 +5475,35 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/deliveryChallanDocument"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/shipments/{shipment-id}/bill-of-lading"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("shipment-id", shipment_id)],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=async_json_decoder[GetBillOfLadingResponse],
+            error_mapper=get_bill_of_lading_error_mapper,
+            request_options=request_options,
+        )
+
+    async def get_delivery_challan_document(
+        self, plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+    ) -> ApiResult[GetDeliveryChallanDocumentResponse, GetDeliveryChallanDocumentErrorBody]:
+        """Send a ``GET`` request.
+
+        Args:
+            plan_id: Identifier of an inbound plan.
+            shipment_id: Identifier of a shipment.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return await self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/delivery-challan-document"
+            ),
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetDeliveryChallanDocumentResponse],
             error_mapper=get_delivery_challan_document_error_mapper,
@@ -4613,10 +5513,10 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
     async def get_inbound_operation_status(
         self, operation_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CommonInboundOperationStatus, GetInboundOperationStatusErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves the status of an inbound plan operation, such as creating or canceling a plan.
 
         Args:
-            operation_id: Identifier of an asynchronous operation.
+            operation_id: Unique identifier for the operation.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -4624,8 +5524,8 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/operations/{operationId}"),
-            path_params=[param[str]("operationId", operation_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/operations/{operation-id}"),
+            path_params=[param[str]("operation-id", operation_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[CommonInboundOperationStatus],
             error_mapper=get_inbound_operation_status_error_mapper,
@@ -4633,12 +5533,12 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         )
 
     async def get_inbound_plan(
-        self, inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[InboundPlan, GetInboundPlanErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves the details of an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -4646,17 +5546,128 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}"),
+            path_params=[param[str]("plan-id", plan_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[InboundPlan],
             error_mapper=get_inbound_plan_error_mapper,
             request_options=request_options,
         )
 
+    async def get_item_eligibility_preview(
+        self,
+        item_id: str,
+        program: Program1OrStr,
+        *,
+        marketplace_ids: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetItemEligibilityPreviewResponse, GetItemEligibilityPreviewErrorBody]:
+        """Checks whether an item is eligible for the specified program.
+
+        Args:
+            item_id: Walmart item identifier for which to retrieve an eligibility preview.
+            program: Program for which to evaluate item eligibility.
+            marketplace_ids: Marketplace identifier to use when determining item eligibility.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return await self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/eligibility/item-preview"),
+            query_params=[
+                param[str]("itemId", item_id),
+                param[Program1OrStr]("program", program),
+                param[str | None]("marketplaceIds", marketplace_ids),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=async_json_decoder[GetItemEligibilityPreviewResponse],
+            error_mapper=get_item_eligibility_preview_error_mapper,
+            request_options=request_options,
+        )
+
+    async def get_labels(
+        self,
+        shipment_id: str,
+        page_type: PageTypeOrStr,
+        label_type: LabelTypeOrStr,
+        *,
+        page_size: int | None = None,
+        page_start_index: int | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetLabelsResponse, GetLabelsErrorBody]:
+        """Returns package/pallet labels for faster and more accurate shipment processing at the Walmart fulfillment
+        center.
+
+        Args:
+            shipment_id: Identifier of a shipment.
+            page_type: The page size/format to use for label printing (upstream ``PageType``). Determines the physical
+                layout of the generated label file.
+            label_type: The type of label to retrieve (upstream ``LabelType``). ``UNIQUE`` is a carrier-assigned unique
+                shipping label (PARCEL shipments only); ``BARCODE_2D`` is a 2D barcode receiving/box label; ``PALLET``
+                is a pallet receiving label (non-PARCEL modes only).
+            page_size: The page size for paginating through the total packages' labels. Maximum 1000 (upstream
+                ``PageSize``, default 100).
+            page_start_index: The zero-based page start index for paginating through the total packages' labels
+                (upstream ``PageStartIndex``, default 0).
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return await self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/shipments/{shipment-id}/labels"),
+            path_params=[param[str]("shipment-id", shipment_id)],
+            query_params=[
+                param[PageTypeOrStr]("pageType", page_type),
+                param[LabelTypeOrStr]("labelType", label_type),
+                param[int | None]("pageSize", page_size),
+                param[int | None]("pageStartIndex", page_start_index),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=async_json_decoder[GetLabelsResponse],
+            error_mapper=get_labels_error_mapper,
+            request_options=request_options,
+        )
+
+    async def get_prep_instructions(
+        self,
+        ship_to_country_code: str,
+        *,
+        seller_sku_list: list[str] | None = None,
+        asin_list: list[str] | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetPrepInstructionsResponse, GetPrepInstructionsErrorBody]:
+        """Send a ``GET`` request.
+
+        Args:
+            ship_to_country_code: The two-letter country code of the destination the item(s) will ship to.
+            seller_sku_list: A list of seller SKUs to retrieve prep instructions for.
+            asin_list: A list of ASINs to retrieve prep instructions for.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return await self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/prep-instructions"),
+            query_params=[
+                param[str]("shipToCountryCode", ship_to_country_code),
+                param[list[str] | None]("sellerSkuList", seller_sku_list),
+                param[list[str] | None]("asinList", asin_list),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=async_json_decoder[GetPrepInstructionsResponse],
+            error_mapper=get_prep_instructions_error_mapper,
+            request_options=request_options,
+        )
+
     async def get_self_ship_appointment_slots(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -4666,7 +5677,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of self ship appointment slots to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -4677,10 +5688,10 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/selfShipAppointmentSlots"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/self-ship-appointment-slots"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -4691,12 +5702,12 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         )
 
     async def get_shipment(
-        self, inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CommonShipment, GetShipmentErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -4705,8 +5716,10 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}"
+            ),
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[CommonShipment],
             error_mapper=get_shipment_error_mapper,
@@ -4715,7 +5728,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def get_shipment_content_update_preview(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         content_update_preview_id: str,
         *,
@@ -4724,7 +5737,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             content_update_preview_id: Identifier of a content update preview.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -4734,13 +5747,13 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/contentUpdatePreviews/{contentUpdatePreviewId}",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/content-update-previews/{content-update-preview-id}",
             ),
             path_params=[
-                param[str]("inboundPlanId", inbound_plan_id),
-                param[str]("shipmentId", shipment_id),
-                param[str]("contentUpdatePreviewId", content_update_preview_id),
+                param[str]("plan-id", plan_id),
+                param[str]("shipment-id", shipment_id),
+                param[str]("content-update-preview-id", content_update_preview_id),
             ],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[CommonContentUpdatePreview],
@@ -4748,9 +5761,152 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             request_options=request_options,
         )
 
+    async def get_shipment_items(
+        self,
+        *,
+        date_range_filter: DateRangeFilterOrStr | None = None,
+        date_range_value: str | None = None,
+        page_size: int | None = 10,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetShipmentItemsResponse, GetShipmentItemsErrorBody]:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike
+            ``getShipmentItemsByShipmentId`` and ``listShipmentItems``, this op is NOT shipment- or plan-scoped -- it
+            searches item rows across ALL of a seller's shipments, date- filtered. Field naming deliberately uses the
+            Amazon SP-API-parity names ``sellerSku``/ ``fulfillmentNetworkSKU`` (per explicit mapping instructions)
+            rather than the ``msku``/``fnsku`` shorthand its shipment-/plan-scoped siblings settled on -- this is a
+            genuinely new v4 response shape with no naming precedent of its own to preserve.
+
+        Args:
+            date_range_filter: Which date field ``dateRangeValue`` filters on (upstream ``dateRangeFilter``).
+            date_range_value: ISO 8601 datetime paired with ``dateRangeFilter`` (upstream ``dateRangeValue``).
+            page_size: The number of items to return in the response matching the given query.
+            pagination_token: A token to fetch the next page of a previous ``getShipmentItems`` query. Pass the value of
+                ``pagination.nextToken`` from a previous response. Forwarded upstream as ``nextToken`` (already
+                lowerCamelCase on this op, unlike ``getShipments``' ``NextToken``).
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return await self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/shipment-items"),
+            query_params=[
+                param[DateRangeFilterOrStr | None]("dateRangeFilter", date_range_filter),
+                param[str | None]("dateRangeValue", date_range_value),
+                param[int | None]("pageSize", page_size),
+                param[str | None]("paginationToken", pagination_token),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=async_json_decoder[GetShipmentItemsResponse],
+            error_mapper=get_shipment_items_error_mapper,
+            request_options=request_options,
+        )
+
+    async def get_shipment_items_by_shipment_id(
+        self,
+        shipment_id: str,
+        *,
+        page_size: int | None = 10,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetShipmentItemsByShipmentIdResponse, GetShipmentItemsByShipmentIdErrorBody]:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike
+            listShipmentItems, this op is NOT inboundPlan-scoped -- it reads a CONFIRMED shipment directly by shipmentId
+            (the upstream shipmentRefId / externalReferenceId), with no draft-lookup fallback.
+
+        Args:
+            shipment_id: Identifier of a confirmed shipment (shipmentRefId / externalReferenceId).
+            page_size: The number of items to return in the response matching the given query.
+            pagination_token: A token to fetch a certain page when there are multiple pages worth of results. Pass the
+                value of ``pagination.nextToken`` from a previous response to fetch the next page. Upstream Inbound
+                Order Workflow returns this cursor as ``NextToken`` in the response payload ; it is mapped through
+                unchanged into ``pagination.nextToken`` here -- the request-side parameter name stays
+                ``paginationToken`` for consistency with every other list operation in this API.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return await self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/shipments/{shipment-id}/items"),
+            path_params=[param[str]("shipment-id", shipment_id)],
+            query_params=[
+                param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=async_json_decoder[GetShipmentItemsByShipmentIdResponse],
+            error_mapper=get_shipment_items_by_shipment_id_error_mapper,
+            request_options=request_options,
+        )
+
+    async def get_shipments(
+        self,
+        query_type: ShipmentsQueryTypeOrStr,
+        *,
+        shipment_id_list: list[str] | None = None,
+        shipment_status_list: list[ShipmentStatusOrStr] | None = None,
+        last_updated_after: str | None = None,
+        last_updated_before: str | None = None,
+        pagination_token: str | None = None,
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[GetShipmentsResponse, GetShipmentsErrorBody]:
+        """: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike every shipment op
+            above, this is NOT plan- or shipment-scoped -- it searches across ALL of a seller's shipments. Behavior is
+            driven by ``queryType``:
+          - ``SHIPMENT``: requires exactly one of ``shipmentIdList`` or ``shipmentStatusList`` (never
+            both, never neither -- , tightened to match an upstream spec update).
+          - ``DATE_RANGE``: requires ``lastUpdatedAfter`` (``lastUpdatedBefore`` is optional);
+            ``shipmentStatusList`` may be supplied as an additional filter.
+          - ``NEXT_TOKEN``: requires ``paginationToken`` (the value returned in a previous response's
+            ``pagination.nextToken``) to fetch the next page of the SAME query; resend the original
+            ``shipmentIdList``/``shipmentStatusList``/``lastUpdatedAfter``/``lastUpdatedBefore`` filters,
+            since ``paginationToken`` only encodes the paging cursor, not the filters themselves.
+
+        Args:
+            query_type: Determines which combination of filters below is required (upstream ``QueryType``).
+            shipment_id_list: Shipment identifiers (external reference ids) to filter by. When ``queryType=SHIPMENT``,
+                exactly one of ``shipmentIdList``/``shipmentStatusList`` is required -- never both, never neither .
+                Maximum 999 entries (upstream ``ShipmentIdList``).
+            shipment_status_list: Shipment statuses to filter by (upstream ``ShipmentStatusList``; same vocabulary as
+                ``getShipment``'s free-string ``status`` field, minus ``UNCONFIRMED``, which upstream documents as never
+                applying to a confirmed shipment). When ``queryType=SHIPMENT``, exactly one of
+                ``shipmentIdList``/``shipmentStatusList`` is required -- never both, never neither ; for
+                ``queryType=DATE_RANGE`` it remains an optional additional filter.
+            last_updated_after: Only return shipments last updated at or after this date, ISO 8601 datetime. Required
+                when ``queryType=DATE_RANGE`` (upstream ``LastUpdatedAfter``).
+            last_updated_before: Only return shipments last updated at or before this date, ISO 8601 datetime. Optional
+                when ``queryType=DATE_RANGE``, defaults to now (upstream ``LastUpdatedBefore``).
+            pagination_token: A token to fetch the next page of a previous ``getShipments`` query. Pass the value of
+                ``pagination.nextToken`` from a previous response. Required when ``queryType=NEXT_TOKEN``. Forwarded
+                upstream as ``NextToken``.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return await self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/shipments"),
+            query_params=[
+                param[ShipmentsQueryTypeOrStr]("queryType", query_type),
+                param[list[str] | None]("shipmentIdList", shipment_id_list),
+                param[list[ShipmentStatusOrStr] | None]("shipmentStatusList", shipment_status_list),
+                param[str | None]("lastUpdatedAfter", last_updated_after),
+                param[str | None]("lastUpdatedBefore", last_updated_before),
+                param[str | None]("paginationToken", pagination_token),
+            ],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=async_json_decoder[GetShipmentsResponse],
+            error_mapper=get_shipments_error_mapper,
+            request_options=request_options,
+        )
+
     async def list_delivery_window_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -4760,7 +5916,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: The shipment to get delivery window options for.
             page_size: The number of delivery window options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -4771,10 +5927,10 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/deliveryWindowOptions"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/delivery-window-options"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -4786,18 +5942,19 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def list_inbound_plan_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ListInboundPlanBoxesResponse, ListInboundPlanBoxesErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of shipping boxes included in an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of boxes to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of boxes to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -4805,8 +5962,8 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/boxes"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/boxes"),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -4818,18 +5975,19 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def list_inbound_plan_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ListInboundPlanItemsResponse, ListInboundPlanItemsErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of items in an inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of items to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of items to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -4837,8 +5995,8 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/items"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/items"),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -4850,7 +6008,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def list_inbound_plan_pallets(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -4859,9 +6017,10 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
-            page_size: The number of pallets to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
+            plan_id: Unique identifier of the inbound plan.
+            page_size: Maximum number of pallets to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -4869,8 +6028,8 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/pallets"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/pallets"),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -4890,14 +6049,17 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         sort_order: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ListInboundPlansResponse, ListInboundPlansErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves a paginated list of inbound plans. Filter by status, sort the results, and use ``paginationToken``
+        to retrieve subsequent pages.
 
         Args:
-            page_size: The number of inbound plans to return in the response matching the given query.
-            pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
-            status: The status of an inbound plan. Possible values: ``ACTIVE``, ``VOIDED``, ``SHIPPED``, ``ERRORED``.
-            sort_by: Sort by field.
-            sort_order: The sort order. Possible values: ``ASC``, ``DESC``.
+            page_size: Maximum number of inbound plans to return in the response.
+            pagination_token: Pagination token returned in a previous response. Specify this parameter to retrieve the
+                next page of results.
+            status: Filters results by inbound plan status. Supported values are ``ACTIVE``, ``VOIDED``, ``SHIPPED``,
+                and ``ERRORED``.
+            sort_by: Field used to sort the returned inbound plans.
+            sort_order: Sort direction for the returned inbound plans. Supported values are ``ASC`` and ``DESC``.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -4905,7 +6067,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans"),
             query_params=[
                 param[int | None]("pageSize", page_size),
                 param[str | None]("paginationToken", pagination_token),
@@ -4935,7 +6097,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/items/compliance"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/compliance"),
             query_params=[param[list[str]]("mskus", mskus), param[str]("marketplaceId", marketplace_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[ListItemComplianceDetailsResponse],
@@ -4945,17 +6107,17 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def list_packing_group_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         packing_group_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanBoxesResponse, ListPackingGroupBoxesErrorBody]:
+    ) -> ApiResult[ListPackingGroupBoxesResponse, ListPackingGroupBoxesErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_group_id: Identifier of a packing group.
             page_size: The number of packing group boxes to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -4966,32 +6128,32 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingGroups/{packingGroupId}/boxes"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/packing-groups/{packing-group-id}/boxes"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("packingGroupId", packing_group_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("packing-group-id", packing_group_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[ListInboundPlanBoxesResponse],
+            decoder=async_json_decoder[ListPackingGroupBoxesResponse],
             error_mapper=list_packing_group_boxes_error_mapper,
             request_options=request_options,
         )
 
     async def list_packing_group_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         packing_group_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanItemsResponse, ListPackingGroupItemsErrorBody]:
+    ) -> ApiResult[ListPackingGroupItemsResponse, ListPackingGroupItemsErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             packing_group_id: Identifier of a packing group.
             page_size: The number of packing group items to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -5002,22 +6164,22 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingGroups/{packingGroupId}/items"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/packing-groups/{packing-group-id}/items"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("packingGroupId", packing_group_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("packing-group-id", packing_group_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[ListInboundPlanItemsResponse],
+            decoder=async_json_decoder[ListPackingGroupItemsResponse],
             error_mapper=list_packing_group_items_error_mapper,
             request_options=request_options,
         )
 
     async def list_packing_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -5026,7 +6188,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of packing options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -5036,8 +6198,8 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/packing-options"),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -5049,7 +6211,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def list_placement_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -5058,7 +6220,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of placement options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -5068,8 +6230,10 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/placementOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/placement-options"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -5095,7 +6259,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/items/prepDetails"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/prep-details"),
             query_params=[param[str]("marketplaceId", marketplace_id), param[list[str]]("mskus", mskus)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[ListPrepDetailsResponse],
@@ -5105,17 +6269,17 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def list_shipment_boxes(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanBoxesResponse, ListShipmentBoxesErrorBody]:
+    ) -> ApiResult[ListShipmentBoxesResponse, ListShipmentBoxesErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             page_size: The number of boxes to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -5126,22 +6290,22 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/boxes"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/boxes"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[ListInboundPlanBoxesResponse],
+            decoder=async_json_decoder[ListShipmentBoxesResponse],
             error_mapper=list_shipment_boxes_error_mapper,
             request_options=request_options,
         )
 
     async def list_shipment_content_update_previews(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
@@ -5151,7 +6315,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of content update previews to return.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -5162,10 +6326,10 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/contentUpdatePreviews"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/content-update-previews"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
@@ -5177,17 +6341,17 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def list_shipment_items(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanItemsResponse, ListShipmentItemsErrorBody]:
+    ) -> ApiResult[ListShipmentItemsResponse, ListShipmentItemsErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment. A shipment contains the boxes and units being inbounded.
             page_size: The number of items to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -5198,32 +6362,32 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/items"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/items"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[ListInboundPlanItemsResponse],
+            decoder=async_json_decoder[ListShipmentItemsResponse],
             error_mapper=list_shipment_items_error_mapper,
             request_options=request_options,
         )
 
     async def list_shipment_pallets(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ListInboundPlanPalletsResponse, ListShipmentPalletsErrorBody]:
+    ) -> ApiResult[ListShipmentPalletsResponse, ListShipmentPalletsErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             page_size: The number of pallets to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
@@ -5234,22 +6398,22 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/pallets"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/pallets"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[int | None]("pageSize", page_size), param[str | None]("paginationToken", pagination_token)
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[ListInboundPlanPalletsResponse],
+            decoder=async_json_decoder[ListShipmentPalletsResponse],
             error_mapper=list_shipment_pallets_error_mapper,
             request_options=request_options,
         )
 
     async def list_transportation_options(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         *,
         page_size: int | None = None,
         pagination_token: str | None = None,
@@ -5260,7 +6424,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``GET`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             page_size: The number of transportation options to return in the response matching the given query.
             pagination_token: A token to fetch a certain page when there are multiple pages worth of results.
             placement_option_id: The placement option to get transportation options for. Either ``placementOptionId`` or
@@ -5274,8 +6438,10 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/transportationOptions"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/transportation-options"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             query_params=[
                 param[int | None]("pageSize", page_size),
                 param[str | None]("paginationToken", pagination_token),
@@ -5290,7 +6456,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def schedule_self_ship_appointment(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         slot_id: str,
         body: ScheduleSelfShipAppointmentRequest | ScheduleSelfShipAppointmentRequestDict,
@@ -5300,7 +6466,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             slot_id: An identifier to a self-ship appointment slot.
             body: The request body.
@@ -5311,13 +6477,11 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/selfShipAppointmentSlots/{slotId}/schedule",
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/self-ship-appointment-slots/{slot-id}/schedule",
             ),
             path_params=[
-                param[str]("inboundPlanId", inbound_plan_id),
-                param[str]("shipmentId", shipment_id),
-                param[str]("slotId", slot_id),
+                param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id), param[str]("slot-id", slot_id)
             ],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[ScheduleSelfShipAppointmentRequest | ScheduleSelfShipAppointmentRequestDict](body),
@@ -5329,15 +6493,15 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def set_packing_information(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: SetPackingInformationRequest | SetPackingInformationRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, SetPackingInformationErrorBody]:
+    ) -> ApiResult[SetPackingInformationResponse, SetPackingInformationErrorBody]:
         """Send a ``POST`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -5346,12 +6510,14 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/packingInformation"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/packing-information"
+            ),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[SetPackingInformationRequest | SetPackingInformationRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[SetPackingInformationResponse],
             error_mapper=set_packing_information_error_mapper,
             request_options=request_options,
         )
@@ -5361,7 +6527,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         body: SetPrepDetailsRequest | SetPrepDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, SetPrepDetailsErrorBody]:
+    ) -> ApiResult[SetPrepDetailsResponse, SetPrepDetailsErrorBody]:
         """Send a ``POST`` request.
 
         Args:
@@ -5373,26 +6539,26 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inbound/wfs/v4/items/prepDetails"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/prep-details"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[SetPrepDetailsRequest | SetPrepDetailsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[SetPrepDetailsResponse],
             error_mapper=set_prep_details_error_mapper,
             request_options=request_options,
         )
 
     async def update_inbound_plan_name(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         body: UpdateInboundPlanNameRequest | UpdateInboundPlanNameRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[None, UpdateInboundPlanNameErrorBody]:
-        """Send a ``PUT`` request.
+        """Updates the name of an existing inbound plan.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Unique identifier of the inbound plan.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -5401,8 +6567,8 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/inbound/wfs/v4/inboundPlans/{inboundPlanId}/name"),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/plans/{plan-id}/name"),
+            path_params=[param[str]("plan-id", plan_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateInboundPlanNameRequest | UpdateInboundPlanNameRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -5417,7 +6583,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         body: UpdateItemComplianceDetailsRequest | UpdateItemComplianceDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, UpdateItemComplianceDetailsErrorBody]:
+    ) -> ApiResult[UpdateItemComplianceDetailsResponse, UpdateItemComplianceDetailsErrorBody]:
         """Send a ``PUT`` request.
 
         Args:
@@ -5431,19 +6597,19 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/inbound/wfs/v4/items/compliance"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/inbound/items/compliance"),
             query_params=[param[str]("marketplaceId", marketplace_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateItemComplianceDetailsRequest | UpdateItemComplianceDetailsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[UpdateItemComplianceDetailsResponse],
             error_mapper=update_item_compliance_details_error_mapper,
             request_options=request_options,
         )
 
     async def update_shipment_name(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentNameRequest | UpdateShipmentNameRequestDict,
         *,
@@ -5452,7 +6618,7 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -5462,10 +6628,10 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/name"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/name"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateShipmentNameRequest | UpdateShipmentNameRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -5476,16 +6642,16 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
 
     async def update_shipment_source_address(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentSourceAddressRequest | UpdateShipmentSourceAddressRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, UpdateShipmentSourceAddressErrorBody]:
+    ) -> ApiResult[UpdateShipmentSourceAddressResponse, UpdateShipmentSourceAddressErrorBody]:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -5495,30 +6661,30 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/sourceAddress"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/source-address"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateShipmentSourceAddressRequest | UpdateShipmentSourceAddressRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[UpdateShipmentSourceAddressResponse],
             error_mapper=update_shipment_source_address_error_mapper,
             request_options=request_options,
         )
 
     async def update_shipment_tracking_details(
         self,
-        inbound_plan_id: str,
+        plan_id: str,
         shipment_id: str,
         body: UpdateShipmentTrackingDetailsRequest | UpdateShipmentTrackingDetailsRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[CancelInboundPlanResponse, UpdateShipmentTrackingDetailsErrorBody]:
+    ) -> ApiResult[UpdateShipmentTrackingDetailsResponse, UpdateShipmentTrackingDetailsErrorBody]:
         """Send a ``PUT`` request.
 
         Args:
-            inbound_plan_id: Identifier of an inbound plan.
+            plan_id: Identifier of an inbound plan.
             shipment_id: Identifier of a shipment.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -5528,14 +6694,14 @@ class AsyncWfsInboundWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1(
-                "/inbound/wfs/v4/inboundPlans/{inboundPlanId}/shipments/{shipmentId}/trackingDetails"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/inbound/plans/{plan-id}/shipments/{shipment-id}/tracking-details"
             ),
-            path_params=[param[str]("inboundPlanId", inbound_plan_id), param[str]("shipmentId", shipment_id)],
+            path_params=[param[str]("plan-id", plan_id), param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateShipmentTrackingDetailsRequest | UpdateShipmentTrackingDetailsRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelInboundPlanResponse],
+            decoder=async_json_decoder[UpdateShipmentTrackingDetailsResponse],
             error_mapper=update_shipment_tracking_details_error_mapper,
             request_options=request_options,
         )

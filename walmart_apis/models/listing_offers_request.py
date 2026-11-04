@@ -6,41 +6,37 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .enums.condition_type2 import ConditionType2OrStr
+from .enums.condition_type_product_pricing import ConditionTypeProductPricingOrStr
 from .enums.customer_type import CustomerTypeOrStr
 from .enums.http_method_model import HttpMethodModelOrStr
 
 
 class ListingOffersRequest(SdkBaseModel):
-    """List of request parameters accepted by the getListingOffers operation."""
+    """Request parameters for one ``getListingOffers`` operation in the batch."""
 
     uri: str
-    """The resource path of the operation being called in batch, without query parameters."""
+    """Resource path of the operation being called in the batch, without query parameters."""
 
     method: HttpMethodModelOrStr
-    """The HTTP method associated with the individual APIs being called as part of the batch request."""
+    """HTTP method used for the individual API request in the batch."""
 
     headers: Optional[Any] = UNSET
-    """A mapping of additional HTTP headers to send for the individual batch request."""
+    """Additional HTTP headers to send with an individual batch request."""
 
-    marketplace_id: str = Field(alias="MarketplaceId")
-    """A marketplace identifier."""
-
-    item_condition: ConditionType2OrStr = Field(alias="ItemCondition")
-    """Indicates the condition of the item. Possible values: New, Used, Collectible, Refurbished, Club."""
+    item_condition: ConditionTypeProductPricingOrStr = Field(alias="ItemCondition")
+    """Indicates the item condition. Possible values are ``New``, ``Restored``, and ``Pre-Owned``."""
 
     customer_type: Optional[CustomerTypeOrStr] = Field(default=UNSET, alias="CustomerType")
-    """Indicates whether to request Consumer or Business offers. Default is Consumer."""
+    """Indicates whether to request ``Consumer`` or ``Business`` offers. The default is ``Consumer``."""
 
     seller_sku: str = Field(alias="SellerSKU")
-    """The seller stock keeping unit (SKU) of the item."""
+    """Seller stock keeping unit (SKU) that identifies the item."""
 
 
 class ListingOffersRequestDict(TypedDict):
     uri: str
     method: HttpMethodModelOrStr
     headers: NotRequired[Any]
-    marketplace_id: str
-    item_condition: ConditionType2OrStr
+    item_condition: ConditionTypeProductPricingOrStr
     customer_type: NotRequired[CustomerTypeOrStr]
     seller_sku: str

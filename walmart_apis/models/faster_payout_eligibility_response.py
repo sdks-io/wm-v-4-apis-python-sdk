@@ -11,6 +11,7 @@ class FasterPayoutEligibilityResponse(SdkBaseModel):
     is_eligible: Optional[bool] = Field(default=UNSET, alias="isEligible")
     ineligible_reason: Optional[str] = Field(default=UNSET, alias="ineligibleReason")
     available_amount: Optional[Money] = Field(default=UNSET, alias="availableAmount")
+    """Canonical monetary amount (string value + ISO 4217 currency code)."""
 
 
 class FasterPayoutEligibilityResponseDict(TypedDict):

@@ -7,13 +7,13 @@ from ..core import SdkBaseModel
 
 
 class WalmartItemIdentifier(SdkBaseModel):
-    """Schema to identify an item by MarketPlaceId and Walmart Item ID ."""
+    """Walmart Marketplace and Walmart Item ID that identify the item."""
 
     marketplace_id: str = Field(alias="MarketplaceId")
-    """A marketplace identifier."""
+    """Walmart Marketplace identifier associated with the item."""
 
     walmart_item_id: str = Field(alias="walmartItemId")
-    """The Walmart Item ID of the item."""
+    """Walmart Item ID that identifies the item."""
 
 
 class WalmartItemIdentifierDict(TypedDict):

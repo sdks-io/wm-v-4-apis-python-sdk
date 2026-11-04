@@ -4,14 +4,19 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .order import Order, OrderDict
+from .address_orders import AddressOrders, AddressOrdersDict
 
 
 class Payload2(SdkBaseModel):
-    next_token: Optional[str] = Field(default=UNSET, alias="nextToken")
-    orders: Optional[list[Order]] = UNSET
+    """Shipping address for the purchase order. Do not log response bodies containing shipping addresses."""
+
+    purchase_order_id: Optional[str] = Field(default=UNSET, alias="purchaseOrderId")
+    """Purchase order identifier assigned by Walmart."""
+
+    shipping_address: Optional[AddressOrders] = Field(default=UNSET, alias="shippingAddress")
+    """Postal address associated with the order."""
 
 
 class Payload2Dict(TypedDict):
-    next_token: NotRequired[str]
-    orders: NotRequired[list[OrderDict]]
+    purchase_order_id: NotRequired[str]
+    shipping_address: NotRequired[AddressOrdersDict]

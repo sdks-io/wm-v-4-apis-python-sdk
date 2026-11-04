@@ -46,8 +46,8 @@ class Solicitations:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.create_product_review_and_seller_feedback_solicitation(
                 sp_api_order_id, marketplace_ids, request_options=request_options
@@ -71,8 +71,8 @@ class Solicitations:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.get_solicitation_actions_for_order(
                 sp_api_order_id, marketplace_ids, request_options=request_options
@@ -104,8 +104,8 @@ class AsyncSolicitations:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.create_product_review_and_seller_feedback_solicitation(
                 sp_api_order_id, marketplace_ids, request_options=request_options
@@ -129,8 +129,8 @@ class AsyncSolicitations:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.get_solicitation_actions_for_order(
                 sp_api_order_id, marketplace_ids, request_options=request_options
@@ -159,7 +159,7 @@ class SolicitationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
+            url_template=self._server.default_catalog_items(
                 "/solicitations/v4/orders/{sp-apiOrderId}/solicitations/productReviewAndSellerFeedback"
             ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
@@ -188,7 +188,7 @@ class SolicitationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/solicitations/v4/orders/{sp-apiOrderId}"),
+            url_template=self._server.default_catalog_items("/solicitations/v4/orders/{sp-apiOrderId}"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             auth_scheme=self._auth.wallet_auth,
@@ -215,7 +215,7 @@ class AsyncSolicitationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
+            url_template=self._server.default_catalog_items(
                 "/solicitations/v4/orders/{sp-apiOrderId}/solicitations/productReviewAndSellerFeedback"
             ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
@@ -244,7 +244,7 @@ class AsyncSolicitationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/solicitations/v4/orders/{sp-apiOrderId}"),
+            url_template=self._server.default_catalog_items("/solicitations/v4/orders/{sp-apiOrderId}"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             auth_scheme=self._auth.wallet_auth,

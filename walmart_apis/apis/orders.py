@@ -45,14 +45,14 @@ from ..models.cancel_order_lines_request import CancelOrderLinesRequest, CancelO
 from ..models.cancel_order_lines_response import CancelOrderLinesResponse
 from ..models.deliver_order_lines_request import DeliverOrderLinesRequest, DeliverOrderLinesRequestDict
 from ..models.deliver_order_lines_response import DeliverOrderLinesResponse
-from ..models.enums.fulfillment_type import FulfillmentTypeOrStr
-from ..models.enums.order_status import OrderStatusOrStr
-from ..models.get_fulfillment_order_response import GetFulfillmentOrderResponse
-from ..models.get_fulfillment_order_shipments_response import GetFulfillmentOrderShipmentsResponse
+from ..models.enums.fulfillment_type1 import FulfillmentType1OrStr
+from ..models.enums.order_status1 import OrderStatus1OrStr
 from ..models.get_order_address_response import GetOrderAddressResponse
 from ..models.get_order_buyer_info_response import GetOrderBuyerInfoResponse
+from ..models.get_order_items_response import GetOrderItemsResponse
 from ..models.get_order_regulated_info_response import GetOrderRegulatedInfoResponse
 from ..models.get_order_response import GetOrderResponse
+from ..models.get_orders_response import GetOrdersResponse
 from ..models.multi_package_ship_request import MultiPackageShipRequest, MultiPackageShipRequestDict
 from ..models.multi_package_ship_response import MultiPackageShipResponse
 from ..models.refund_order_lines_request import RefundOrderLinesRequest, RefundOrderLinesRequestDict
@@ -80,10 +80,11 @@ class Orders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> AcknowledgeOrderResponse:
-        """Send a ``POST`` request.
+        """Acknowledges receipt of the specified order lines in a Walmart Marketplace order. Returns the purchase order
+        ID and the timestamp when the acknowledgment was recorded.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -92,7 +93,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -110,10 +111,12 @@ class Orders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CancelOrderLinesResponse:
-        """Send a ``POST`` request.
+        """Cancels the specified order lines in a Walmart Marketplace order and records the cancellation reason for each
+        line. You can specify the quantity to cancel for each order line. Returns the purchase order ID and the
+        cancellation timestamp.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -122,7 +125,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -141,15 +144,12 @@ class Orders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> DeliverOrderLinesResponse:
-        """Records the terminal ``Delivered`` event for one or more order lines, optionally with package-level
-        proof-of-delivery (tracking number, package number, delivery timestamp). This is separated from
-        ``/shipment-status`` because delivery is a terminal state and carries different downstream semantics (invoicing
-        windows open, return windows start).
-
-        Walmart parity from gmp-orders-mono ``deliverOrder``.
+        """Records delivery of the specified order lines. For each line, you can provide the delivered quantity,
+        tracking number, package number, and delivery timestamp. Recording delivery begins the associated invoicing and
+        return windows.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -158,7 +158,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -173,10 +173,11 @@ class Orders:
     def get_order(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> GetOrderResponse:
-        """Send a ``GET`` request.
+        """Retrieves a Walmart Marketplace order, including order status, fulfillment information, and order line
+        details.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -184,7 +185,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -196,12 +197,11 @@ class Orders:
     def get_order_address(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> GetOrderAddressResponse:
-        """Returns the ship-to postal address for a single purchase order. Mirrors Amazon SP-API ``getOrderAddress``.
-        PII-restricted endpoint: handlers are marked ``@RestrictedData`` server-side and the response body must NOT be
-        logged.
+        """Retrieves the shipping address associated with a Walmart Marketplace order, including the recipient's name
+        and postal address.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -209,7 +209,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -222,12 +222,11 @@ class Orders:
     def get_order_buyer_info(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> GetOrderBuyerInfoResponse:
-        """Returns the buyer's display name, email address, and an anonymized phone (last 4 digits only). Mirrors Amazon
-        SP-API ``getOrderBuyerInfo``. PII-restricted endpoint: handlers are marked ``@RestrictedData`` server-side and
-        request/response bodies must NOT be logged.
+        """Retrieves buyer contact information for a Walmart Marketplace order, including the buyer's name, email
+        address, and a masked phone number showing only the last four digits.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -235,7 +234,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -247,12 +246,12 @@ class Orders:
 
     def get_order_items(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> GetFulfillmentOrderShipmentsResponse:
-        """Returns the SKU / quantity / item-price projection of a single purchase order. Mirrors Amazon SP-API
-        ``getOrderItems``. Not PII-restricted: only product, quantity, and price are returned.
+    ) -> GetOrderItemsResponse:
+        """Retrieves the order lines for a Walmart Marketplace order, including item identifiers, quantities, prices,
+        order line statuses, and fulfillment information.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -260,7 +259,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -273,19 +272,11 @@ class Orders:
     def get_order_regulated_info(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> GetOrderRegulatedInfoResponse:
-        """Parity with Amazon SP-API Orders v0 ``getOrderRegulatedInfo``. Returns the verification requirements that
-        apply to an order containing regulated items (alcohol, tobacco, age-restricted goods): the required
-        ID-verification method, the minimum buyer age, the regulated category, and any value-added services the order
-        ships with.
-
-        **Walmart OMS coverage gap .** The the underlying service Order Lookup response does not currently surface
-        regulated-item metadata. Until upstream support lands (tracked separately as a follow-up to this PR), every
-        order returns the safe default ``regulatedCategory=NOT_REGULATED`` with ``requiredVerificationMethod=NONE``. The
-        endpoint shape and contract are stable; only the projected values will become richer once OMS exposes the
-        fields.
+        """Retrieves regulated-item verification information for a Walmart Marketplace order, including applicable age
+        and identity verification requirements.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -293,7 +284,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -310,55 +301,35 @@ class Orders:
         created_after: RFC3339DateTime | None = None,
         created_before: RFC3339DateTime | None = None,
         last_updated_after: RFC3339DateTime | None = None,
-        order_statuses: list[OrderStatusOrStr] | None = None,
-        fulfillment_types: list[FulfillmentTypeOrStr] | None = None,
+        order_statuses: list[OrderStatus1OrStr] | None = None,
+        fulfillment_types: list[FulfillmentType1OrStr] | None = None,
         page_size: int | None = 100,
         next_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> GetFulfillmentOrderResponse:
-        """Returns orders matching the given filters. Orders are fulfilled by sellers (WFS or seller-fulfilled). Maps to
-        Walmart OMS order queries.
+    ) -> GetOrdersResponse:
+        """Retrieves Walmart Marketplace orders, including order status, fulfillment information, and order line
+        details. You can filter results by a single order status and use pagination to retrieve additional orders. Use
+        ``pageSize`` to control the number of orders returned per page and ``nextToken`` to retrieve subsequent pages.
 
-        ### Current limitations (roadmap)
-
-        The underlying the Orders service backend does not yet support every filter declared below. Calls using any of
-        the following will return ``400 Bad Request`` with ``code=FILTER_NOT_SUPPORTED`` and a human-readable
-        ``message`` explaining the specific rejection. Phase 2 will lift these one-by-one as the underlying service adds
-        capability.
-
-        | Filter | Status today | Reason |
-        |---|---|---|
-        | ``createdAfter``, ``createdBefore`` | Rejected (400) | the Orders service does not accept date-range filters
-            at the order level. |
-        | ``lastUpdatedAfter`` | Rejected (400) | the underlying service has no order-level update-date index. |
-        | ``orderStatuses`` with >1 value | Rejected (400) | the underlying service accepts one status per call; pass a
-            single value or omit to match all. |
-        | ``fulfillmentTypes`` | Rejected (400) | the underlying service accepts one shipNodeType per call; multi-type
-            fan-out is Phase 2. |
-
-        These parameters remain in the contract (rather than being removed) so that SDKs generated today stay
-        forward-compatible with the the roadmap surface — your code keeps compiling, only the runtime behaviour changes
-        when Phase 2 ships. Until then, omit them or handle the documented 400 gracefully. The ``tools/loadgen-orders.sh
-        --contract`` smoke sweep exercises the rejection contract on every run.
+        ## Current limitations (roadmap) ## The underlying the Orders service backend does not yet support ## every
+        filter declared below. Calls using any of the following will ## return ``400 Bad Request`` with
+        ``code=FILTER_NOT_SUPPORTED`` and a ## human-readable ``message`` explaining the specific rejection. Phase ## 2
+        will lift these one-by-one as the underlying service adds capability.
 
         Args:
-            created_after: Filter orders created after this date-time (ISO 8601). **the roadmap — not yet supported.**
-                Sending this parameter today returns ``400 FILTER_NOT_SUPPORTED``; the Orders service does not accept
-                date-range filters at the order level. Tracked by . Retained in the contract so SDKs generated today
-                stay forward-compatible.
-            created_before: Filter orders created before this date-time (ISO 8601). **the roadmap — not yet supported.**
-                See ``createdAfter`` for the rationale and the tracking ticket.
-            last_updated_after: Filter orders updated after this date-time (ISO 8601). **the roadmap — not yet
-                supported.** Sending this parameter today returns ``400 FILTER_NOT_SUPPORTED``; the Orders service has
-                no order-level update-date index. Tracked by .
-            order_statuses: Filter by order status. **the roadmap limitation:** the Orders service accepts AT MOST ONE
-                status per call. Passing multiple values today returns `400 FILTER_NOT_SUPPORTED`; pass a single value
-                or omit to match all. Multi-status fan-out tracked by .
-            fulfillment_types: Filter by fulfillment type. **the roadmap — not yet supported.** Sending this parameter
-                today returns ``400 FILTER_NOT_SUPPORTED``; the underlying service accepts one shipNodeType per call and
-                multi-type fan-out is Phase 2. Tracked by .
-            page_size: Value sent with the request.
-            next_token: Value sent with the request.
+            created_after: Filters orders created after the specified date and time (ISO 8601). This parameter is not
+                currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            created_before: Filters orders created before the specified date and time (ISO 8601). This parameter is not
+                currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            last_updated_after: Filters orders updated after the specified date and time (ISO 8601). This parameter is
+                not currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            order_statuses: Filters orders by status. Only one status is supported per request. Providing multiple
+                statuses returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            fulfillment_types: Filters orders by fulfillment type. Not currently supported: Providing this parameter
+                returns ``400`` with ``FILTER_NOT_SUPPORTED``
+            page_size: Maximum number of orders to return per page.
+            next_token: Pagination token returned in ``payload.nextToken`` from the previous response. Use this token to
+                retrieve the next page of orders.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -366,7 +337,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -393,13 +364,11 @@ class Orders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> RefundOrderLinesResponse:
-        """Walmart-specific write — no Amazon SP-API Orders v0 equivalent (Amazon refunds live in the Finance API).
-        Mirrors gmp-orders-mono's legacy ``/partner-api/{market}/v3/orders/{po}/refund`` contract, simplified for the v4
-        surface: a flat ``orderLines[]`` with per-line refund amount + reason instead of the legacy three-level nesting
-        (``orderLines → refunds → refundCharges``).
+        """Issues a seller-initiated refund for one or more order lines. Provide ``refundAmount`` and ``refundType`` for
+        each line, and optionally include ``reason``.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -408,7 +377,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -427,10 +396,11 @@ class Orders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ShipOrderLinesResponse:
-        """Send a ``POST`` request.
+        """Confirms shipment of the specified order lines in a Walmart Marketplace order, including carrier, tracking
+        number, and shipment date. Returns the purchase order ID and the timestamp when the shipment was recorded.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -439,7 +409,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -457,14 +427,11 @@ class Orders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> MultiPackageShipResponse:
-        """Walmart-specific extension of ``/shipping``. Each package carries its own tracking number, carrier,
-        dimensions, and the order lines it covers. Maps onto FMS's existing ``shipments[]`` envelope (one FMS shipment
-        per v4 package). Inspired by gmp-orders-mono's ``shipOrderV2`` (multiPackageShipping) operation; we hoist
-        ``packages[]`` to the top level rather than nesting it under each line so the request stays self-evidently
-        package-oriented.
+        """Confirms shipment of a Walmart Marketplace order across multiple packages and returns the shipment
+        confirmation, including the number of packages accepted.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -473,7 +440,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -492,14 +459,12 @@ class Orders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> UpdateShipmentStatusResponse:
-        """Records a non-terminal shipment-lifecycle event for an order (ready for pickup, picked up, in transit, out
-        for delivery). Use the dedicated ``/deliver`` endpoint for terminal delivery — it carries proof-of-delivery
-        semantics this endpoint does not.
-
-        Amazon SP-API Orders v0 ``updateShipmentStatus`` parity.
+        """Updates the shipment status of specified order lines in a Walmart
+          Marketplace order, including pickup and in-transit milestones.
+          Use the delivery operation to record completed deliveries.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -508,7 +473,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -527,16 +492,11 @@ class Orders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> UpdateVerificationStatusResponse:
-        """Parity with Amazon SP-API Orders v0 ``updateVerificationStatus``. The seller calls this after delivering a
-        regulated-item order to record whether the buyer's identity / age was verified at the doorstep. An APPROVED
-        status releases the order for settlement; REJECTED requires a ``rejectionReason`` and triggers downstream
-        return-processing.
-
-        Gated by the CCM-managed ``orders.features.regulatedInfoEnabled`` kill-switch (live-refreshable, parity with the
-        cancel kill-switch).
+        """Records the outcome of buyer identity or age verification at delivery for a regulated Walmart Marketplace
+        order. The verification status indicates whether the buyer's identity was successfully verified or rejected.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -545,7 +505,7 @@ class Orders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -573,10 +533,11 @@ class AsyncOrders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> AcknowledgeOrderResponse:
-        """Send a ``POST`` request.
+        """Acknowledges receipt of the specified order lines in a Walmart Marketplace order. Returns the purchase order
+        ID and the timestamp when the acknowledgment was recorded.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -585,7 +546,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -603,10 +564,12 @@ class AsyncOrders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CancelOrderLinesResponse:
-        """Send a ``POST`` request.
+        """Cancels the specified order lines in a Walmart Marketplace order and records the cancellation reason for each
+        line. You can specify the quantity to cancel for each order line. Returns the purchase order ID and the
+        cancellation timestamp.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -615,7 +578,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -634,15 +597,12 @@ class AsyncOrders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> DeliverOrderLinesResponse:
-        """Records the terminal ``Delivered`` event for one or more order lines, optionally with package-level
-        proof-of-delivery (tracking number, package number, delivery timestamp). This is separated from
-        ``/shipment-status`` because delivery is a terminal state and carries different downstream semantics (invoicing
-        windows open, return windows start).
-
-        Walmart parity from gmp-orders-mono ``deliverOrder``.
+        """Records delivery of the specified order lines. For each line, you can provide the delivered quantity,
+        tracking number, package number, and delivery timestamp. Recording delivery begins the associated invoicing and
+        return windows.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -651,7 +611,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -666,10 +626,11 @@ class AsyncOrders:
     async def get_order(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> GetOrderResponse:
-        """Send a ``GET`` request.
+        """Retrieves a Walmart Marketplace order, including order status, fulfillment information, and order line
+        details.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -677,7 +638,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -689,12 +650,11 @@ class AsyncOrders:
     async def get_order_address(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> GetOrderAddressResponse:
-        """Returns the ship-to postal address for a single purchase order. Mirrors Amazon SP-API ``getOrderAddress``.
-        PII-restricted endpoint: handlers are marked ``@RestrictedData`` server-side and the response body must NOT be
-        logged.
+        """Retrieves the shipping address associated with a Walmart Marketplace order, including the recipient's name
+        and postal address.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -702,7 +662,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -717,12 +677,11 @@ class AsyncOrders:
     async def get_order_buyer_info(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> GetOrderBuyerInfoResponse:
-        """Returns the buyer's display name, email address, and an anonymized phone (last 4 digits only). Mirrors Amazon
-        SP-API ``getOrderBuyerInfo``. PII-restricted endpoint: handlers are marked ``@RestrictedData`` server-side and
-        request/response bodies must NOT be logged.
+        """Retrieves buyer contact information for a Walmart Marketplace order, including the buyer's name, email
+        address, and a masked phone number showing only the last four digits.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -730,7 +689,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -744,12 +703,12 @@ class AsyncOrders:
 
     async def get_order_items(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> GetFulfillmentOrderShipmentsResponse:
-        """Returns the SKU / quantity / item-price projection of a single purchase order. Mirrors Amazon SP-API
-        ``getOrderItems``. Not PII-restricted: only product, quantity, and price are returned.
+    ) -> GetOrderItemsResponse:
+        """Retrieves the order lines for a Walmart Marketplace order, including item identifiers, quantities, prices,
+        order line statuses, and fulfillment information.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -757,7 +716,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -770,19 +729,11 @@ class AsyncOrders:
     async def get_order_regulated_info(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> GetOrderRegulatedInfoResponse:
-        """Parity with Amazon SP-API Orders v0 ``getOrderRegulatedInfo``. Returns the verification requirements that
-        apply to an order containing regulated items (alcohol, tobacco, age-restricted goods): the required
-        ID-verification method, the minimum buyer age, the regulated category, and any value-added services the order
-        ships with.
-
-        **Walmart OMS coverage gap .** The the underlying service Order Lookup response does not currently surface
-        regulated-item metadata. Until upstream support lands (tracked separately as a follow-up to this PR), every
-        order returns the safe default ``regulatedCategory=NOT_REGULATED`` with ``requiredVerificationMethod=NONE``. The
-        endpoint shape and contract are stable; only the projected values will become richer once OMS exposes the
-        fields.
+        """Retrieves regulated-item verification information for a Walmart Marketplace order, including applicable age
+        and identity verification requirements.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -790,7 +741,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -807,55 +758,35 @@ class AsyncOrders:
         created_after: RFC3339DateTime | None = None,
         created_before: RFC3339DateTime | None = None,
         last_updated_after: RFC3339DateTime | None = None,
-        order_statuses: list[OrderStatusOrStr] | None = None,
-        fulfillment_types: list[FulfillmentTypeOrStr] | None = None,
+        order_statuses: list[OrderStatus1OrStr] | None = None,
+        fulfillment_types: list[FulfillmentType1OrStr] | None = None,
         page_size: int | None = 100,
         next_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> GetFulfillmentOrderResponse:
-        """Returns orders matching the given filters. Orders are fulfilled by sellers (WFS or seller-fulfilled). Maps to
-        Walmart OMS order queries.
+    ) -> GetOrdersResponse:
+        """Retrieves Walmart Marketplace orders, including order status, fulfillment information, and order line
+        details. You can filter results by a single order status and use pagination to retrieve additional orders. Use
+        ``pageSize`` to control the number of orders returned per page and ``nextToken`` to retrieve subsequent pages.
 
-        ### Current limitations (roadmap)
-
-        The underlying the Orders service backend does not yet support every filter declared below. Calls using any of
-        the following will return ``400 Bad Request`` with ``code=FILTER_NOT_SUPPORTED`` and a human-readable
-        ``message`` explaining the specific rejection. Phase 2 will lift these one-by-one as the underlying service adds
-        capability.
-
-        | Filter | Status today | Reason |
-        |---|---|---|
-        | ``createdAfter``, ``createdBefore`` | Rejected (400) | the Orders service does not accept date-range filters
-            at the order level. |
-        | ``lastUpdatedAfter`` | Rejected (400) | the underlying service has no order-level update-date index. |
-        | ``orderStatuses`` with >1 value | Rejected (400) | the underlying service accepts one status per call; pass a
-            single value or omit to match all. |
-        | ``fulfillmentTypes`` | Rejected (400) | the underlying service accepts one shipNodeType per call; multi-type
-            fan-out is Phase 2. |
-
-        These parameters remain in the contract (rather than being removed) so that SDKs generated today stay
-        forward-compatible with the the roadmap surface — your code keeps compiling, only the runtime behaviour changes
-        when Phase 2 ships. Until then, omit them or handle the documented 400 gracefully. The ``tools/loadgen-orders.sh
-        --contract`` smoke sweep exercises the rejection contract on every run.
+        ## Current limitations (roadmap) ## The underlying the Orders service backend does not yet support ## every
+        filter declared below. Calls using any of the following will ## return ``400 Bad Request`` with
+        ``code=FILTER_NOT_SUPPORTED`` and a ## human-readable ``message`` explaining the specific rejection. Phase ## 2
+        will lift these one-by-one as the underlying service adds capability.
 
         Args:
-            created_after: Filter orders created after this date-time (ISO 8601). **the roadmap — not yet supported.**
-                Sending this parameter today returns ``400 FILTER_NOT_SUPPORTED``; the Orders service does not accept
-                date-range filters at the order level. Tracked by . Retained in the contract so SDKs generated today
-                stay forward-compatible.
-            created_before: Filter orders created before this date-time (ISO 8601). **the roadmap — not yet supported.**
-                See ``createdAfter`` for the rationale and the tracking ticket.
-            last_updated_after: Filter orders updated after this date-time (ISO 8601). **the roadmap — not yet
-                supported.** Sending this parameter today returns ``400 FILTER_NOT_SUPPORTED``; the Orders service has
-                no order-level update-date index. Tracked by .
-            order_statuses: Filter by order status. **the roadmap limitation:** the Orders service accepts AT MOST ONE
-                status per call. Passing multiple values today returns `400 FILTER_NOT_SUPPORTED`; pass a single value
-                or omit to match all. Multi-status fan-out tracked by .
-            fulfillment_types: Filter by fulfillment type. **the roadmap — not yet supported.** Sending this parameter
-                today returns ``400 FILTER_NOT_SUPPORTED``; the underlying service accepts one shipNodeType per call and
-                multi-type fan-out is Phase 2. Tracked by .
-            page_size: Value sent with the request.
-            next_token: Value sent with the request.
+            created_after: Filters orders created after the specified date and time (ISO 8601). This parameter is not
+                currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            created_before: Filters orders created before the specified date and time (ISO 8601). This parameter is not
+                currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            last_updated_after: Filters orders updated after the specified date and time (ISO 8601). This parameter is
+                not currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            order_statuses: Filters orders by status. Only one status is supported per request. Providing multiple
+                statuses returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            fulfillment_types: Filters orders by fulfillment type. Not currently supported: Providing this parameter
+                returns ``400`` with ``FILTER_NOT_SUPPORTED``
+            page_size: Maximum number of orders to return per page.
+            next_token: Pagination token returned in ``payload.nextToken`` from the previous response. Use this token to
+                retrieve the next page of orders.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -863,7 +794,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -890,13 +821,11 @@ class AsyncOrders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> RefundOrderLinesResponse:
-        """Walmart-specific write — no Amazon SP-API Orders v0 equivalent (Amazon refunds live in the Finance API).
-        Mirrors gmp-orders-mono's legacy ``/partner-api/{market}/v3/orders/{po}/refund`` contract, simplified for the v4
-        surface: a flat ``orderLines[]`` with per-line refund amount + reason instead of the legacy three-level nesting
-        (``orderLines → refunds → refundCharges``).
+        """Issues a seller-initiated refund for one or more order lines. Provide ``refundAmount`` and ``refundType`` for
+        each line, and optionally include ``reason``.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -905,7 +834,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -924,10 +853,11 @@ class AsyncOrders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ShipOrderLinesResponse:
-        """Send a ``POST`` request.
+        """Confirms shipment of the specified order lines in a Walmart Marketplace order, including carrier, tracking
+        number, and shipment date. Returns the purchase order ID and the timestamp when the shipment was recorded.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -936,7 +866,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -954,14 +884,11 @@ class AsyncOrders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> MultiPackageShipResponse:
-        """Walmart-specific extension of ``/shipping``. Each package carries its own tracking number, carrier,
-        dimensions, and the order lines it covers. Maps onto FMS's existing ``shipments[]`` envelope (one FMS shipment
-        per v4 package). Inspired by gmp-orders-mono's ``shipOrderV2`` (multiPackageShipping) operation; we hoist
-        ``packages[]`` to the top level rather than nesting it under each line so the request stays self-evidently
-        package-oriented.
+        """Confirms shipment of a Walmart Marketplace order across multiple packages and returns the shipment
+        confirmation, including the number of packages accepted.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -970,7 +897,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -991,14 +918,12 @@ class AsyncOrders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> UpdateShipmentStatusResponse:
-        """Records a non-terminal shipment-lifecycle event for an order (ready for pickup, picked up, in transit, out
-        for delivery). Use the dedicated ``/deliver`` endpoint for terminal delivery — it carries proof-of-delivery
-        semantics this endpoint does not.
-
-        Amazon SP-API Orders v0 ``updateShipmentStatus`` parity.
+        """Updates the shipment status of specified order lines in a Walmart
+          Marketplace order, including pickup and in-transit milestones.
+          Use the delivery operation to record completed deliveries.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1007,7 +932,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -1028,16 +953,11 @@ class AsyncOrders:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> UpdateVerificationStatusResponse:
-        """Parity with Amazon SP-API Orders v0 ``updateVerificationStatus``. The seller calls this after delivering a
-        regulated-item order to record whether the buyer's identity / age was verified at the doorstep. An APPROVED
-        status releases the order for settlement; REJECTED requires a ``rejectionReason`` and triggers downstream
-        return-processing.
-
-        Gated by the CCM-managed ``orders.features.regulatedInfoEnabled`` kill-switch (live-refreshable, parity with the
-        cancel kill-switch).
+        """Records the outcome of buyer identity or age verification at delivery for a regulated Walmart Marketplace
+        order. The verification status indicates whether the buyer's identity was successfully verified or rejected.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1046,7 +966,7 @@ class AsyncOrders:
             Success
 
         Raises:
-            ApiError: Bad Request. The the roadmap limitations described on ``GET /orders/v4/orders`` surface here with
+            ApiError: Bad Request. The the roadmap limitations described on ``GET /v4/orders`` surface here with
                 ``code=FILTER_NOT_SUPPORTED`` and a human-readable ``message`` naming the specific rejected filter.
                 Other validation failures (malformed body, missing required field, unknown enum, etc.) reuse this
                 response with their own ``code`` value. The ``code`` field is intentionally an open string — new error
@@ -1073,10 +993,11 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[AcknowledgeOrderResponse, AcknowledgeOrderErrorBody]:
-        """Send a ``POST`` request.
+        """Acknowledges receipt of the specified order lines in a Walmart Marketplace order. Returns the purchase order
+        ID and the timestamp when the acknowledgment was recorded.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1085,8 +1006,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/acknowledge"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/acknowledge"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[AcknowledgeOrderRequest | AcknowledgeOrderRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1102,10 +1023,12 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CancelOrderLinesResponse, CancelOrderLinesErrorBody]:
-        """Send a ``POST`` request.
+        """Cancels the specified order lines in a Walmart Marketplace order and records the cancellation reason for each
+        line. You can specify the quantity to cancel for each order line. Returns the purchase order ID and the
+        cancellation timestamp.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1114,8 +1037,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/cancel"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/cancel"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CancelOrderLinesRequest | CancelOrderLinesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1131,15 +1054,12 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[DeliverOrderLinesResponse, DeliverOrderLinesErrorBody]:
-        """Records the terminal ``Delivered`` event for one or more order lines, optionally with package-level
-        proof-of-delivery (tracking number, package number, delivery timestamp). This is separated from
-        ``/shipment-status`` because delivery is a terminal state and carries different downstream semantics (invoicing
-        windows open, return windows start).
-
-        Walmart parity from gmp-orders-mono ``deliverOrder``.
+        """Records delivery of the specified order lines. For each line, you can provide the delivered quantity,
+        tracking number, package number, and delivery timestamp. Recording delivery begins the associated invoicing and
+        return windows.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1148,8 +1068,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/deliver"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/deliver"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[DeliverOrderLinesRequest | DeliverOrderLinesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1161,10 +1081,11 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
     def get_order(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[GetOrderResponse, GetOrderErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves a Walmart Marketplace order, including order status, fulfillment information, and order line
+        details.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1172,8 +1093,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetOrderResponse],
             error_mapper=get_order_error_mapper,
@@ -1183,12 +1104,11 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
     def get_order_address(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[GetOrderAddressResponse, GetOrderAddressErrorBody]:
-        """Returns the ship-to postal address for a single purchase order. Mirrors Amazon SP-API ``getOrderAddress``.
-        PII-restricted endpoint: handlers are marked ``@RestrictedData`` server-side and the response body must NOT be
-        logged.
+        """Retrieves the shipping address associated with a Walmart Marketplace order, including the recipient's name
+        and postal address.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1196,8 +1116,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/address"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/address"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetOrderAddressResponse],
             error_mapper=get_order_address_error_mapper,
@@ -1207,12 +1127,11 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
     def get_order_buyer_info(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[GetOrderBuyerInfoResponse, GetOrderBuyerInfoErrorBody]:
-        """Returns the buyer's display name, email address, and an anonymized phone (last 4 digits only). Mirrors Amazon
-        SP-API ``getOrderBuyerInfo``. PII-restricted endpoint: handlers are marked ``@RestrictedData`` server-side and
-        request/response bodies must NOT be logged.
+        """Retrieves buyer contact information for a Walmart Marketplace order, including the buyer's name, email
+        address, and a masked phone number showing only the last four digits.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1220,8 +1139,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/buyerInfo"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/buyer-info"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetOrderBuyerInfoResponse],
             error_mapper=get_order_buyer_info_error_mapper,
@@ -1230,12 +1149,12 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
 
     def get_order_items(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[GetFulfillmentOrderShipmentsResponse, GetOrderItemsErrorBody]:
-        """Returns the SKU / quantity / item-price projection of a single purchase order. Mirrors Amazon SP-API
-        ``getOrderItems``. Not PII-restricted: only product, quantity, and price are returned.
+    ) -> ApiResult[GetOrderItemsResponse, GetOrderItemsErrorBody]:
+        """Retrieves the order lines for a Walmart Marketplace order, including item identifiers, quantities, prices,
+        order line statuses, and fulfillment information.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1243,10 +1162,10 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/items"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/items"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[GetFulfillmentOrderShipmentsResponse],
+            decoder=json_decoder[GetOrderItemsResponse],
             error_mapper=get_order_items_error_mapper,
             request_options=request_options,
         )
@@ -1254,19 +1173,11 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
     def get_order_regulated_info(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[GetOrderRegulatedInfoResponse, GetOrderRegulatedInfoErrorBody]:
-        """Parity with Amazon SP-API Orders v0 ``getOrderRegulatedInfo``. Returns the verification requirements that
-        apply to an order containing regulated items (alcohol, tobacco, age-restricted goods): the required
-        ID-verification method, the minimum buyer age, the regulated category, and any value-added services the order
-        ships with.
-
-        **Walmart OMS coverage gap .** The the underlying service Order Lookup response does not currently surface
-        regulated-item metadata. Until upstream support lands (tracked separately as a follow-up to this PR), every
-        order returns the safe default ``regulatedCategory=NOT_REGULATED`` with ``requiredVerificationMethod=NONE``. The
-        endpoint shape and contract are stable; only the projected values will become richer once OMS exposes the
-        fields.
+        """Retrieves regulated-item verification information for a Walmart Marketplace order, including applicable age
+        and identity verification requirements.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1274,8 +1185,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/regulatedInfo"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/regulated-info"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetOrderRegulatedInfoResponse],
             error_mapper=get_order_regulated_info_error_mapper,
@@ -1288,55 +1199,35 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         created_after: RFC3339DateTime | None = None,
         created_before: RFC3339DateTime | None = None,
         last_updated_after: RFC3339DateTime | None = None,
-        order_statuses: list[OrderStatusOrStr] | None = None,
-        fulfillment_types: list[FulfillmentTypeOrStr] | None = None,
+        order_statuses: list[OrderStatus1OrStr] | None = None,
+        fulfillment_types: list[FulfillmentType1OrStr] | None = None,
         page_size: int | None = 100,
         next_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[GetFulfillmentOrderResponse, GetOrdersErrorBody]:
-        """Returns orders matching the given filters. Orders are fulfilled by sellers (WFS or seller-fulfilled). Maps to
-        Walmart OMS order queries.
+    ) -> ApiResult[GetOrdersResponse, GetOrdersErrorBody]:
+        """Retrieves Walmart Marketplace orders, including order status, fulfillment information, and order line
+        details. You can filter results by a single order status and use pagination to retrieve additional orders. Use
+        ``pageSize`` to control the number of orders returned per page and ``nextToken`` to retrieve subsequent pages.
 
-        ### Current limitations (roadmap)
-
-        The underlying the Orders service backend does not yet support every filter declared below. Calls using any of
-        the following will return ``400 Bad Request`` with ``code=FILTER_NOT_SUPPORTED`` and a human-readable
-        ``message`` explaining the specific rejection. Phase 2 will lift these one-by-one as the underlying service adds
-        capability.
-
-        | Filter | Status today | Reason |
-        |---|---|---|
-        | ``createdAfter``, ``createdBefore`` | Rejected (400) | the Orders service does not accept date-range filters
-            at the order level. |
-        | ``lastUpdatedAfter`` | Rejected (400) | the underlying service has no order-level update-date index. |
-        | ``orderStatuses`` with >1 value | Rejected (400) | the underlying service accepts one status per call; pass a
-            single value or omit to match all. |
-        | ``fulfillmentTypes`` | Rejected (400) | the underlying service accepts one shipNodeType per call; multi-type
-            fan-out is Phase 2. |
-
-        These parameters remain in the contract (rather than being removed) so that SDKs generated today stay
-        forward-compatible with the the roadmap surface — your code keeps compiling, only the runtime behaviour changes
-        when Phase 2 ships. Until then, omit them or handle the documented 400 gracefully. The ``tools/loadgen-orders.sh
-        --contract`` smoke sweep exercises the rejection contract on every run.
+        ## Current limitations (roadmap) ## The underlying the Orders service backend does not yet support ## every
+        filter declared below. Calls using any of the following will ## return ``400 Bad Request`` with
+        ``code=FILTER_NOT_SUPPORTED`` and a ## human-readable ``message`` explaining the specific rejection. Phase ## 2
+        will lift these one-by-one as the underlying service adds capability.
 
         Args:
-            created_after: Filter orders created after this date-time (ISO 8601). **the roadmap — not yet supported.**
-                Sending this parameter today returns ``400 FILTER_NOT_SUPPORTED``; the Orders service does not accept
-                date-range filters at the order level. Tracked by . Retained in the contract so SDKs generated today
-                stay forward-compatible.
-            created_before: Filter orders created before this date-time (ISO 8601). **the roadmap — not yet supported.**
-                See ``createdAfter`` for the rationale and the tracking ticket.
-            last_updated_after: Filter orders updated after this date-time (ISO 8601). **the roadmap — not yet
-                supported.** Sending this parameter today returns ``400 FILTER_NOT_SUPPORTED``; the Orders service has
-                no order-level update-date index. Tracked by .
-            order_statuses: Filter by order status. **the roadmap limitation:** the Orders service accepts AT MOST ONE
-                status per call. Passing multiple values today returns `400 FILTER_NOT_SUPPORTED`; pass a single value
-                or omit to match all. Multi-status fan-out tracked by .
-            fulfillment_types: Filter by fulfillment type. **the roadmap — not yet supported.** Sending this parameter
-                today returns ``400 FILTER_NOT_SUPPORTED``; the underlying service accepts one shipNodeType per call and
-                multi-type fan-out is Phase 2. Tracked by .
-            page_size: Value sent with the request.
-            next_token: Value sent with the request.
+            created_after: Filters orders created after the specified date and time (ISO 8601). This parameter is not
+                currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            created_before: Filters orders created before the specified date and time (ISO 8601). This parameter is not
+                currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            last_updated_after: Filters orders updated after the specified date and time (ISO 8601). This parameter is
+                not currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            order_statuses: Filters orders by status. Only one status is supported per request. Providing multiple
+                statuses returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            fulfillment_types: Filters orders by fulfillment type. Not currently supported: Providing this parameter
+                returns ``400`` with ``FILTER_NOT_SUPPORTED``
+            page_size: Maximum number of orders to return per page.
+            next_token: Pagination token returned in ``payload.nextToken`` from the previous response. Use this token to
+                retrieve the next page of orders.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1344,18 +1235,18 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders"),
+            url_template=self._server.default_catalog_items("/v4/orders"),
             query_params=[
                 param[RFC3339DateTime | None]("createdAfter", created_after),
                 param[RFC3339DateTime | None]("createdBefore", created_before),
                 param[RFC3339DateTime | None]("lastUpdatedAfter", last_updated_after),
-                param[list[OrderStatusOrStr] | None]("orderStatuses", order_statuses),
-                param[list[FulfillmentTypeOrStr] | None]("fulfillmentTypes", fulfillment_types),
+                param[list[OrderStatus1OrStr] | None]("orderStatuses", order_statuses),
+                param[list[FulfillmentType1OrStr] | None]("fulfillmentTypes", fulfillment_types),
                 param[int | None]("pageSize", page_size),
                 param[str | None]("nextToken", next_token),
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[GetFulfillmentOrderResponse],
+            decoder=json_decoder[GetOrdersResponse],
             error_mapper=get_orders_error_mapper,
             request_options=request_options,
         )
@@ -1367,13 +1258,11 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[RefundOrderLinesResponse, RefundOrderLinesErrorBody]:
-        """Walmart-specific write — no Amazon SP-API Orders v0 equivalent (Amazon refunds live in the Finance API).
-        Mirrors gmp-orders-mono's legacy ``/partner-api/{market}/v3/orders/{po}/refund`` contract, simplified for the v4
-        surface: a flat ``orderLines[]`` with per-line refund amount + reason instead of the legacy three-level nesting
-        (``orderLines → refunds → refundCharges``).
+        """Issues a seller-initiated refund for one or more order lines. Provide ``refundAmount`` and ``refundType`` for
+        each line, and optionally include ``reason``.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1382,8 +1271,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/refund"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/refund"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[RefundOrderLinesRequest | RefundOrderLinesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1399,10 +1288,11 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ShipOrderLinesResponse, ShipOrderLinesErrorBody]:
-        """Send a ``POST`` request.
+        """Confirms shipment of the specified order lines in a Walmart Marketplace order, including carrier, tracking
+        number, and shipment date. Returns the purchase order ID and the timestamp when the shipment was recorded.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1411,8 +1301,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/shipping"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/shipping"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[ShipOrderLinesRequest | ShipOrderLinesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1428,14 +1318,11 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[MultiPackageShipResponse, ShipOrderMultiPackageErrorBody]:
-        """Walmart-specific extension of ``/shipping``. Each package carries its own tracking number, carrier,
-        dimensions, and the order lines it covers. Maps onto FMS's existing ``shipments[]`` envelope (one FMS shipment
-        per v4 package). Inspired by gmp-orders-mono's ``shipOrderV2`` (multiPackageShipping) operation; we hoist
-        ``packages[]`` to the top level rather than nesting it under each line so the request stays self-evidently
-        package-oriented.
+        """Confirms shipment of a Walmart Marketplace order across multiple packages and returns the shipment
+        confirmation, including the number of packages accepted.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1444,8 +1331,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/multi-package-shipping"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/multi-package-shipping"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[MultiPackageShipRequest | MultiPackageShipRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1461,14 +1348,12 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[UpdateShipmentStatusResponse, UpdateShipmentStatusErrorBody]:
-        """Records a non-terminal shipment-lifecycle event for an order (ready for pickup, picked up, in transit, out
-        for delivery). Use the dedicated ``/deliver`` endpoint for terminal delivery — it carries proof-of-delivery
-        semantics this endpoint does not.
-
-        Amazon SP-API Orders v0 ``updateShipmentStatus`` parity.
+        """Updates the shipment status of specified order lines in a Walmart
+          Marketplace order, including pickup and in-transit milestones.
+          Use the delivery operation to record completed deliveries.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1477,8 +1362,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/shipment-status"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/shipment-status"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateShipmentStatusRequest | UpdateShipmentStatusRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1494,16 +1379,11 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[UpdateVerificationStatusResponse, UpdateVerificationStatusErrorBody]:
-        """Parity with Amazon SP-API Orders v0 ``updateVerificationStatus``. The seller calls this after delivering a
-        regulated-item order to record whether the buyer's identity / age was verified at the doorstep. An APPROVED
-        status releases the order for settlement; REJECTED requires a ``rejectionReason`` and triggers downstream
-        return-processing.
-
-        Gated by the CCM-managed ``orders.features.regulatedInfoEnabled`` kill-switch (live-refreshable, parity with the
-        cancel kill-switch).
+        """Records the outcome of buyer identity or age verification at delivery for a regulated Walmart Marketplace
+        order. The verification status indicates whether the buyer's identity was successfully verified or rejected.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1512,8 +1392,8 @@ class OrdersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PATCH",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/regulatedInfo"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/regulated-info"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateVerificationStatusRequest | UpdateVerificationStatusRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1531,10 +1411,11 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[AcknowledgeOrderResponse, AcknowledgeOrderErrorBody]:
-        """Send a ``POST`` request.
+        """Acknowledges receipt of the specified order lines in a Walmart Marketplace order. Returns the purchase order
+        ID and the timestamp when the acknowledgment was recorded.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1543,8 +1424,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/acknowledge"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/acknowledge"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[AcknowledgeOrderRequest | AcknowledgeOrderRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1560,10 +1441,12 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CancelOrderLinesResponse, CancelOrderLinesErrorBody]:
-        """Send a ``POST`` request.
+        """Cancels the specified order lines in a Walmart Marketplace order and records the cancellation reason for each
+        line. You can specify the quantity to cancel for each order line. Returns the purchase order ID and the
+        cancellation timestamp.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1572,8 +1455,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/cancel"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/cancel"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CancelOrderLinesRequest | CancelOrderLinesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1589,15 +1472,12 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[DeliverOrderLinesResponse, DeliverOrderLinesErrorBody]:
-        """Records the terminal ``Delivered`` event for one or more order lines, optionally with package-level
-        proof-of-delivery (tracking number, package number, delivery timestamp). This is separated from
-        ``/shipment-status`` because delivery is a terminal state and carries different downstream semantics (invoicing
-        windows open, return windows start).
-
-        Walmart parity from gmp-orders-mono ``deliverOrder``.
+        """Records delivery of the specified order lines. For each line, you can provide the delivered quantity,
+        tracking number, package number, and delivery timestamp. Recording delivery begins the associated invoicing and
+        return windows.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1606,8 +1486,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/deliver"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/deliver"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[DeliverOrderLinesRequest | DeliverOrderLinesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1619,10 +1499,11 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
     async def get_order(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[GetOrderResponse, GetOrderErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves a Walmart Marketplace order, including order status, fulfillment information, and order line
+        details.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1630,8 +1511,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetOrderResponse],
             error_mapper=get_order_error_mapper,
@@ -1641,12 +1522,11 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
     async def get_order_address(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[GetOrderAddressResponse, GetOrderAddressErrorBody]:
-        """Returns the ship-to postal address for a single purchase order. Mirrors Amazon SP-API ``getOrderAddress``.
-        PII-restricted endpoint: handlers are marked ``@RestrictedData`` server-side and the response body must NOT be
-        logged.
+        """Retrieves the shipping address associated with a Walmart Marketplace order, including the recipient's name
+        and postal address.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1654,8 +1534,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/address"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/address"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetOrderAddressResponse],
             error_mapper=get_order_address_error_mapper,
@@ -1665,12 +1545,11 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
     async def get_order_buyer_info(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[GetOrderBuyerInfoResponse, GetOrderBuyerInfoErrorBody]:
-        """Returns the buyer's display name, email address, and an anonymized phone (last 4 digits only). Mirrors Amazon
-        SP-API ``getOrderBuyerInfo``. PII-restricted endpoint: handlers are marked ``@RestrictedData`` server-side and
-        request/response bodies must NOT be logged.
+        """Retrieves buyer contact information for a Walmart Marketplace order, including the buyer's name, email
+        address, and a masked phone number showing only the last four digits.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1678,8 +1557,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/buyerInfo"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/buyer-info"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetOrderBuyerInfoResponse],
             error_mapper=get_order_buyer_info_error_mapper,
@@ -1688,12 +1567,12 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
 
     async def get_order_items(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[GetFulfillmentOrderShipmentsResponse, GetOrderItemsErrorBody]:
-        """Returns the SKU / quantity / item-price projection of a single purchase order. Mirrors Amazon SP-API
-        ``getOrderItems``. Not PII-restricted: only product, quantity, and price are returned.
+    ) -> ApiResult[GetOrderItemsResponse, GetOrderItemsErrorBody]:
+        """Retrieves the order lines for a Walmart Marketplace order, including item identifiers, quantities, prices,
+        order line statuses, and fulfillment information.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1701,10 +1580,10 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/items"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/items"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[GetFulfillmentOrderShipmentsResponse],
+            decoder=async_json_decoder[GetOrderItemsResponse],
             error_mapper=get_order_items_error_mapper,
             request_options=request_options,
         )
@@ -1712,19 +1591,11 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
     async def get_order_regulated_info(
         self, purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[GetOrderRegulatedInfoResponse, GetOrderRegulatedInfoErrorBody]:
-        """Parity with Amazon SP-API Orders v0 ``getOrderRegulatedInfo``. Returns the verification requirements that
-        apply to an order containing regulated items (alcohol, tobacco, age-restricted goods): the required
-        ID-verification method, the minimum buyer age, the regulated category, and any value-added services the order
-        ships with.
-
-        **Walmart OMS coverage gap .** The the underlying service Order Lookup response does not currently surface
-        regulated-item metadata. Until upstream support lands (tracked separately as a follow-up to this PR), every
-        order returns the safe default ``regulatedCategory=NOT_REGULATED`` with ``requiredVerificationMethod=NONE``. The
-        endpoint shape and contract are stable; only the projected values will become richer once OMS exposes the
-        fields.
+        """Retrieves regulated-item verification information for a Walmart Marketplace order, including applicable age
+        and identity verification requirements.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1732,8 +1603,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/regulatedInfo"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/regulated-info"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetOrderRegulatedInfoResponse],
             error_mapper=get_order_regulated_info_error_mapper,
@@ -1746,55 +1617,35 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         created_after: RFC3339DateTime | None = None,
         created_before: RFC3339DateTime | None = None,
         last_updated_after: RFC3339DateTime | None = None,
-        order_statuses: list[OrderStatusOrStr] | None = None,
-        fulfillment_types: list[FulfillmentTypeOrStr] | None = None,
+        order_statuses: list[OrderStatus1OrStr] | None = None,
+        fulfillment_types: list[FulfillmentType1OrStr] | None = None,
         page_size: int | None = 100,
         next_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[GetFulfillmentOrderResponse, GetOrdersErrorBody]:
-        """Returns orders matching the given filters. Orders are fulfilled by sellers (WFS or seller-fulfilled). Maps to
-        Walmart OMS order queries.
+    ) -> ApiResult[GetOrdersResponse, GetOrdersErrorBody]:
+        """Retrieves Walmart Marketplace orders, including order status, fulfillment information, and order line
+        details. You can filter results by a single order status and use pagination to retrieve additional orders. Use
+        ``pageSize`` to control the number of orders returned per page and ``nextToken`` to retrieve subsequent pages.
 
-        ### Current limitations (roadmap)
-
-        The underlying the Orders service backend does not yet support every filter declared below. Calls using any of
-        the following will return ``400 Bad Request`` with ``code=FILTER_NOT_SUPPORTED`` and a human-readable
-        ``message`` explaining the specific rejection. Phase 2 will lift these one-by-one as the underlying service adds
-        capability.
-
-        | Filter | Status today | Reason |
-        |---|---|---|
-        | ``createdAfter``, ``createdBefore`` | Rejected (400) | the Orders service does not accept date-range filters
-            at the order level. |
-        | ``lastUpdatedAfter`` | Rejected (400) | the underlying service has no order-level update-date index. |
-        | ``orderStatuses`` with >1 value | Rejected (400) | the underlying service accepts one status per call; pass a
-            single value or omit to match all. |
-        | ``fulfillmentTypes`` | Rejected (400) | the underlying service accepts one shipNodeType per call; multi-type
-            fan-out is Phase 2. |
-
-        These parameters remain in the contract (rather than being removed) so that SDKs generated today stay
-        forward-compatible with the the roadmap surface — your code keeps compiling, only the runtime behaviour changes
-        when Phase 2 ships. Until then, omit them or handle the documented 400 gracefully. The ``tools/loadgen-orders.sh
-        --contract`` smoke sweep exercises the rejection contract on every run.
+        ## Current limitations (roadmap) ## The underlying the Orders service backend does not yet support ## every
+        filter declared below. Calls using any of the following will ## return ``400 Bad Request`` with
+        ``code=FILTER_NOT_SUPPORTED`` and a ## human-readable ``message`` explaining the specific rejection. Phase ## 2
+        will lift these one-by-one as the underlying service adds capability.
 
         Args:
-            created_after: Filter orders created after this date-time (ISO 8601). **the roadmap — not yet supported.**
-                Sending this parameter today returns ``400 FILTER_NOT_SUPPORTED``; the Orders service does not accept
-                date-range filters at the order level. Tracked by . Retained in the contract so SDKs generated today
-                stay forward-compatible.
-            created_before: Filter orders created before this date-time (ISO 8601). **the roadmap — not yet supported.**
-                See ``createdAfter`` for the rationale and the tracking ticket.
-            last_updated_after: Filter orders updated after this date-time (ISO 8601). **the roadmap — not yet
-                supported.** Sending this parameter today returns ``400 FILTER_NOT_SUPPORTED``; the Orders service has
-                no order-level update-date index. Tracked by .
-            order_statuses: Filter by order status. **the roadmap limitation:** the Orders service accepts AT MOST ONE
-                status per call. Passing multiple values today returns `400 FILTER_NOT_SUPPORTED`; pass a single value
-                or omit to match all. Multi-status fan-out tracked by .
-            fulfillment_types: Filter by fulfillment type. **the roadmap — not yet supported.** Sending this parameter
-                today returns ``400 FILTER_NOT_SUPPORTED``; the underlying service accepts one shipNodeType per call and
-                multi-type fan-out is Phase 2. Tracked by .
-            page_size: Value sent with the request.
-            next_token: Value sent with the request.
+            created_after: Filters orders created after the specified date and time (ISO 8601). This parameter is not
+                currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            created_before: Filters orders created before the specified date and time (ISO 8601). This parameter is not
+                currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            last_updated_after: Filters orders updated after the specified date and time (ISO 8601). This parameter is
+                not currently supported. If provided, the API returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            order_statuses: Filters orders by status. Only one status is supported per request. Providing multiple
+                statuses returns ``400`` with ``FILTER_NOT_SUPPORTED``.
+            fulfillment_types: Filters orders by fulfillment type. Not currently supported: Providing this parameter
+                returns ``400`` with ``FILTER_NOT_SUPPORTED``
+            page_size: Maximum number of orders to return per page.
+            next_token: Pagination token returned in ``payload.nextToken`` from the previous response. Use this token to
+                retrieve the next page of orders.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -1802,18 +1653,18 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/orders/v4/orders"),
+            url_template=self._server.default_catalog_items("/v4/orders"),
             query_params=[
                 param[RFC3339DateTime | None]("createdAfter", created_after),
                 param[RFC3339DateTime | None]("createdBefore", created_before),
                 param[RFC3339DateTime | None]("lastUpdatedAfter", last_updated_after),
-                param[list[OrderStatusOrStr] | None]("orderStatuses", order_statuses),
-                param[list[FulfillmentTypeOrStr] | None]("fulfillmentTypes", fulfillment_types),
+                param[list[OrderStatus1OrStr] | None]("orderStatuses", order_statuses),
+                param[list[FulfillmentType1OrStr] | None]("fulfillmentTypes", fulfillment_types),
                 param[int | None]("pageSize", page_size),
                 param[str | None]("nextToken", next_token),
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[GetFulfillmentOrderResponse],
+            decoder=async_json_decoder[GetOrdersResponse],
             error_mapper=get_orders_error_mapper,
             request_options=request_options,
         )
@@ -1825,13 +1676,11 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[RefundOrderLinesResponse, RefundOrderLinesErrorBody]:
-        """Walmart-specific write — no Amazon SP-API Orders v0 equivalent (Amazon refunds live in the Finance API).
-        Mirrors gmp-orders-mono's legacy ``/partner-api/{market}/v3/orders/{po}/refund`` contract, simplified for the v4
-        surface: a flat ``orderLines[]`` with per-line refund amount + reason instead of the legacy three-level nesting
-        (``orderLines → refunds → refundCharges``).
+        """Issues a seller-initiated refund for one or more order lines. Provide ``refundAmount`` and ``refundType`` for
+        each line, and optionally include ``reason``.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1840,8 +1689,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/refund"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/refund"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[RefundOrderLinesRequest | RefundOrderLinesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1857,10 +1706,11 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ShipOrderLinesResponse, ShipOrderLinesErrorBody]:
-        """Send a ``POST`` request.
+        """Confirms shipment of the specified order lines in a Walmart Marketplace order, including carrier, tracking
+        number, and shipment date. Returns the purchase order ID and the timestamp when the shipment was recorded.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1869,8 +1719,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/shipping"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/shipping"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[ShipOrderLinesRequest | ShipOrderLinesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1886,14 +1736,11 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[MultiPackageShipResponse, ShipOrderMultiPackageErrorBody]:
-        """Walmart-specific extension of ``/shipping``. Each package carries its own tracking number, carrier,
-        dimensions, and the order lines it covers. Maps onto FMS's existing ``shipments[]`` envelope (one FMS shipment
-        per v4 package). Inspired by gmp-orders-mono's ``shipOrderV2`` (multiPackageShipping) operation; we hoist
-        ``packages[]`` to the top level rather than nesting it under each line so the request stays self-evidently
-        package-oriented.
+        """Confirms shipment of a Walmart Marketplace order across multiple packages and returns the shipment
+        confirmation, including the number of packages accepted.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1902,8 +1749,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/multi-package-shipping"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/multi-package-shipping"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[MultiPackageShipRequest | MultiPackageShipRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1919,14 +1766,12 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[UpdateShipmentStatusResponse, UpdateShipmentStatusErrorBody]:
-        """Records a non-terminal shipment-lifecycle event for an order (ready for pickup, picked up, in transit, out
-        for delivery). Use the dedicated ``/deliver`` endpoint for terminal delivery — it carries proof-of-delivery
-        semantics this endpoint does not.
-
-        Amazon SP-API Orders v0 ``updateShipmentStatus`` parity.
+        """Updates the shipment status of specified order lines in a Walmart
+          Marketplace order, including pickup and in-transit milestones.
+          Use the delivery operation to record completed deliveries.
 
         Args:
-            purchase_order_id: Value sent with the request.
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1935,8 +1780,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/shipment-status"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/shipment-status"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateShipmentStatusRequest | UpdateShipmentStatusRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -1952,16 +1797,11 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[UpdateVerificationStatusResponse, UpdateVerificationStatusErrorBody]:
-        """Parity with Amazon SP-API Orders v0 ``updateVerificationStatus``. The seller calls this after delivering a
-        regulated-item order to record whether the buyer's identity / age was verified at the doorstep. An APPROVED
-        status releases the order for settlement; REJECTED requires a ``rejectionReason`` and triggers downstream
-        return-processing.
-
-        Gated by the CCM-managed ``orders.features.regulatedInfoEnabled`` kill-switch (live-refreshable, parity with the
-        cancel kill-switch).
+        """Records the outcome of buyer identity or age verification at delivery for a regulated Walmart Marketplace
+        order. The verification status indicates whether the buyer's identity was successfully verified or rejected.
 
         Args:
-            purchase_order_id: Walmart Purchase Order ID
+            purchase_order_id: Purchase order identifier assigned by Walmart.
             body: The request body.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -1970,8 +1810,8 @@ class AsyncOrdersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PATCH",
-            url_template=self._server.default1("/orders/v4/orders/{purchaseOrderId}/regulatedInfo"),
-            path_params=[param[str]("purchaseOrderId", purchase_order_id)],
+            url_template=self._server.default_catalog_items("/v4/orders/{purchase-order-id}/regulated-info"),
+            path_params=[param[str]("purchase-order-id", purchase_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateVerificationStatusRequest | UpdateVerificationStatusRequestDict](body),
             auth_scheme=self._auth.wallet_auth,

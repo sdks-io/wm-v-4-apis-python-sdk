@@ -8,16 +8,16 @@ from .enums.fulfillment_channel_type import FulfillmentChannelTypeOrStr
 
 
 class OfferCountType(SdkBaseModel):
-    """The total number of offers for the specified condition and fulfillment channel."""
+    """Total number of offers for the specified condition and fulfillment channel."""
 
     condition: Optional[str] = UNSET
-    """Indicates the condition of the item. For example: New, Used, Collectible, Refurbished, or Club."""
+    """Indicates the item condition. Examples include New, Restored, and Pre-Owned."""
 
     fulfillment_channel: Optional[FulfillmentChannelTypeOrStr] = Field(default=UNSET, alias="fulfillmentChannel")
     """Indicates whether the item is fulfilled by the seller or by Walmart Fulfillment Services."""
 
     offer_count: Optional[int] = Field(default=UNSET, alias="OfferCount")
-    """The number of offers in a fulfillment channel that meet a specific condition."""
+    """Number of offers in the specified fulfillment channel that meet the specified item condition."""
 
 
 class OfferCountTypeDict(TypedDict):

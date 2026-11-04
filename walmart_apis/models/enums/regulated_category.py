@@ -5,8 +5,8 @@ from ...core import open_enum_validator
 
 
 class RegulatedCategory(str, Enum):
-    """Top-level category of regulation that applies. NOT_REGULATED means no verification is required and the rest of
-    the fields are informational only."""
+    """Category of regulation associated with the order. ``NOT_REGULATED`` indicates that no regulated category has been
+    identified."""
 
     NOT_REGULATED = "NOT_REGULATED"
     ALCOHOL = "ALCOHOL"

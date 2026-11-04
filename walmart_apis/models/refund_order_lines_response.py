@@ -7,12 +7,16 @@ from ..core import UNSET, Optional, RFC3339DateTime, SdkBaseModel
 
 
 class RefundOrderLinesResponse(SdkBaseModel):
+    """Identifiers and timestamp for the refund."""
+
     purchase_order_id: Optional[str] = Field(default=UNSET, alias="purchaseOrderId")
+    """Purchase order identifier assigned by Walmart."""
+
     refund_id: Optional[str] = Field(default=UNSET, alias="refundId")
-    """Seller-visible refund handle, generated server-side. Stable for the lifetime of the refund; future GET endpoints
-    will accept it as a path variable."""
+    """Identifier assigned to the refund."""
 
     refunded_at: Optional[RFC3339DateTime] = Field(default=UNSET, alias="refundedAt")
+    """Date and time when the refund was recorded, in ISO 8601 format."""
 
 
 class RefundOrderLinesResponseDict(TypedDict):

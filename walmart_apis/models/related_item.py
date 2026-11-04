@@ -8,6 +8,7 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 class RelatedItem(SdkBaseModel):
     walmart_item_id: Optional[str] = Field(default=UNSET, alias="walmartItemId")
+    """Walmart item ID of the related catalog item."""
 
 
 class RelatedItemDict(TypedDict):

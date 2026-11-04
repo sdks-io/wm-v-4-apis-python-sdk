@@ -7,12 +7,19 @@ from ..core import SdkBaseModel
 
 
 class FeesEstimateError(SdkBaseModel):
-    """Error detail when a fee estimate could not be computed."""
+    """Error information returned when a fee estimate cannot be calculated."""
 
     type_: str = Field(alias="Type")
+    """Type of fee estimate error."""
+
     code: str = Field(alias="Code")
+    """Code identifying the fee estimate error."""
+
     message: str = Field(alias="Message")
+    """Message describing the fee estimate error."""
+
     detail: list[str] = Field(alias="Detail")
+    """Additional details about the fee estimate error."""
 
 
 class FeesEstimateErrorDict(TypedDict):

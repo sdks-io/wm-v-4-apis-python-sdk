@@ -7,13 +7,13 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 
 class ShipsFromType(SdkBaseModel):
-    """The state and country from where the item is shipped."""
+    """State and country from which the item ships."""
 
     state: Optional[str] = Field(default=UNSET, alias="State")
-    """The state from where the item is shipped."""
+    """State from which the item ships."""
 
     country: Optional[str] = Field(default=UNSET, alias="Country")
-    """The country from where the item is shipped."""
+    """Country from which the item ships."""
 
 
 class ShipsFromTypeDict(TypedDict):

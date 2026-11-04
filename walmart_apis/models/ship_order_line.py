@@ -9,9 +9,16 @@ from .tracking_info import TrackingInfo, TrackingInfoDict
 
 
 class ShipOrderLine(SdkBaseModel):
+    """Order line and tracking information for a shipment."""
+
     line_number: str = Field(alias="lineNumber")
+    """Line identifier within the purchase order."""
+
     ship_quantity: Optional[QuantityWithUnit] = Field(default=UNSET, alias="shipQuantity")
+    """Numeric quantity and its unit of measure."""
+
     tracking_info: TrackingInfo = Field(alias="trackingInfo")
+    """Carrier, tracking number, and shipment details."""
 
 
 class ShipOrderLineDict(TypedDict):

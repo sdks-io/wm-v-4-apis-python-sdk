@@ -8,9 +8,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.wfs_inventory.get_wfs_inventory_items
 
-- **Route**: `GET /inventory/v4/wfs/items`
+- **Route**: `GET /v4/inventory/items/wfs`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_wfs_inventory_items(*, skus: str | None = None, page_size: int | None = 100, next_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `skus` — query · `page_size` — query `pageSize` · `next_token` — query `nextToken`
 - **Returns (parsed)**: `GetWfsInventoryResponse`

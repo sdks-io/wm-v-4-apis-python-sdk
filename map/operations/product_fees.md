@@ -10,7 +10,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `POST /products/fees/v4/items/{WalmartItemId}/feesEstimate`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_my_fees_estimate_for_item(walmart_item_id: str, body: GetMyFeesEstimateRequest | GetMyFeesEstimateRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `walmart_item_id`, `body`
 - **Params**: `walmart_item_id` — path `WalmartItemId` · `body` — JSON body
@@ -31,7 +31,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `POST /products/fees/v4/listings/{SellerSKU}/feesEstimate`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_my_fees_estimate_for_sku(seller_sku: str, marketplace_id: str, body: GetMyFeesEstimateRequest | GetMyFeesEstimateRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_sku`, `marketplace_id`, `body`
 - **Params**: `seller_sku` — path `SellerSKU` · `marketplace_id` — query `MarketplaceId` · `body` — JSON body
@@ -52,7 +52,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `POST /products/fees/v4/feesEstimate`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_my_fees_estimates(body: list[FeesEstimateByIdRequest | FeesEstimateByIdRequestDict], *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body

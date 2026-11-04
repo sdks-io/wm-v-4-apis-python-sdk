@@ -20,9 +20,12 @@ from ..errors.get_listings_item_error import GetListingsItemErrorBody, get_listi
 from ..errors.patch_listings_item_error import PatchListingsItemErrorBody, patch_listings_item_error_mapper
 from ..errors.put_listings_item_error import PutListingsItemErrorBody, put_listings_item_error_mapper
 from ..errors.search_listings_items_error import SearchListingsItemsErrorBody, search_listings_items_error_mapper
-from ..models.enums.included_datum1 import IncludedDatum1OrStr
-from ..models.item1 import Item1
-from ..models.item_search_results1 import ItemSearchResults1
+from ..models.enums.identifier_type_listings_items import IdentifierTypeListingsItemsOrStr
+from ..models.enums.included_datum_listings_items import IncludedDatumListingsItemsOrStr
+from ..models.enums.sort_by import SortByOrStr
+from ..models.enums.sort_order import SortOrder, SortOrderOrStr
+from ..models.item_listings_items import ItemListingsItems
+from ..models.item_search_results_listings_items import ItemSearchResultsListingsItems
 from ..models.listings_item_patch_request import ListingsItemPatchRequest, ListingsItemPatchRequestDict
 from ..models.listings_item_put_request import ListingsItemPutRequest, ListingsItemPutRequestDict
 from ..models.listings_item_submission_response import ListingsItemSubmissionResponse
@@ -71,9 +74,9 @@ class ListingsItems:
         marketplace_ids: list[str],
         *,
         issue_locale: str | None = "en_US",
-        included_data: list[IncludedDatum1OrStr] | None = None,
+        included_data: list[IncludedDatumListingsItemsOrStr] | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> Item1:
+    ) -> ItemListingsItems:
         """Send a ``GET`` request.
 
         Args:
@@ -173,18 +176,52 @@ class ListingsItems:
         seller_id: str,
         marketplace_ids: list[str],
         *,
-        included_data: list[IncludedDatum1OrStr] | None = None,
+        included_data: list[IncludedDatumListingsItemsOrStr] | None = None,
+        identifier_type: IdentifierTypeListingsItemsOrStr | None = None,
+        identifier_value: str | None = None,
+        lifecycle_status: list[str] | None = None,
+        published_status: list[str] | None = None,
+        unpublished_reasons: list[str] | None = None,
+        inventory_status: list[str] | None = None,
+        fulfillment_type: list[str] | None = None,
+        min_customer_rating: float | None = None,
+        max_customer_rating: float | None = None,
+        min_price: float | None = None,
+        max_price: float | None = None,
+        sort_by: SortByOrStr | None = None,
+        sort_order: SortOrderOrStr | None = SortOrder.ASC,
         page_size: int | None = 10,
         page_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ItemSearchResults1:
+    ) -> ItemSearchResultsListingsItems:
         """Returns a paginated list of the seller's listings items. Mirrors Amazon SP-API ``searchListingsItems`` so an
         existing SP-API client can call the seller-level collection endpoint (no SKU in the path) against v4.
+
+        Filtering and sorting are pushed down to PIQS (Partner Item Query Service) ``POST /v3/items/catalog/search`` —
+        the server does the filtering; callers no longer need to page through the full seller catalog and filter
+        client-side.
 
         Args:
             seller_id: Seller identifier
             marketplace_ids: Value sent with the request.
             included_data: Value sent with the request.
+            identifier_type: Identifier field to search by (PIQS ``query.field``). Requires ``identifierValue``. PIQS
+                accepts a single field/value pair per call — not a list.
+            identifier_value: Value to match for ``identifierType``. Ignored if ``identifierType`` is absent.
+            lifecycle_status: Filter to items with any of these lifecycle statuses (PIQS
+                ``filters[].field=lifecycleStatus``, op ``equals``).
+            published_status: Filter to items with any of these publication statuses (e.g. PUBLISHED, UNPUBLISHED,
+                SYSTEM_PROBLEM).
+            unpublished_reasons: Filter to items carrying any of these unpublished reasons.
+            inventory_status: Filter to items with any of these inventory statuses.
+            fulfillment_type: Filter to items with any of these fulfillment types.
+            min_customer_rating: Minimum customer rating, inclusive (PIQS ``filters[].field=customerRating``, op
+                ``between``/``greater_than``).
+            max_customer_rating: Maximum customer rating, inclusive.
+            min_price: Minimum price, inclusive (PIQS ``filters[].field=price``, op ``between``/``greater_than``).
+            max_price: Maximum price, inclusive.
+            sort_by: Field to sort results by (PIQS ``sort.field``).
+            sort_order: Sort direction. Ignored if ``sortBy`` is absent.
             page_size: Maximum number of results per page
             page_token: Opaque cursor returned by a previous call for the next page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -201,6 +238,19 @@ class ListingsItems:
                 seller_id,
                 marketplace_ids,
                 included_data=included_data,
+                identifier_type=identifier_type,
+                identifier_value=identifier_value,
+                lifecycle_status=lifecycle_status,
+                published_status=published_status,
+                unpublished_reasons=unpublished_reasons,
+                inventory_status=inventory_status,
+                fulfillment_type=fulfillment_type,
+                min_customer_rating=min_customer_rating,
+                max_customer_rating=max_customer_rating,
+                min_price=min_price,
+                max_price=max_price,
+                sort_by=sort_by,
+                sort_order=sort_order,
                 page_size=page_size,
                 page_token=page_token,
                 request_options=request_options,
@@ -254,9 +304,9 @@ class AsyncListingsItems:
         marketplace_ids: list[str],
         *,
         issue_locale: str | None = "en_US",
-        included_data: list[IncludedDatum1OrStr] | None = None,
+        included_data: list[IncludedDatumListingsItemsOrStr] | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> Item1:
+    ) -> ItemListingsItems:
         """Send a ``GET`` request.
 
         Args:
@@ -356,18 +406,52 @@ class AsyncListingsItems:
         seller_id: str,
         marketplace_ids: list[str],
         *,
-        included_data: list[IncludedDatum1OrStr] | None = None,
+        included_data: list[IncludedDatumListingsItemsOrStr] | None = None,
+        identifier_type: IdentifierTypeListingsItemsOrStr | None = None,
+        identifier_value: str | None = None,
+        lifecycle_status: list[str] | None = None,
+        published_status: list[str] | None = None,
+        unpublished_reasons: list[str] | None = None,
+        inventory_status: list[str] | None = None,
+        fulfillment_type: list[str] | None = None,
+        min_customer_rating: float | None = None,
+        max_customer_rating: float | None = None,
+        min_price: float | None = None,
+        max_price: float | None = None,
+        sort_by: SortByOrStr | None = None,
+        sort_order: SortOrderOrStr | None = SortOrder.ASC,
         page_size: int | None = 10,
         page_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ItemSearchResults1:
+    ) -> ItemSearchResultsListingsItems:
         """Returns a paginated list of the seller's listings items. Mirrors Amazon SP-API ``searchListingsItems`` so an
         existing SP-API client can call the seller-level collection endpoint (no SKU in the path) against v4.
+
+        Filtering and sorting are pushed down to PIQS (Partner Item Query Service) ``POST /v3/items/catalog/search`` —
+        the server does the filtering; callers no longer need to page through the full seller catalog and filter
+        client-side.
 
         Args:
             seller_id: Seller identifier
             marketplace_ids: Value sent with the request.
             included_data: Value sent with the request.
+            identifier_type: Identifier field to search by (PIQS ``query.field``). Requires ``identifierValue``. PIQS
+                accepts a single field/value pair per call — not a list.
+            identifier_value: Value to match for ``identifierType``. Ignored if ``identifierType`` is absent.
+            lifecycle_status: Filter to items with any of these lifecycle statuses (PIQS
+                ``filters[].field=lifecycleStatus``, op ``equals``).
+            published_status: Filter to items with any of these publication statuses (e.g. PUBLISHED, UNPUBLISHED,
+                SYSTEM_PROBLEM).
+            unpublished_reasons: Filter to items carrying any of these unpublished reasons.
+            inventory_status: Filter to items with any of these inventory statuses.
+            fulfillment_type: Filter to items with any of these fulfillment types.
+            min_customer_rating: Minimum customer rating, inclusive (PIQS ``filters[].field=customerRating``, op
+                ``between``/``greater_than``).
+            max_customer_rating: Maximum customer rating, inclusive.
+            min_price: Minimum price, inclusive (PIQS ``filters[].field=price``, op ``between``/``greater_than``).
+            max_price: Maximum price, inclusive.
+            sort_by: Field to sort results by (PIQS ``sort.field``).
+            sort_order: Sort direction. Ignored if ``sortBy`` is absent.
             page_size: Maximum number of results per page
             page_token: Opaque cursor returned by a previous call for the next page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -384,6 +468,19 @@ class AsyncListingsItems:
                 seller_id,
                 marketplace_ids,
                 included_data=included_data,
+                identifier_type=identifier_type,
+                identifier_value=identifier_value,
+                lifecycle_status=lifecycle_status,
+                published_status=published_status,
+                unpublished_reasons=unpublished_reasons,
+                inventory_status=inventory_status,
+                fulfillment_type=fulfillment_type,
+                min_customer_rating=min_customer_rating,
+                max_customer_rating=max_customer_rating,
+                min_price=min_price,
+                max_price=max_price,
+                sort_by=sort_by,
+                sort_order=sort_order,
                 page_size=page_size,
                 page_token=page_token,
                 request_options=request_options,
@@ -419,8 +516,8 @@ class ListingsItemsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}/{sku}"),
-            path_params=[param[str]("sellerId", seller_id), param[str]("sku", sku)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}/{sku}"),
+            path_params=[param[str]("seller-id", seller_id), param[str]("sku", sku)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids), param[str | None]("issueLocale", issue_locale)
             ],
@@ -438,9 +535,9 @@ class ListingsItemsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
         marketplace_ids: list[str],
         *,
         issue_locale: str | None = "en_US",
-        included_data: list[IncludedDatum1OrStr] | None = None,
+        included_data: list[IncludedDatumListingsItemsOrStr] | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[Item1, GetListingsItemErrorBody]:
+    ) -> ApiResult[ItemListingsItems, GetListingsItemErrorBody]:
         """Send a ``GET`` request.
 
         Args:
@@ -456,15 +553,15 @@ class ListingsItemsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}/{sku}"),
-            path_params=[param[str]("sellerId", seller_id), param[str]("sku", sku)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}/{sku}"),
+            path_params=[param[str]("seller-id", seller_id), param[str]("sku", sku)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[str | None]("issueLocale", issue_locale),
-                param[list[IncludedDatum1OrStr] | None]("includedData", included_data),
+                param[list[IncludedDatumListingsItemsOrStr] | None]("includedData", included_data),
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[Item1],
+            decoder=json_decoder[ItemListingsItems],
             error_mapper=get_listings_item_error_mapper,
             request_options=request_options,
         )
@@ -494,8 +591,8 @@ class ListingsItemsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PATCH",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}/{sku}"),
-            path_params=[param[str]("sellerId", seller_id), param[str]("sku", sku)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}/{sku}"),
+            path_params=[param[str]("seller-id", seller_id), param[str]("sku", sku)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids), param[str | None]("issueLocale", issue_locale)
             ],
@@ -532,8 +629,8 @@ class ListingsItemsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}/{sku}"),
-            path_params=[param[str]("sellerId", seller_id), param[str]("sku", sku)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}/{sku}"),
+            path_params=[param[str]("seller-id", seller_id), param[str]("sku", sku)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids), param[str | None]("issueLocale", issue_locale)
             ],
@@ -550,18 +647,52 @@ class ListingsItemsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
         seller_id: str,
         marketplace_ids: list[str],
         *,
-        included_data: list[IncludedDatum1OrStr] | None = None,
+        included_data: list[IncludedDatumListingsItemsOrStr] | None = None,
+        identifier_type: IdentifierTypeListingsItemsOrStr | None = None,
+        identifier_value: str | None = None,
+        lifecycle_status: list[str] | None = None,
+        published_status: list[str] | None = None,
+        unpublished_reasons: list[str] | None = None,
+        inventory_status: list[str] | None = None,
+        fulfillment_type: list[str] | None = None,
+        min_customer_rating: float | None = None,
+        max_customer_rating: float | None = None,
+        min_price: float | None = None,
+        max_price: float | None = None,
+        sort_by: SortByOrStr | None = None,
+        sort_order: SortOrderOrStr | None = SortOrder.ASC,
         page_size: int | None = 10,
         page_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ItemSearchResults1, SearchListingsItemsErrorBody]:
+    ) -> ApiResult[ItemSearchResultsListingsItems, SearchListingsItemsErrorBody]:
         """Returns a paginated list of the seller's listings items. Mirrors Amazon SP-API ``searchListingsItems`` so an
         existing SP-API client can call the seller-level collection endpoint (no SKU in the path) against v4.
+
+        Filtering and sorting are pushed down to PIQS (Partner Item Query Service) ``POST /v3/items/catalog/search`` —
+        the server does the filtering; callers no longer need to page through the full seller catalog and filter
+        client-side.
 
         Args:
             seller_id: Seller identifier
             marketplace_ids: Value sent with the request.
             included_data: Value sent with the request.
+            identifier_type: Identifier field to search by (PIQS ``query.field``). Requires ``identifierValue``. PIQS
+                accepts a single field/value pair per call — not a list.
+            identifier_value: Value to match for ``identifierType``. Ignored if ``identifierType`` is absent.
+            lifecycle_status: Filter to items with any of these lifecycle statuses (PIQS
+                ``filters[].field=lifecycleStatus``, op ``equals``).
+            published_status: Filter to items with any of these publication statuses (e.g. PUBLISHED, UNPUBLISHED,
+                SYSTEM_PROBLEM).
+            unpublished_reasons: Filter to items carrying any of these unpublished reasons.
+            inventory_status: Filter to items with any of these inventory statuses.
+            fulfillment_type: Filter to items with any of these fulfillment types.
+            min_customer_rating: Minimum customer rating, inclusive (PIQS ``filters[].field=customerRating``, op
+                ``between``/``greater_than``).
+            max_customer_rating: Maximum customer rating, inclusive.
+            min_price: Minimum price, inclusive (PIQS ``filters[].field=price``, op ``between``/``greater_than``).
+            max_price: Maximum price, inclusive.
+            sort_by: Field to sort results by (PIQS ``sort.field``).
+            sort_order: Sort direction. Ignored if ``sortBy`` is absent.
             page_size: Maximum number of results per page
             page_token: Opaque cursor returned by a previous call for the next page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -571,16 +702,29 @@ class ListingsItemsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}"),
-            path_params=[param[str]("sellerId", seller_id)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}"),
+            path_params=[param[str]("seller-id", seller_id)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
-                param[list[IncludedDatum1OrStr] | None]("includedData", included_data),
+                param[list[IncludedDatumListingsItemsOrStr] | None]("includedData", included_data),
+                param[IdentifierTypeListingsItemsOrStr | None]("identifierType", identifier_type),
+                param[str | None]("identifierValue", identifier_value),
+                param[list[str] | None]("lifecycleStatus", lifecycle_status),
+                param[list[str] | None]("publishedStatus", published_status),
+                param[list[str] | None]("unpublishedReasons", unpublished_reasons),
+                param[list[str] | None]("inventoryStatus", inventory_status),
+                param[list[str] | None]("fulfillmentType", fulfillment_type),
+                param[float | None]("minCustomerRating", min_customer_rating),
+                param[float | None]("maxCustomerRating", max_customer_rating),
+                param[float | None]("minPrice", min_price),
+                param[float | None]("maxPrice", max_price),
+                param[SortByOrStr | None]("sortBy", sort_by),
+                param[SortOrderOrStr | None]("sortOrder", sort_order),
                 param[int | None]("pageSize", page_size),
                 param[str | None]("pageToken", page_token),
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[ItemSearchResults1],
+            decoder=json_decoder[ItemSearchResultsListingsItems],
             error_mapper=search_listings_items_error_mapper,
             request_options=request_options,
         )
@@ -610,8 +754,8 @@ class AsyncListingsItemsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}/{sku}"),
-            path_params=[param[str]("sellerId", seller_id), param[str]("sku", sku)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}/{sku}"),
+            path_params=[param[str]("seller-id", seller_id), param[str]("sku", sku)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids), param[str | None]("issueLocale", issue_locale)
             ],
@@ -629,9 +773,9 @@ class AsyncListingsItemsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
         marketplace_ids: list[str],
         *,
         issue_locale: str | None = "en_US",
-        included_data: list[IncludedDatum1OrStr] | None = None,
+        included_data: list[IncludedDatumListingsItemsOrStr] | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[Item1, GetListingsItemErrorBody]:
+    ) -> ApiResult[ItemListingsItems, GetListingsItemErrorBody]:
         """Send a ``GET`` request.
 
         Args:
@@ -647,15 +791,15 @@ class AsyncListingsItemsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}/{sku}"),
-            path_params=[param[str]("sellerId", seller_id), param[str]("sku", sku)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}/{sku}"),
+            path_params=[param[str]("seller-id", seller_id), param[str]("sku", sku)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[str | None]("issueLocale", issue_locale),
-                param[list[IncludedDatum1OrStr] | None]("includedData", included_data),
+                param[list[IncludedDatumListingsItemsOrStr] | None]("includedData", included_data),
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[Item1],
+            decoder=async_json_decoder[ItemListingsItems],
             error_mapper=get_listings_item_error_mapper,
             request_options=request_options,
         )
@@ -685,8 +829,8 @@ class AsyncListingsItemsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PATCH",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}/{sku}"),
-            path_params=[param[str]("sellerId", seller_id), param[str]("sku", sku)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}/{sku}"),
+            path_params=[param[str]("seller-id", seller_id), param[str]("sku", sku)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids), param[str | None]("issueLocale", issue_locale)
             ],
@@ -723,8 +867,8 @@ class AsyncListingsItemsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}/{sku}"),
-            path_params=[param[str]("sellerId", seller_id), param[str]("sku", sku)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}/{sku}"),
+            path_params=[param[str]("seller-id", seller_id), param[str]("sku", sku)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids), param[str | None]("issueLocale", issue_locale)
             ],
@@ -741,18 +885,52 @@ class AsyncListingsItemsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
         seller_id: str,
         marketplace_ids: list[str],
         *,
-        included_data: list[IncludedDatum1OrStr] | None = None,
+        included_data: list[IncludedDatumListingsItemsOrStr] | None = None,
+        identifier_type: IdentifierTypeListingsItemsOrStr | None = None,
+        identifier_value: str | None = None,
+        lifecycle_status: list[str] | None = None,
+        published_status: list[str] | None = None,
+        unpublished_reasons: list[str] | None = None,
+        inventory_status: list[str] | None = None,
+        fulfillment_type: list[str] | None = None,
+        min_customer_rating: float | None = None,
+        max_customer_rating: float | None = None,
+        min_price: float | None = None,
+        max_price: float | None = None,
+        sort_by: SortByOrStr | None = None,
+        sort_order: SortOrderOrStr | None = SortOrder.ASC,
         page_size: int | None = 10,
         page_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[ItemSearchResults1, SearchListingsItemsErrorBody]:
+    ) -> ApiResult[ItemSearchResultsListingsItems, SearchListingsItemsErrorBody]:
         """Returns a paginated list of the seller's listings items. Mirrors Amazon SP-API ``searchListingsItems`` so an
         existing SP-API client can call the seller-level collection endpoint (no SKU in the path) against v4.
+
+        Filtering and sorting are pushed down to PIQS (Partner Item Query Service) ``POST /v3/items/catalog/search`` —
+        the server does the filtering; callers no longer need to page through the full seller catalog and filter
+        client-side.
 
         Args:
             seller_id: Seller identifier
             marketplace_ids: Value sent with the request.
             included_data: Value sent with the request.
+            identifier_type: Identifier field to search by (PIQS ``query.field``). Requires ``identifierValue``. PIQS
+                accepts a single field/value pair per call — not a list.
+            identifier_value: Value to match for ``identifierType``. Ignored if ``identifierType`` is absent.
+            lifecycle_status: Filter to items with any of these lifecycle statuses (PIQS
+                ``filters[].field=lifecycleStatus``, op ``equals``).
+            published_status: Filter to items with any of these publication statuses (e.g. PUBLISHED, UNPUBLISHED,
+                SYSTEM_PROBLEM).
+            unpublished_reasons: Filter to items carrying any of these unpublished reasons.
+            inventory_status: Filter to items with any of these inventory statuses.
+            fulfillment_type: Filter to items with any of these fulfillment types.
+            min_customer_rating: Minimum customer rating, inclusive (PIQS ``filters[].field=customerRating``, op
+                ``between``/``greater_than``).
+            max_customer_rating: Maximum customer rating, inclusive.
+            min_price: Minimum price, inclusive (PIQS ``filters[].field=price``, op ``between``/``greater_than``).
+            max_price: Maximum price, inclusive.
+            sort_by: Field to sort results by (PIQS ``sort.field``).
+            sort_order: Sort direction. Ignored if ``sortBy`` is absent.
             page_size: Maximum number of results per page
             page_token: Opaque cursor returned by a previous call for the next page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -762,16 +940,29 @@ class AsyncListingsItemsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/listings/v4/items/{sellerId}"),
-            path_params=[param[str]("sellerId", seller_id)],
+            url_template=self._server.default_catalog_items("/v4/items/listings/{seller-id}"),
+            path_params=[param[str]("seller-id", seller_id)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
-                param[list[IncludedDatum1OrStr] | None]("includedData", included_data),
+                param[list[IncludedDatumListingsItemsOrStr] | None]("includedData", included_data),
+                param[IdentifierTypeListingsItemsOrStr | None]("identifierType", identifier_type),
+                param[str | None]("identifierValue", identifier_value),
+                param[list[str] | None]("lifecycleStatus", lifecycle_status),
+                param[list[str] | None]("publishedStatus", published_status),
+                param[list[str] | None]("unpublishedReasons", unpublished_reasons),
+                param[list[str] | None]("inventoryStatus", inventory_status),
+                param[list[str] | None]("fulfillmentType", fulfillment_type),
+                param[float | None]("minCustomerRating", min_customer_rating),
+                param[float | None]("maxCustomerRating", max_customer_rating),
+                param[float | None]("minPrice", min_price),
+                param[float | None]("maxPrice", max_price),
+                param[SortByOrStr | None]("sortBy", sort_by),
+                param[SortOrderOrStr | None]("sortOrder", sort_order),
                 param[int | None]("pageSize", page_size),
                 param[str | None]("pageToken", page_token),
             ],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[ItemSearchResults1],
+            decoder=async_json_decoder[ItemSearchResultsListingsItems],
             error_mapper=search_listings_items_error_mapper,
             request_options=request_options,
         )

@@ -8,12 +8,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.report_schedules.cancel_report_schedule
 
-- **Route**: `DELETE /reports/v4/schedules/{reportScheduleId}`
+- **Route**: `DELETE /v4/reports/report-schedules/{schedule-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def cancel_report_schedule(report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `report_schedule_id`
-- **Params**: `report_schedule_id` — path `reportScheduleId`
+- **Server**: `default_catalog_items`
+- **Signature**: `def cancel_report_schedule(schedule_id: str, *, request_options: RequestOptionsOrDict | None = None)`
+  - required, positional: `schedule_id`
+- **Params**: `schedule_id` — path `schedule-id`
 - **Returns (parsed)**: `CancelReportScheduleResponse`
 - **Returns (raw)**: `ApiResult[CancelReportScheduleResponse, CancelReportScheduleErrorBody]`
 - **Error**: `CancelReportScheduleErrorBody` — **Case A (typed)**
@@ -27,9 +27,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.report_schedules.create_report_schedule
 
-- **Route**: `POST /reports/v4/schedules`
+- **Route**: `POST /v4/reports/report-schedules`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def create_report_schedule(body: CreateReportScheduleSpecification | CreateReportScheduleSpecificationDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
@@ -48,12 +48,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.report_schedules.get_report_schedule
 
-- **Route**: `GET /reports/v4/schedules/{reportScheduleId}`
+- **Route**: `GET /v4/reports/report-schedules/{schedule-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def get_report_schedule(report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `report_schedule_id`
-- **Params**: `report_schedule_id` — path `reportScheduleId`
+- **Server**: `default_catalog_items`
+- **Signature**: `def get_report_schedule(schedule_id: str, *, request_options: RequestOptionsOrDict | None = None)`
+  - required, positional: `schedule_id`
+- **Params**: `schedule_id` — path `schedule-id`
 - **Returns (parsed)**: `ReportSchedule`
 - **Returns (raw)**: `ApiResult[ReportSchedule, GetReportScheduleErrorBody]`
 - **Error**: `GetReportScheduleErrorBody` — **Case A (typed)**
@@ -67,9 +67,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.report_schedules.get_report_schedules
 
-- **Route**: `GET /reports/v4/schedules`
+- **Route**: `GET /v4/reports/report-schedules`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_report_schedules(*, report_types: list[ReportType1OrStr] | None = None, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `report_types` — query `reportTypes`
 - **Returns (parsed)**: `GetReportSchedulesResponse`

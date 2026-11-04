@@ -4,39 +4,34 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .enums.offer_type import OfferTypeOrStr
-from .enums.quantity_discount_type import QuantityDiscountTypeOrStr
+from .enums.offer_customer_type import OfferCustomerTypeOrStr
 from .price_type import PriceType, PriceTypeDict
 
 
 class CompetitivePriceType(SdkBaseModel):
-    """Schema for competitive pricing information."""
+    """Competitive price information for an offer."""
 
     competitive_price_id: str = Field(alias="CompetitivePriceId")
-    """The pricing model for each price that is returned. Possible values: 1 - New Buy Box Price. 2 - Used Buy Box
-    Price."""
+    """Pricing model identifier for the competitive price. Supported values are ``BUYBOX`` for the requester's buy-box
+    price and ``COMPETITIVE`` for the lowest competitor price."""
 
     price: PriceType = Field(alias="Price")
-    """Item price information. LandedPrice = ListingPrice + Shipping. Walmart does not have a seller-configurable
-    per-offer loyalty points mechanism; the Points field from the SP-API reference spec is omitted.."""
+    """Price information for an offer. ``LandedPrice`` is the sum of ``ListingPrice`` and ``Shipping``."""
 
     condition: Optional[str] = UNSET
-    """Indicates the condition of the item. Possible values: New, Used, Collectible, Refurbished, or Club."""
+    """Indicates the item condition. Possible values are ``New``, ``Restored``, and ``Pre-Owned``."""
 
     subcondition: Optional[str] = UNSET
     """Indicates the subcondition of the item."""
 
-    offer_type: Optional[OfferTypeOrStr] = Field(default=UNSET, alias="offerType")
-    """Indicates whether the offer is a B2B or B2C offer."""
+    offer_type: Optional[OfferCustomerTypeOrStr] = Field(default=UNSET, alias="offerType")
+    """Indicates whether the offer is business-to-consumer (``B2C``) or business-to-business (``B2B``)."""
 
     quantity_tier: Optional[int] = Field(default=UNSET, alias="quantityTier")
-    """Indicates at what quantity this price becomes active."""
+    """Indicates the quantity at which this price becomes active."""
 
-    quantity_discount_type: Optional[QuantityDiscountTypeOrStr] = Field(default=UNSET, alias="quantityDiscountType")
-    """Indicates the type of quantity discount this price applies to."""
-
-    seller_id: Optional[str] = Field(default=UNSET, alias="sellerId")
-    """The seller identifier for the offer."""
+    seller_name: Optional[str] = Field(default=UNSET, alias="sellerName")
+    """Name of the seller associated with the offer."""
 
     belongs_to_requester: Optional[bool] = Field(default=UNSET, alias="belongsToRequester")
     """Indicates whether the pricing information is for an offer listing that belongs to the requester."""
@@ -47,8 +42,7 @@ class CompetitivePriceTypeDict(TypedDict):
     price: PriceTypeDict
     condition: NotRequired[str]
     subcondition: NotRequired[str]
-    offer_type: NotRequired[OfferTypeOrStr]
+    offer_type: NotRequired[OfferCustomerTypeOrStr]
     quantity_tier: NotRequired[int]
-    quantity_discount_type: NotRequired[QuantityDiscountTypeOrStr]
-    seller_id: NotRequired[str]
+    seller_name: NotRequired[str]
     belongs_to_requester: NotRequired[bool]

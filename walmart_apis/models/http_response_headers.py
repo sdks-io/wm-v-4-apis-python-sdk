@@ -7,13 +7,13 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 
 class HttpResponseHeaders(SdkBaseModel):
-    """A mapping of additional HTTP headers to receive for the individual batch request."""
+    """Additional HTTP headers returned for an individual batch request."""
 
     date: Optional[str] = Field(default=UNSET, alias="Date")
-    """The timestamp that the API request was received."""
+    """Timestamp when the API received the request."""
 
     x_request_id: Optional[str] = Field(default=UNSET, alias="X-Request-Id")
-    """Unique request reference identifier."""
+    """Unique identifier for the API request."""
 
 
 class HttpResponseHeadersDict(TypedDict):

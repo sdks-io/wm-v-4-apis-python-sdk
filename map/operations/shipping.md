@@ -8,28 +8,28 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.shipping.cancel_shipment2
 
-- **Route**: `PUT /shipping/v4/shipments/{shipmentId}/cancel`
+- **Route**: `PUT /v4/fulfillment/shipping/shipments/{shipment-id}/cancel`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def cancel_shipment2(shipment_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `shipment_id`
-- **Params**: `shipment_id` — path `shipmentId`
-- **Returns (parsed)**: `CancelShipmentResponse1`
-- **Returns (raw)**: `ApiResult[CancelShipmentResponse1, CancelShipment2ErrorBody]`
+- **Params**: `shipment_id` — path `shipment-id`
+- **Returns (parsed)**: `CancelShipmentResponseShipping`
+- **Returns (raw)**: `ApiResult[CancelShipmentResponseShipping, CancelShipment2ErrorBody]`
 - **Error**: `CancelShipment2ErrorBody` — **Case A (typed)**
 - **Error arms**: `ErrorList` [400, 403, 404, 429, 500] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
-| `CancelShipmentResponse1` | `walmart_apis/models/cancel_shipment_response1.py` |
+| `CancelShipmentResponseShipping` | `walmart_apis/models/cancel_shipment_response_shipping.py` |
 | `CancelShipment2ErrorBody` | `walmart_apis/errors/cancel_shipment2_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |
 
 ### client.shipping.get_access_points
 
-- **Route**: `GET /shipping/v4/accessPoints`
+- **Route**: `GET /v4/fulfillment/shipping/access-points`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_access_points(access_point_types: str, country_code: str, postal_code: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `access_point_types`, `country_code`, `postal_code`
 - **Params**: `access_point_types` — query `accessPointTypes` · `country_code` — query `countryCode` · `postal_code` — query `postalCode`
@@ -46,9 +46,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.shipping.get_additional_inputs
 
-- **Route**: `GET /shipping/v4/shipments/additionalInputs/schema`
+- **Route**: `GET /v4/fulfillment/shipping/shipments/additional-input-schemas`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_additional_inputs(rate_id: str, request_token: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `rate_id`, `request_token`
 - **Params**: `rate_id` — query `rateId` · `request_token` — query `requestToken`
@@ -65,14 +65,14 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.shipping.get_rates
 
-- **Route**: `POST /shipping/v4/shipments/rates`
+- **Route**: `POST /v4/fulfillment/shipping/shipment-rates`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_rates(body: GetRatesRequest | GetRatesRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
-- **Returns (parsed)**: `GetFulfillmentOrderResponse`
-- **Returns (raw)**: `ApiResult[GetFulfillmentOrderResponse, GetRatesErrorBody]`
+- **Returns (parsed)**: `GetRatesResponse`
+- **Returns (raw)**: `ApiResult[GetRatesResponse, GetRatesErrorBody]`
 - **Error**: `GetRatesErrorBody` — **Case A (typed)**
 - **Error arms**: `ErrorList` [400, 403, 404, 429, 500] · `RawError` [anything unmapped]
 
@@ -80,18 +80,18 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 | --- | --- |
 | `GetRatesRequest` | `walmart_apis/models/get_rates_request.py` |
 | `GetRatesRequestDict` | `walmart_apis/models/get_rates_request.py` |
-| `GetFulfillmentOrderResponse` | `walmart_apis/models/get_fulfillment_order_response.py` |
+| `GetRatesResponse` | `walmart_apis/models/get_rates_response.py` |
 | `GetRatesErrorBody` | `walmart_apis/errors/get_rates_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |
 
 ### client.shipping.get_shipment_documents
 
-- **Route**: `GET /shipping/v4/shipments/{shipmentId}/documents`
+- **Route**: `GET /v4/fulfillment/shipping/shipments/{shipment-id}/documents`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def get_shipment_documents(shipment_id: str, *, package_client_reference_id: str | None = None, format_: Format1OrStr | None = None, request_options: RequestOptionsOrDict | None = None)`
+- **Server**: `default_catalog_items`
+- **Signature**: `def get_shipment_documents(shipment_id: str, *, package_client_reference_id: str | None = None, format_: FormatShippingOrStr | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `shipment_id`
-- **Params**: `shipment_id` — path `shipmentId` · `package_client_reference_id` — query `packageClientReferenceId` · `format_` — query `format`
+- **Params**: `shipment_id` — path `shipment-id` · `package_client_reference_id` — query `packageClientReferenceId` · `format_` — query `format`
 - **Returns (parsed)**: `GetShipmentDocumentsResponse`
 - **Returns (raw)**: `ApiResult[GetShipmentDocumentsResponse, GetShipmentDocumentsErrorBody]`
 - **Error**: `GetShipmentDocumentsErrorBody` — **Case A (typed)**
@@ -99,16 +99,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 | Type | Source |
 | --- | --- |
-| `Format1OrStr` | `walmart_apis/models/enums/format1.py` |
+| `FormatShippingOrStr` | `walmart_apis/models/enums/format_shipping.py` |
 | `GetShipmentDocumentsResponse` | `walmart_apis/models/get_shipment_documents_response.py` |
 | `GetShipmentDocumentsErrorBody` | `walmart_apis/errors/get_shipment_documents_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |
 
 ### client.shipping.get_tracking
 
-- **Route**: `GET /shipping/v4/tracking`
+- **Route**: `GET /v4/fulfillment/shipping/tracking-events`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_tracking(tracking_id: str, *, carrier_id: str | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `tracking_id`
 - **Params**: `tracking_id` — query `trackingId` · `carrier_id` — query `carrierId`
@@ -125,14 +125,14 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.shipping.one_click_shipment
 
-- **Route**: `POST /shipping/v4/oneClickShipment`
+- **Route**: `POST /v4/fulfillment/shipping/shipments/oneClickShipment`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def one_click_shipment(body: OneClickShipmentRequest | OneClickShipmentRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
-- **Returns (parsed)**: `GetFulfillmentOrderShipmentsResponse`
-- **Returns (raw)**: `ApiResult[GetFulfillmentOrderShipmentsResponse, OneClickShipmentErrorBody]`
+- **Returns (parsed)**: `OneClickShipmentResponse`
+- **Returns (raw)**: `ApiResult[OneClickShipmentResponse, OneClickShipmentErrorBody]`
 - **Error**: `OneClickShipmentErrorBody` — **Case A (typed)**
 - **Error arms**: `ErrorList` [400, 403, 404, 429, 500] · `RawError` [anything unmapped]
 
@@ -140,20 +140,20 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 | --- | --- |
 | `OneClickShipmentRequest` | `walmart_apis/models/one_click_shipment_request.py` |
 | `OneClickShipmentRequestDict` | `walmart_apis/models/one_click_shipment_request.py` |
-| `GetFulfillmentOrderShipmentsResponse` | `walmart_apis/models/get_fulfillment_order_shipments_response.py` |
+| `OneClickShipmentResponse` | `walmart_apis/models/one_click_shipment_response.py` |
 | `OneClickShipmentErrorBody` | `walmart_apis/errors/one_click_shipment_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |
 
 ### client.shipping.purchase_shipment
 
-- **Route**: `POST /shipping/v4/shipments`
+- **Route**: `POST /v4/fulfillment/shipping/shipments`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def purchase_shipment(body: PurchaseShipmentRequest | PurchaseShipmentRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
-- **Returns (parsed)**: `GetFulfillmentOrderShipmentsResponse`
-- **Returns (raw)**: `ApiResult[GetFulfillmentOrderShipmentsResponse, PurchaseShipmentErrorBody]`
+- **Returns (parsed)**: `PurchaseShipmentResponse`
+- **Returns (raw)**: `ApiResult[PurchaseShipmentResponse, PurchaseShipmentErrorBody]`
 - **Error**: `PurchaseShipmentErrorBody` — **Case A (typed)**
 - **Error arms**: `ErrorList` [400, 403, 404, 429, 500] · `RawError` [anything unmapped]
 
@@ -161,15 +161,15 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 | --- | --- |
 | `PurchaseShipmentRequest` | `walmart_apis/models/purchase_shipment_request.py` |
 | `PurchaseShipmentRequestDict` | `walmart_apis/models/purchase_shipment_request.py` |
-| `GetFulfillmentOrderShipmentsResponse` | `walmart_apis/models/get_fulfillment_order_shipments_response.py` |
+| `PurchaseShipmentResponse` | `walmart_apis/models/purchase_shipment_response.py` |
 | `PurchaseShipmentErrorBody` | `walmart_apis/errors/purchase_shipment_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |
 
 ### client.shipping.submit_ndr_feedback
 
-- **Route**: `POST /shipping/v4/ndrFeedback`
+- **Route**: `POST /v4/fulfillment/shipping/ndr-feedback`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def submit_ndr_feedback(body: SubmitNdrFeedbackRequest | SubmitNdrFeedbackRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body

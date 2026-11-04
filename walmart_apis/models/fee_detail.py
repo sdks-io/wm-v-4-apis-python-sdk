@@ -4,31 +4,35 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .money_type1 import MoneyType1, MoneyType1Dict
+from .money_type_product_fees import MoneyTypeProductFees, MoneyTypeProductFeesDict
 
 
 class FeeDetail(SdkBaseModel):
-    """Detail for a single fee component. May nest sub-fees in IncludedFeeDetailList. Mirrors SP-API FeeDetail."""
+    """Estimated fee component. A fee component can include nested sub-fees in ``IncludedFeeDetailList``."""
 
     fee_type: str = Field(alias="FeeType")
-    """Fee type, e.g. ReferralFee, WFSFulfillmentFee, VariableClosingFee."""
+    """Type of fee component, such as ``ReferralFee``, ``WFSFulfillmentFee``, or ``VariableClosingFee``."""
 
-    fee_amount: MoneyType1 = Field(alias="FeeAmount")
-    """Currency amount."""
+    fee_amount: MoneyTypeProductFees = Field(alias="FeeAmount")
+    """Monetary amount and currency."""
 
-    fee_promotion: Optional[MoneyType1] = Field(default=UNSET, alias="FeePromotion")
-    """Currency amount."""
+    fee_promotion: Optional[MoneyTypeProductFees] = Field(default=UNSET, alias="FeePromotion")
+    """Monetary amount and currency."""
 
-    tax_amount: Optional[MoneyType1] = Field(default=UNSET, alias="TaxAmount")
-    """Currency amount."""
+    tax_amount: Optional[MoneyTypeProductFees] = Field(default=UNSET, alias="TaxAmount")
+    """Monetary amount and currency."""
 
-    final_fee: MoneyType1 = Field(alias="FinalFee")
-    """Currency amount."""
+    final_fee: MoneyTypeProductFees = Field(alias="FinalFee")
+    """Monetary amount and currency."""
+
+    included_fee_detail_list: Optional[list[FeeDetail]] = Field(default=UNSET, alias="IncludedFeeDetailList")
+    """Additional fee components included in this fee."""
 
 
 class FeeDetailDict(TypedDict):
     fee_type: str
-    fee_amount: MoneyType1Dict
-    fee_promotion: NotRequired[MoneyType1Dict]
-    tax_amount: NotRequired[MoneyType1Dict]
-    final_fee: MoneyType1Dict
+    fee_amount: MoneyTypeProductFeesDict
+    fee_promotion: NotRequired[MoneyTypeProductFeesDict]
+    tax_amount: NotRequired[MoneyTypeProductFeesDict]
+    final_fee: MoneyTypeProductFeesDict
+    included_fee_detail_list: NotRequired[list[FeeDetailDict]]

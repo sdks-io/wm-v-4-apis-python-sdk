@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class Variant(str, Enum):
+    """Image variant type, such as ``MAIN`` for the primary product image or ``SWCH`` for a color swatch image."""
+
     MAIN = "MAIN"
     PT01 = "PT01"
     PT02 = "PT02"

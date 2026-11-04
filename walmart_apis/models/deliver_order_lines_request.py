@@ -8,6 +8,8 @@ from .deliver_order_line import DeliverOrderLine, DeliverOrderLineDict
 
 
 class DeliverOrderLinesRequest(SdkBaseModel):
+    """Order lines to mark as delivered."""
+
     order_lines: list[DeliverOrderLine] = Field(alias="orderLines")
 
 

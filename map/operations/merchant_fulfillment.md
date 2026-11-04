@@ -10,7 +10,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `DELETE /mfn/v4/shipments/{shipmentId}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def cancel_shipment(shipment_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `shipment_id`
 - **Params**: `shipment_id` — path `shipmentId`
@@ -29,7 +29,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `POST /mfn/v4/shipments`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def create_shipment(body: CreateShipmentRequest | CreateShipmentRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
@@ -50,7 +50,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `POST /mfn/v4/eligibleShippingServices`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_eligible_shipping_services(body: GetEligibleShippingServicesRequest | GetEligibleShippingServicesRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
@@ -71,7 +71,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /mfn/v4/shipments/{shipmentId}/label`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_label(shipment_id: str, *, format_: FormatOrStr | None = Format.PDF, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `shipment_id`
 - **Params**: `shipment_id` — path `shipmentId` · `format_` — query `format`
@@ -91,7 +91,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /mfn/v4/shipments/{shipmentId}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_shipment2(shipment_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `shipment_id`
 - **Params**: `shipment_id` — path `shipmentId`

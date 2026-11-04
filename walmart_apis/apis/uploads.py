@@ -19,7 +19,7 @@ from ..errors.create_upload_destination_for_resource_error import (
     create_upload_destination_for_resource_error_mapper,
 )
 from ..models.create_upload_destination_response import CreateUploadDestinationResponse
-from ..models.enums.content_type1 import ContentType1OrStr
+from ..models.enums.content_type_uploads_feed_documents import ContentTypeUploadsFeedDocumentsOrStr
 from ..models.enums.resource import ResourceOrStr
 from ..server.server import Server
 
@@ -31,7 +31,7 @@ class Uploads:
     def create_upload_destination_for_resource(
         self,
         resource: ResourceOrStr,
-        content_type: ContentType1OrStr,
+        content_type: ContentTypeUploadsFeedDocumentsOrStr,
         marketplace_ids: list[str],
         content_md5: str,
         *,
@@ -72,7 +72,7 @@ class AsyncUploads:
     async def create_upload_destination_for_resource(
         self,
         resource: ResourceOrStr,
-        content_type: ContentType1OrStr,
+        content_type: ContentTypeUploadsFeedDocumentsOrStr,
         marketplace_ids: list[str],
         content_md5: str,
         *,
@@ -110,7 +110,7 @@ class UploadsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
     def create_upload_destination_for_resource(
         self,
         resource: ResourceOrStr,
-        content_type: ContentType1OrStr,
+        content_type: ContentTypeUploadsFeedDocumentsOrStr,
         marketplace_ids: list[str],
         content_md5: str,
         *,
@@ -131,10 +131,10 @@ class UploadsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/uploads/v4/uploadDestinations/{resource}"),
+            url_template=self._server.default_catalog_items("/uploads/v4/uploadDestinations/{resource}"),
             path_params=[param[ResourceOrStr]("resource", resource)],
             query_params=[
-                param[ContentType1OrStr]("contentType", content_type),
+                param[ContentTypeUploadsFeedDocumentsOrStr]("contentType", content_type),
                 param[list[str]]("marketplaceIds", marketplace_ids),
             ],
             headers=[param[str]("contentMD5", content_md5), param[UUID]("Idempotency-Key", uuid4())],
@@ -149,7 +149,7 @@ class AsyncUploadsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
     async def create_upload_destination_for_resource(
         self,
         resource: ResourceOrStr,
-        content_type: ContentType1OrStr,
+        content_type: ContentTypeUploadsFeedDocumentsOrStr,
         marketplace_ids: list[str],
         content_md5: str,
         *,
@@ -170,10 +170,10 @@ class AsyncUploadsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/uploads/v4/uploadDestinations/{resource}"),
+            url_template=self._server.default_catalog_items("/uploads/v4/uploadDestinations/{resource}"),
             path_params=[param[ResourceOrStr]("resource", resource)],
             query_params=[
-                param[ContentType1OrStr]("contentType", content_type),
+                param[ContentTypeUploadsFeedDocumentsOrStr]("contentType", content_type),
                 param[list[str]]("marketplaceIds", marketplace_ids),
             ],
             headers=[param[str]("contentMD5", content_md5), param[UUID]("Idempotency-Key", uuid4())],

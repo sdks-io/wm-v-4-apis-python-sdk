@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class MethodCode(str, Enum):
+    """Shipping service method for the shipment."""
+
     STANDARD = "Standard"
     EXPRESS = "Express"
     SAME_DAY = "SameDay"

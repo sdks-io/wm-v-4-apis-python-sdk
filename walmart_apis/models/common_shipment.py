@@ -58,9 +58,10 @@ class CommonShipment(SdkBaseModel):
     """Specifies the 'ship from' address for the shipment."""
 
     status: Optional[str] = UNSET
-    """The status of a shipment. Possible values: ``ABANDONED``, ``CANCELLED``, ``CHECKED_IN``, ``CLOSED``, ``DELETED``,
-    ``DELIVERED``, ``IN_TRANSIT``, ``MIXED``, ``READY_TO_SHIP``, ``RECEIVING``, ``SHIPPED``, ``UNCONFIRMED``,
-    ``WORKING``."""
+    """The status of a shipment. Possible values: ``PENDING_SHIPMENT_DETAILS``, ``CARRIER_PENDING``,
+    ``TRACKING_NEEDED``, ``ISSUES``, ``OUT_FOR_DELIVERY``, ``AWAITING_TRANSIT``, ``IN_TRANSIT``,
+    ``TRANSFER_IN_PROGRESS``, ``ARRIVED``, ``RECEIVING``, ``COMPLETED``, ``CANCELLED``, ``CLOSED``, ``UNCONFIRMED``,
+    ``PROCESSING``. (aligned with the Inbound Order Workflow upstream vocabulary)"""
 
     tracking_details: Optional[CommonTrackingDetails] = Field(default=UNSET, alias="trackingDetails")
     """Tracking information for LTL and SPD shipments."""

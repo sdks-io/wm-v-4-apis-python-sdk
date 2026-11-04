@@ -61,14 +61,15 @@ class Reconciliation:
         )
 
     def download_reconciliation_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, reconciliation_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> FileResponse:
         """Downloads a reconciliation report ZIP for the given partner and date. Delegates to mp-payment-reporting GET
         /v1/mt/report/reconreport/reconFile (Azure MT storage).
 
         Args:
+            reconciliation_report_id: Reconciliation report identifier — the report date in MMddyyyy format (e.g.
+                06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -80,7 +81,7 @@ class Reconciliation:
                 Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.download_reconciliation_report(
-                partner_id, report_date, request_options=request_options
+                reconciliation_report_id, partner_id, request_options=request_options
             ),
         )
 
@@ -138,14 +139,15 @@ class AsyncReconciliation:
         )
 
     async def download_reconciliation_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, reconciliation_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> AsyncFileResponse:
         """Downloads a reconciliation report ZIP for the given partner and date. Delegates to mp-payment-reporting GET
         /v1/mt/report/reconreport/reconFile (Azure MT storage).
 
         Args:
+            reconciliation_report_id: Reconciliation report identifier — the report date in MMddyyyy format (e.g.
+                06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -157,7 +159,7 @@ class AsyncReconciliation:
                 Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.download_reconciliation_report(
-                partner_id, report_date, request_options=request_options
+                reconciliation_report_id, partner_id, request_options=request_options
             ),
         )
 
@@ -205,7 +207,7 @@ class ReconciliationWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSc
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/checkDownloadReportByPeriod"),
+            url_template=self._server.default_catalog_items("/v4/payments/reports"),
             query_params=[param[str]("partnerId", partner_id), param[Date]("date", date)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[ReportAvailabilityResponse],
@@ -214,14 +216,15 @@ class ReconciliationWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSc
         )
 
     def download_reconciliation_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, reconciliation_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[FileResponse, DownloadReconciliationReportErrorBody]:
         """Downloads a reconciliation report ZIP for the given partner and date. Delegates to mp-payment-reporting GET
         /v1/mt/report/reconreport/reconFile (Azure MT storage).
 
         Args:
+            reconciliation_report_id: Reconciliation report identifier — the report date in MMddyyyy format (e.g.
+                06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -229,8 +232,11 @@ class ReconciliationWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSc
             An ``ApiResult`` holding the body unread or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/reconciliation/download"),
-            query_params=[param[str]("partnerId", partner_id), param[str]("reportDate", report_date)],
+            url_template=self._server.default_catalog_items(
+                "/v4/payments/reports/reconciliation-reports/{reconciliation-report-id}"
+            ),
+            path_params=[param[str]("reconciliation-report-id", reconciliation_report_id)],
+            query_params=[param[str]("partnerId", partner_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=file_decoder,
             error_mapper=download_reconciliation_report_error_mapper,
@@ -252,7 +258,7 @@ class ReconciliationWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSc
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/reconciliation/dateList"),
+            url_template=self._server.default_catalog_items("/v4/payments/reports/reconciliation/date-list"),
             query_params=[param[str]("partnerId", partner_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[ReportAvailabilityResponse],
@@ -279,7 +285,7 @@ class AsyncReconciliationWithRawResponse(SecuredRawResponse[AsyncRawClient, Serv
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/checkDownloadReportByPeriod"),
+            url_template=self._server.default_catalog_items("/v4/payments/reports"),
             query_params=[param[str]("partnerId", partner_id), param[Date]("date", date)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[ReportAvailabilityResponse],
@@ -288,14 +294,15 @@ class AsyncReconciliationWithRawResponse(SecuredRawResponse[AsyncRawClient, Serv
         )
 
     async def download_reconciliation_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, reconciliation_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[AsyncFileResponse, DownloadReconciliationReportErrorBody]:
         """Downloads a reconciliation report ZIP for the given partner and date. Delegates to mp-payment-reporting GET
         /v1/mt/report/reconreport/reconFile (Azure MT storage).
 
         Args:
+            reconciliation_report_id: Reconciliation report identifier — the report date in MMddyyyy format (e.g.
+                06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -303,8 +310,11 @@ class AsyncReconciliationWithRawResponse(SecuredRawResponse[AsyncRawClient, Serv
             An ``ApiResult`` holding the body unread or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/reconciliation/download"),
-            query_params=[param[str]("partnerId", partner_id), param[str]("reportDate", report_date)],
+            url_template=self._server.default_catalog_items(
+                "/v4/payments/reports/reconciliation-reports/{reconciliation-report-id}"
+            ),
+            path_params=[param[str]("reconciliation-report-id", reconciliation_report_id)],
+            query_params=[param[str]("partnerId", partner_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_file_decoder,
             error_mapper=download_reconciliation_report_error_mapper,
@@ -326,7 +336,7 @@ class AsyncReconciliationWithRawResponse(SecuredRawResponse[AsyncRawClient, Serv
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/reconciliation/dateList"),
+            url_template=self._server.default_catalog_items("/v4/payments/reports/reconciliation/date-list"),
             query_params=[param[str]("partnerId", partner_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[ReportAvailabilityResponse],

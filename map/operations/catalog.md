@@ -8,12 +8,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.catalog.get_catalog_item
 
-- **Route**: `GET /catalog/v4/items/{walmartItemId}`
+- **Route**: `GET /v4/catalog/items/{walmart-item-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_catalog_item(walmart_item_id: str, marketplace_ids: list[str], *, included_data: list[IncludedDatumOrStr] | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `walmart_item_id`, `marketplace_ids`
-- **Params**: `walmart_item_id` — path `walmartItemId` · `marketplace_ids` — query `marketplaceIds` · `included_data` — query `includedData`
+- **Params**: `walmart_item_id` — path `walmart-item-id` · `marketplace_ids` — query `marketplaceIds` · `included_data` — query `includedData`
 - **Returns (parsed)**: `Item`
 - **Returns (raw)**: `ApiResult[Item, GetCatalogItemErrorBody]`
 - **Error**: `GetCatalogItemErrorBody` — **Case A (typed)**
@@ -28,9 +28,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.catalog.search_catalog_items
 
-- **Route**: `GET /catalog/v4/items`
+- **Route**: `GET /v4/catalog/items`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def search_catalog_items(marketplace_ids: list[str], *, keywords: str | None = None, walmart_item_ids: str | None = None, seller_sku: str | None = None, gtin: str | None = None, upc: str | None = None, included_data: list[IncludedDatumOrStr] | None = None, page_size: int | None = 10, page_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `marketplace_ids`
 - **Params**: `marketplace_ids` — query `marketplaceIds` · `keywords` — query · `walmart_item_ids` — query `walmartItemIds` · `seller_sku` — query `sellerSku` · `gtin` — query · `upc` — query · `included_data` — query `includedData` · `page_size` — query `pageSize` · `page_token` — query `pageToken`

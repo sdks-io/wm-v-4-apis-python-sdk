@@ -7,10 +7,10 @@ from .competitive_summary_response import CompetitiveSummaryResponse, Competitiv
 
 
 class CompetitiveSummaryBatchResponse(SdkBaseModel):
-    """The response schema for the getCompetitiveSummary operation."""
+    """Response schema for the ``getCompetitiveSummary`` operation."""
 
     responses: Optional[list[CompetitiveSummaryResponse]] = UNSET
-    """A batched list of competitive summary responses."""
+    """Competitive summary responses returned for the batch."""
 
 
 class CompetitiveSummaryBatchResponseDict(TypedDict):

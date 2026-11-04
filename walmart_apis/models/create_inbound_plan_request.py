@@ -9,16 +9,17 @@ from .common_item_input import CommonItemInput, CommonItemInputDict
 
 
 class CreateInboundPlanRequest(SdkBaseModel):
-    """The ``createInboundPlan`` request."""
+    """Request to create an inbound plan for shipping items to Walmart fulfillment centers."""
 
     destination_marketplaces: list[str] = Field(alias="destinationMarketplaces")
-    """Walmart Marketplace IDs where the items need to be shipped to. Currently only one marketplace can be selected."""
+    """Walmart Marketplace identifiers for the destination of the planned shipment. Only one marketplace can be
+    specified."""
 
     items: list[CommonItemInput]
-    """Items included in this plan."""
+    """Items to include in the inbound plan."""
 
     name: Optional[str] = UNSET
-    """Name for the Inbound Plan. If one isn't provided, a default name will be provided."""
+    """Human-readable name for the inbound plan. If omitted, a default name is assigned."""
 
     source_address: CommonAddressInput = Field(alias="sourceAddress")
     """Specific details to identify a place (input variant — phone required)."""

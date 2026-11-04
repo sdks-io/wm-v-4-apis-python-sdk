@@ -8,8 +8,13 @@ from .quantity_with_unit import QuantityWithUnit, QuantityWithUnitDict
 
 
 class ShipPackageLine(SdkBaseModel):
+    """Order line included in a shipped package."""
+
     line_number: str = Field(alias="lineNumber")
+    """Line identifier within the purchase order."""
+
     ship_quantity: Optional[QuantityWithUnit] = Field(default=UNSET, alias="shipQuantity")
+    """Numeric quantity and its unit of measure."""
 
 
 class ShipPackageLineDict(TypedDict):

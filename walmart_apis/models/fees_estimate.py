@@ -5,20 +5,22 @@ from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, RFC3339DateTime, SdkBaseModel
 from .fee_detail import FeeDetail, FeeDetailDict
-from .money_type1 import MoneyType1, MoneyType1Dict
+from .money_type_product_fees import MoneyTypeProductFees, MoneyTypeProductFeesDict
 
 
 class FeesEstimate(SdkBaseModel):
-    """The estimated fees broken down by component. Mirrors SP-API FeesEstimate."""
+    """Estimated fees for the item, including the total estimate and individual fee components."""
 
     time_of_fees_estimation: RFC3339DateTime = Field(alias="TimeOfFeesEstimation")
-    total_fees_estimate: MoneyType1 = Field(alias="TotalFeesEstimate")
-    """Currency amount."""
+    """Timestamp when the fees were estimated, in ISO 8601 format."""
+
+    total_fees_estimate: MoneyTypeProductFees = Field(alias="TotalFeesEstimate")
+    """Monetary amount and currency."""
 
     fee_detail_list: Optional[list[FeeDetail]] = Field(default=UNSET, alias="FeeDetailList")
 
 
 class FeesEstimateDict(TypedDict):
     time_of_fees_estimation: RFC3339DateTime
-    total_fees_estimate: MoneyType1Dict
+    total_fees_estimate: MoneyTypeProductFeesDict
     fee_detail_list: NotRequired[list[FeeDetailDict]]

@@ -37,8 +37,8 @@ class Sellers:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList |
-                RawError``."""
+            ApiError: Bad Request Forbidden Seller not found Rate limit exceeded Internal Server Error ``error`` is
+                ``ErrorList | RawError``."""
         return unwrap(self._with_raw_response.get_account(request_options=request_options))
 
     def get_marketplace_participations(
@@ -55,8 +55,8 @@ class Sellers:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList |
-                RawError``."""
+            ApiError: Bad Request Forbidden Seller not found Rate limit exceeded Internal Server Error ``error`` is
+                ``ErrorList | RawError``."""
         return unwrap(self._with_raw_response.get_marketplace_participations(request_options=request_options))
 
     @property
@@ -80,8 +80,8 @@ class AsyncSellers:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList |
-                RawError``."""
+            ApiError: Bad Request Forbidden Seller not found Rate limit exceeded Internal Server Error ``error`` is
+                ``ErrorList | RawError``."""
         return unwrap(await self._with_raw_response.get_account(request_options=request_options))
 
     async def get_marketplace_participations(
@@ -98,8 +98,8 @@ class AsyncSellers:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList |
-                RawError``."""
+            ApiError: Bad Request Forbidden Seller not found Rate limit exceeded Internal Server Error ``error`` is
+                ``ErrorList | RawError``."""
         return unwrap(await self._with_raw_response.get_marketplace_participations(request_options=request_options))
 
     @property
@@ -122,7 +122,7 @@ class SellersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/sellers/v4/account"),
+            url_template=self._server.default_catalog_items("/sellers/v4/account"),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[SellerAccount],
             error_mapper=get_account_error_mapper,
@@ -143,7 +143,7 @@ class SellersWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/sellers/v4/marketplaceParticipations"),
+            url_template=self._server.default_catalog_items("/sellers/v4/marketplaceParticipations"),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetMarketplaceParticipationsResponse],
             error_mapper=get_marketplace_participations_error_mapper,
@@ -166,7 +166,7 @@ class AsyncSellersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/sellers/v4/account"),
+            url_template=self._server.default_catalog_items("/sellers/v4/account"),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[SellerAccount],
             error_mapper=get_account_error_mapper,
@@ -187,7 +187,7 @@ class AsyncSellersWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/sellers/v4/marketplaceParticipations"),
+            url_template=self._server.default_catalog_items("/sellers/v4/marketplaceParticipations"),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetMarketplaceParticipationsResponse],
             error_mapper=get_marketplace_participations_error_mapper,

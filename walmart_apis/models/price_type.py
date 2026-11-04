@@ -8,8 +8,7 @@ from .money_type import MoneyType, MoneyTypeDict
 
 
 class PriceType(SdkBaseModel):
-    """Item price information. LandedPrice = ListingPrice + Shipping. Walmart does not have a seller-configurable
-    per-offer loyalty points mechanism; the Points field from the SP-API reference spec is omitted.."""
+    """Price information for an offer. ``LandedPrice`` is the sum of ``ListingPrice`` and ``Shipping``."""
 
     landed_price: Optional[MoneyType] = Field(default=UNSET, alias="LandedPrice")
     """Currency type and monetary value."""

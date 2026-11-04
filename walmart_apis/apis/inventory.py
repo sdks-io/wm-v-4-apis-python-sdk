@@ -41,7 +41,8 @@ class Inventory:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> BulkUpdateInventoryResponse:
-        """Bulk inventory update. Max 500 items per request.
+        """Bulk inventory update. Max 10 items per request. Exceeding 10 items returns 400 before this service would
+        otherwise forward the request upstream.
 
         Args:
             body: The request body.
@@ -89,7 +90,7 @@ class Inventory:
         """Send a ``GET`` request.
 
         Args:
-            skus: Comma-separated seller SKUs (max 50)
+            skus: Comma-separated seller SKUs (max 10). Exceeding it returns 400 INVALID_REQUEST.
             ship_node: Walmart Ship Node ID (for multi-node sellers)
             page_size: Value sent with the request.
             next_token: Value sent with the request.
@@ -150,7 +151,8 @@ class AsyncInventory:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> BulkUpdateInventoryResponse:
-        """Bulk inventory update. Max 500 items per request.
+        """Bulk inventory update. Max 10 items per request. Exceeding 10 items returns 400 before this service would
+        otherwise forward the request upstream.
 
         Args:
             body: The request body.
@@ -200,7 +202,7 @@ class AsyncInventory:
         """Send a ``GET`` request.
 
         Args:
-            skus: Comma-separated seller SKUs (max 50)
+            skus: Comma-separated seller SKUs (max 10). Exceeding it returns 400 INVALID_REQUEST.
             ship_node: Walmart Ship Node ID (for multi-node sellers)
             page_size: Value sent with the request.
             next_token: Value sent with the request.
@@ -260,7 +262,8 @@ class InventoryWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[BulkUpdateInventoryResponse, BulkUpdateInventoryErrorBody]:
-        """Bulk inventory update. Max 500 items per request.
+        """Bulk inventory update. Max 10 items per request. Exceeding 10 items returns 400 before this service would
+        otherwise forward the request upstream.
 
         Args:
             body: The request body.
@@ -271,7 +274,7 @@ class InventoryWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inventory/v4/items/bulk"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items/bulk"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[BulkUpdateInventoryRequest | BulkUpdateInventoryRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -295,7 +298,7 @@ class InventoryWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inventory/v4/items/{sku}"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items/{sku}"),
             path_params=[param[str]("sku", sku)],
             query_params=[param[str | None]("shipNode", ship_node)],
             auth_scheme=self._auth.wallet_auth,
@@ -316,7 +319,7 @@ class InventoryWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
         """Send a ``GET`` request.
 
         Args:
-            skus: Comma-separated seller SKUs (max 50)
+            skus: Comma-separated seller SKUs (max 10). Exceeding it returns 400 INVALID_REQUEST.
             ship_node: Walmart Ship Node ID (for multi-node sellers)
             page_size: Value sent with the request.
             next_token: Value sent with the request.
@@ -327,7 +330,7 @@ class InventoryWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inventory/v4/items"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items"),
             query_params=[
                 param[str | None]("skus", skus),
                 param[str | None]("shipNode", ship_node),
@@ -359,7 +362,7 @@ class InventoryWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/inventory/v4/items/{sku}"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items/{sku}"),
             path_params=[param[str]("sku", sku)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateInventoryRequest | UpdateInventoryRequestDict](body),
@@ -377,7 +380,8 @@ class AsyncInventoryWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[BulkUpdateInventoryResponse, BulkUpdateInventoryErrorBody]:
-        """Bulk inventory update. Max 500 items per request.
+        """Bulk inventory update. Max 10 items per request. Exceeding 10 items returns 400 before this service would
+        otherwise forward the request upstream.
 
         Args:
             body: The request body.
@@ -388,7 +392,7 @@ class AsyncInventoryWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/inventory/v4/items/bulk"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items/bulk"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[BulkUpdateInventoryRequest | BulkUpdateInventoryRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -412,7 +416,7 @@ class AsyncInventoryWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inventory/v4/items/{sku}"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items/{sku}"),
             path_params=[param[str]("sku", sku)],
             query_params=[param[str | None]("shipNode", ship_node)],
             auth_scheme=self._auth.wallet_auth,
@@ -433,7 +437,7 @@ class AsyncInventoryWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
         """Send a ``GET`` request.
 
         Args:
-            skus: Comma-separated seller SKUs (max 50)
+            skus: Comma-separated seller SKUs (max 10). Exceeding it returns 400 INVALID_REQUEST.
             ship_node: Walmart Ship Node ID (for multi-node sellers)
             page_size: Value sent with the request.
             next_token: Value sent with the request.
@@ -444,7 +448,7 @@ class AsyncInventoryWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inventory/v4/items"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items"),
             query_params=[
                 param[str | None]("skus", skus),
                 param[str | None]("shipNode", ship_node),
@@ -476,7 +480,7 @@ class AsyncInventoryWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/inventory/v4/items/{sku}"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items/{sku}"),
             path_params=[param[str]("sku", sku)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateInventoryRequest | UpdateInventoryRequestDict](body),

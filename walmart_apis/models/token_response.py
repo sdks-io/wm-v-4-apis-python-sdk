@@ -8,21 +8,25 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 
 class TokenResponse(SdkBaseModel):
+    """Optional properties are omitted when absent; they are never serialized as JSON null."""
+
     access_token: str
-    """Opaque Bearer access token. Treat as a secret; never log."""
+    """Opaque Bearer access token. Send this value as ``Authorization: Bearer <token>`` when calling Marketplace V4
+    APIs. Treat as a secret and do not log it."""
 
     token_type: Literal["Bearer"] = "Bearer"
-    """Always ``Bearer`` (RFC 6750)."""
+    """Token type for the access token. The value is ``Bearer``."""
 
     expires_in: int
-    """Access-token lifetime in seconds (≈900 today)."""
+    """Access token lifetime, in seconds."""
 
     refresh_token: Optional[str] = UNSET
-    """Rotated refresh token — replaces the one presented (OAuth 2.1 §4.3.1). Present only on delegated grants when
-    ``offline_access`` was granted. Treat as a secret; never log."""
+    """Refresh token returned for delegated authorization when ``offline_access`` was granted. Treat as a secret and do
+    not log it."""
 
     scope: Optional[str] = UNSET
-    """Space-delimited granted scopes; present on delegated grants when narrowed from the original grant."""
+    """Space-delimited OAuth scopes granted for delegated authorization. Present when the delegated scope is narrowed
+    from the original grant."""
 
 
 class TokenResponseDict(TypedDict):

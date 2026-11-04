@@ -23,11 +23,11 @@ from ..errors.update_final_payout_case_status_error import (
     UpdateFinalPayoutCaseStatusErrorBody,
     update_final_payout_case_status_error_mapper,
 )
-from ..models.disbursements_v4_final_payout_case_update_status_request import (
-    DisbursementsV4FinalPayoutCaseUpdateStatusRequest,
-    DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict,
-)
 from ..models.final_payout_case_status_response import FinalPayoutCaseStatusResponse
+from ..models.update_final_payout_case_status_request import (
+    UpdateFinalPayoutCaseStatusRequest,
+    UpdateFinalPayoutCaseStatusRequestDict,
+)
 from ..server.server import Server
 
 
@@ -39,7 +39,10 @@ class FinalPayout:
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> FinalPayoutCaseStatusResponse:
         """Returns the current state, case ID, and payable amount for the authenticated seller's final payout case (used
-        when a seller account is being offboarded). Delegates to GMPPaymentsPlatform (Phase 5).
+        when a seller account is being offboarded).
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for final payout case tracking. Kept in the
+        spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -50,17 +53,22 @@ class FinalPayout:
 
         Raises:
             ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Not Found Internal Server
-                Error ``error`` is ``ErrorList | RawError``."""
+                Error Not Implemented — this operation is spec-defined (kept for SDK/client parity and contract
+                completeness) but is permanently unsupported: no backend/upstream exists and none is planned.. ``error``
+                is ``ErrorList | RawError``."""
         return unwrap(self._with_raw_response.get_final_payout_case_status(request_options=request_options))
 
     def update_final_payout_case_status(
         self,
-        body: DisbursementsV4FinalPayoutCaseUpdateStatusRequest | DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict,
+        body: UpdateFinalPayoutCaseStatusRequest | UpdateFinalPayoutCaseStatusRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> FinalPayoutCaseStatusResponse:
         """Transitions the authenticated seller's final payout case to Resolved or Closed, optionally including
-        resolution notes. Requires disbursements:write scope. Delegates to GMPPaymentsPlatform (Phase 5).
+        resolution notes. Requires disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for final payout case status writes. Kept in
+        the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             body: The request body.
@@ -71,7 +79,10 @@ class FinalPayout:
             Success
 
         Raises:
-            ApiError: Bad Request Not Found Internal Server Error ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Not Found Internal Server
+                Error Not Implemented — this operation is spec-defined (kept for SDK/client parity and contract
+                completeness) but is permanently unsupported: no backend/upstream exists and none is planned.. ``error``
+                is ``ErrorList | RawError``."""
         return unwrap(self._with_raw_response.update_final_payout_case_status(body, request_options=request_options))
 
     @property
@@ -87,7 +98,10 @@ class AsyncFinalPayout:
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> FinalPayoutCaseStatusResponse:
         """Returns the current state, case ID, and payable amount for the authenticated seller's final payout case (used
-        when a seller account is being offboarded). Delegates to GMPPaymentsPlatform (Phase 5).
+        when a seller account is being offboarded).
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for final payout case tracking. Kept in the
+        spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -98,17 +112,22 @@ class AsyncFinalPayout:
 
         Raises:
             ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Not Found Internal Server
-                Error ``error`` is ``ErrorList | RawError``."""
+                Error Not Implemented — this operation is spec-defined (kept for SDK/client parity and contract
+                completeness) but is permanently unsupported: no backend/upstream exists and none is planned.. ``error``
+                is ``ErrorList | RawError``."""
         return unwrap(await self._with_raw_response.get_final_payout_case_status(request_options=request_options))
 
     async def update_final_payout_case_status(
         self,
-        body: DisbursementsV4FinalPayoutCaseUpdateStatusRequest | DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict,
+        body: UpdateFinalPayoutCaseStatusRequest | UpdateFinalPayoutCaseStatusRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> FinalPayoutCaseStatusResponse:
         """Transitions the authenticated seller's final payout case to Resolved or Closed, optionally including
-        resolution notes. Requires disbursements:write scope. Delegates to GMPPaymentsPlatform (Phase 5).
+        resolution notes. Requires disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for final payout case status writes. Kept in
+        the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             body: The request body.
@@ -119,7 +138,10 @@ class AsyncFinalPayout:
             Success
 
         Raises:
-            ApiError: Bad Request Not Found Internal Server Error ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Not Found Internal Server
+                Error Not Implemented — this operation is spec-defined (kept for SDK/client parity and contract
+                completeness) but is permanently unsupported: no backend/upstream exists and none is planned.. ``error``
+                is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.update_final_payout_case_status(body, request_options=request_options)
         )
@@ -134,7 +156,10 @@ class FinalPayoutWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[FinalPayoutCaseStatusResponse, GetFinalPayoutCaseStatusErrorBody]:
         """Returns the current state, case ID, and payable amount for the authenticated seller's final payout case (used
-        when a seller account is being offboarded). Delegates to GMPPaymentsPlatform (Phase 5).
+        when a seller account is being offboarded).
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for final payout case tracking. Kept in the
+        spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -144,7 +169,7 @@ class FinalPayoutWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/finalPayout/case/status"),
+            url_template=self._server.default_catalog_items("/v4/payments/final-payout-cases/status"),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[FinalPayoutCaseStatusResponse],
             error_mapper=get_final_payout_case_status_error_mapper,
@@ -153,12 +178,15 @@ class FinalPayoutWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
 
     def update_final_payout_case_status(
         self,
-        body: DisbursementsV4FinalPayoutCaseUpdateStatusRequest | DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict,
+        body: UpdateFinalPayoutCaseStatusRequest | UpdateFinalPayoutCaseStatusRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[FinalPayoutCaseStatusResponse, UpdateFinalPayoutCaseStatusErrorBody]:
         """Transitions the authenticated seller's final payout case to Resolved or Closed, optionally including
-        resolution notes. Requires disbursements:write scope. Delegates to GMPPaymentsPlatform (Phase 5).
+        resolution notes. Requires disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for final payout case status writes. Kept in
+        the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             body: The request body.
@@ -169,14 +197,9 @@ class FinalPayoutWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchem
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/disbursements/v4/finalPayout/case/updateStatus"),
+            url_template=self._server.default_catalog_items("/v4/payments/final-payout-cases/status"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
-            body=json_body[
-                (
-                    DisbursementsV4FinalPayoutCaseUpdateStatusRequest
-                    | DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict
-                )
-            ](body),
+            body=json_body[UpdateFinalPayoutCaseStatusRequest | UpdateFinalPayoutCaseStatusRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[FinalPayoutCaseStatusResponse],
             error_mapper=update_final_payout_case_status_error_mapper,
@@ -189,7 +212,10 @@ class AsyncFinalPayoutWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[FinalPayoutCaseStatusResponse, GetFinalPayoutCaseStatusErrorBody]:
         """Returns the current state, case ID, and payable amount for the authenticated seller's final payout case (used
-        when a seller account is being offboarded). Delegates to GMPPaymentsPlatform (Phase 5).
+        when a seller account is being offboarded).
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for final payout case tracking. Kept in the
+        spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -199,7 +225,7 @@ class AsyncFinalPayoutWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/finalPayout/case/status"),
+            url_template=self._server.default_catalog_items("/v4/payments/final-payout-cases/status"),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[FinalPayoutCaseStatusResponse],
             error_mapper=get_final_payout_case_status_error_mapper,
@@ -208,12 +234,15 @@ class AsyncFinalPayoutWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
 
     async def update_final_payout_case_status(
         self,
-        body: DisbursementsV4FinalPayoutCaseUpdateStatusRequest | DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict,
+        body: UpdateFinalPayoutCaseStatusRequest | UpdateFinalPayoutCaseStatusRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[FinalPayoutCaseStatusResponse, UpdateFinalPayoutCaseStatusErrorBody]:
         """Transitions the authenticated seller's final payout case to Resolved or Closed, optionally including
-        resolution notes. Requires disbursements:write scope. Delegates to GMPPaymentsPlatform (Phase 5).
+        resolution notes. Requires disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for final payout case status writes. Kept in
+        the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             body: The request body.
@@ -224,14 +253,9 @@ class AsyncFinalPayoutWithRawResponse(SecuredRawResponse[AsyncRawClient, Server,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/disbursements/v4/finalPayout/case/updateStatus"),
+            url_template=self._server.default_catalog_items("/v4/payments/final-payout-cases/status"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
-            body=json_body[
-                (
-                    DisbursementsV4FinalPayoutCaseUpdateStatusRequest
-                    | DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict
-                )
-            ](body),
+            body=json_body[UpdateFinalPayoutCaseStatusRequest | UpdateFinalPayoutCaseStatusRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[FinalPayoutCaseStatusResponse],
             error_mapper=update_final_payout_case_status_error_mapper,

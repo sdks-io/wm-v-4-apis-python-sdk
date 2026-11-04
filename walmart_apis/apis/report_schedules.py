@@ -36,12 +36,12 @@ class ReportSchedules:
         self._with_raw_response = ReportSchedulesWithRawResponse(client, server, auth)
 
     def cancel_report_schedule(
-        self, report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> CancelReportScheduleResponse:
         """Send a ``DELETE`` request.
 
         Args:
-            report_schedule_id: Value sent with the request.
+            schedule_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -51,9 +51,7 @@ class ReportSchedules:
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
                 | RawError``."""
-        return unwrap(
-            self._with_raw_response.cancel_report_schedule(report_schedule_id, request_options=request_options)
-        )
+        return unwrap(self._with_raw_response.cancel_report_schedule(schedule_id, request_options=request_options))
 
     def create_report_schedule(
         self,
@@ -77,12 +75,12 @@ class ReportSchedules:
         return unwrap(self._with_raw_response.create_report_schedule(body, request_options=request_options))
 
     def get_report_schedule(
-        self, report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ReportSchedule:
         """Send a ``GET`` request.
 
         Args:
-            report_schedule_id: Value sent with the request.
+            schedule_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -92,7 +90,7 @@ class ReportSchedules:
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
                 | RawError``."""
-        return unwrap(self._with_raw_response.get_report_schedule(report_schedule_id, request_options=request_options))
+        return unwrap(self._with_raw_response.get_report_schedule(schedule_id, request_options=request_options))
 
     def get_report_schedules(
         self, *, report_types: list[ReportType1OrStr] | None = None, request_options: RequestOptionsOrDict | None = None
@@ -125,12 +123,12 @@ class AsyncReportSchedules:
         self._with_raw_response = AsyncReportSchedulesWithRawResponse(client, server, auth)
 
     async def cancel_report_schedule(
-        self, report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> CancelReportScheduleResponse:
         """Send a ``DELETE`` request.
 
         Args:
-            report_schedule_id: Value sent with the request.
+            schedule_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -141,7 +139,7 @@ class AsyncReportSchedules:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
                 | RawError``."""
         return unwrap(
-            await self._with_raw_response.cancel_report_schedule(report_schedule_id, request_options=request_options)
+            await self._with_raw_response.cancel_report_schedule(schedule_id, request_options=request_options)
         )
 
     async def create_report_schedule(
@@ -166,12 +164,12 @@ class AsyncReportSchedules:
         return unwrap(await self._with_raw_response.create_report_schedule(body, request_options=request_options))
 
     async def get_report_schedule(
-        self, report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ReportSchedule:
         """Send a ``GET`` request.
 
         Args:
-            report_schedule_id: Value sent with the request.
+            schedule_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -181,9 +179,7 @@ class AsyncReportSchedules:
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
                 | RawError``."""
-        return unwrap(
-            await self._with_raw_response.get_report_schedule(report_schedule_id, request_options=request_options)
-        )
+        return unwrap(await self._with_raw_response.get_report_schedule(schedule_id, request_options=request_options))
 
     async def get_report_schedules(
         self, *, report_types: list[ReportType1OrStr] | None = None, request_options: RequestOptionsOrDict | None = None
@@ -215,12 +211,12 @@ class AsyncReportSchedules:
 
 class ReportSchedulesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
     def cancel_report_schedule(
-        self, report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CancelReportScheduleResponse, CancelReportScheduleErrorBody]:
         """Send a ``DELETE`` request.
 
         Args:
-            report_schedule_id: Value sent with the request.
+            schedule_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -228,8 +224,8 @@ class ReportSchedulesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthS
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/reports/v4/schedules/{reportScheduleId}"),
-            path_params=[param[str]("reportScheduleId", report_schedule_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/report-schedules/{schedule-id}"),
+            path_params=[param[str]("schedule-id", schedule_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[CancelReportScheduleResponse],
@@ -254,7 +250,7 @@ class ReportSchedulesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthS
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/reports/v4/schedules"),
+            url_template=self._server.default_catalog_items("/v4/reports/report-schedules"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateReportScheduleSpecification | CreateReportScheduleSpecificationDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -264,12 +260,12 @@ class ReportSchedulesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthS
         )
 
     def get_report_schedule(
-        self, report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[ReportSchedule, GetReportScheduleErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            report_schedule_id: Value sent with the request.
+            schedule_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -277,8 +273,8 @@ class ReportSchedulesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthS
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/schedules/{reportScheduleId}"),
-            path_params=[param[str]("reportScheduleId", report_schedule_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/report-schedules/{schedule-id}"),
+            path_params=[param[str]("schedule-id", schedule_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[ReportSchedule],
             error_mapper=get_report_schedule_error_mapper,
@@ -300,7 +296,7 @@ class ReportSchedulesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthS
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/schedules"),
+            url_template=self._server.default_catalog_items("/v4/reports/report-schedules"),
             query_params=[param[list[ReportType1OrStr] | None]("reportTypes", report_types)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetReportSchedulesResponse],
@@ -311,12 +307,12 @@ class ReportSchedulesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthS
 
 class AsyncReportSchedulesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, AsyncAuthSchemes]):
     async def cancel_report_schedule(
-        self, report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CancelReportScheduleResponse, CancelReportScheduleErrorBody]:
         """Send a ``DELETE`` request.
 
         Args:
-            report_schedule_id: Value sent with the request.
+            schedule_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -324,8 +320,8 @@ class AsyncReportSchedulesWithRawResponse(SecuredRawResponse[AsyncRawClient, Ser
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/reports/v4/schedules/{reportScheduleId}"),
-            path_params=[param[str]("reportScheduleId", report_schedule_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/report-schedules/{schedule-id}"),
+            path_params=[param[str]("schedule-id", schedule_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[CancelReportScheduleResponse],
@@ -350,7 +346,7 @@ class AsyncReportSchedulesWithRawResponse(SecuredRawResponse[AsyncRawClient, Ser
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/reports/v4/schedules"),
+            url_template=self._server.default_catalog_items("/v4/reports/report-schedules"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateReportScheduleSpecification | CreateReportScheduleSpecificationDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -360,12 +356,12 @@ class AsyncReportSchedulesWithRawResponse(SecuredRawResponse[AsyncRawClient, Ser
         )
 
     async def get_report_schedule(
-        self, report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, schedule_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[ReportSchedule, GetReportScheduleErrorBody]:
         """Send a ``GET`` request.
 
         Args:
-            report_schedule_id: Value sent with the request.
+            schedule_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -373,8 +369,8 @@ class AsyncReportSchedulesWithRawResponse(SecuredRawResponse[AsyncRawClient, Ser
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/schedules/{reportScheduleId}"),
-            path_params=[param[str]("reportScheduleId", report_schedule_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/report-schedules/{schedule-id}"),
+            path_params=[param[str]("schedule-id", schedule_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[ReportSchedule],
             error_mapper=get_report_schedule_error_mapper,
@@ -396,7 +392,7 @@ class AsyncReportSchedulesWithRawResponse(SecuredRawResponse[AsyncRawClient, Ser
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/schedules"),
+            url_template=self._server.default_catalog_items("/v4/reports/report-schedules"),
             query_params=[param[list[ReportType1OrStr] | None]("reportTypes", report_types)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetReportSchedulesResponse],

@@ -127,7 +127,7 @@ class WfsInventoryWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSche
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inventory/v4/wfs/items"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items/wfs"),
             query_params=[
                 param[str | None]("skus", skus),
                 param[int | None]("pageSize", page_size),
@@ -166,7 +166,7 @@ class AsyncWfsInventoryWithRawResponse(SecuredRawResponse[AsyncRawClient, Server
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/inventory/v4/wfs/items"),
+            url_template=self._server.default_catalog_items("/v4/inventory/items/wfs"),
             query_params=[
                 param[str | None]("skus", skus),
                 param[int | None]("pageSize", page_size),

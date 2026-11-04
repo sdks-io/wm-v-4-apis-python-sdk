@@ -10,11 +10,17 @@ from .refinements import Refinements, RefinementsDict
 
 
 class ItemSearchResults(SdkBaseModel):
+    """Matching catalog items, result count, and available search navigation information."""
+
     number_of_results: Optional[int] = Field(default=UNSET, alias="numberOfResults")
-    """Total number of matching catalog items"""
+    """Number of matching catalog items reported by the search."""
 
     pagination: Optional[Pagination] = UNSET
+    """Pagination tokens, when available for the search operation."""
+
     refinements: Optional[Refinements] = UNSET
+    """Department and classification information associated with search results."""
+
     items: Optional[list[Item]] = UNSET
 
 

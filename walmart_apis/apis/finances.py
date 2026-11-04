@@ -46,8 +46,9 @@ class Finances:
     ) -> Any:
         """Returns financial event groups for the seller.
 
-        **Status: stub** — no upstream endpoint found that models the SP-API FinancialEventGroup (requires eventGroupId
-        keying, date-range filter, and cursor pagination). Returns empty response pending Phase 5.
+        **Status: not supported** — no upstream endpoint found that models the SP-API FinancialEventGroup (requires
+        eventGroupId keying, date-range filter, and cursor pagination). Kept in the spec for SDK/client parity and
+        contract completeness ; always returns 501..
 
         Args:
             max_results_per_page: The maximum number of results per page.
@@ -61,8 +62,10 @@ class Finances:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error Not Implemented — this operation is spec-defined (kept for
+                SDK/client parity and contract completeness) but is permanently unsupported: no backend/upstream exists
+                and none is planned.. ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.list_financial_event_groups(
                 max_results_per_page=max_results_per_page,
@@ -102,8 +105,8 @@ class Finances:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.list_financial_events(
                 max_results_per_page=max_results_per_page,
@@ -126,8 +129,8 @@ class Finances:
     ) -> Any:
         """Returns financial events for a specific financial event group.
 
-        **Status: stub** — no upstream maps eventGroupId to a financial event set. Returns empty response pending Phase
-        5.
+        **Status: not supported** — no upstream maps eventGroupId to a financial event set. Kept in the spec for
+        SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             event_group_id: The identifier of the financial event group.
@@ -142,8 +145,10 @@ class Finances:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error Not Implemented — this operation is spec-defined (kept for
+                SDK/client parity and contract completeness) but is permanently unsupported: no backend/upstream exists
+                and none is planned.. ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.list_financial_events_by_group_id(
                 event_group_id,
@@ -179,8 +184,8 @@ class Finances:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.list_financial_events_by_order_id(
                 order_id,
@@ -210,8 +215,9 @@ class AsyncFinances:
     ) -> Any:
         """Returns financial event groups for the seller.
 
-        **Status: stub** — no upstream endpoint found that models the SP-API FinancialEventGroup (requires eventGroupId
-        keying, date-range filter, and cursor pagination). Returns empty response pending Phase 5.
+        **Status: not supported** — no upstream endpoint found that models the SP-API FinancialEventGroup (requires
+        eventGroupId keying, date-range filter, and cursor pagination). Kept in the spec for SDK/client parity and
+        contract completeness ; always returns 501..
 
         Args:
             max_results_per_page: The maximum number of results per page.
@@ -225,8 +231,10 @@ class AsyncFinances:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error Not Implemented — this operation is spec-defined (kept for
+                SDK/client parity and contract completeness) but is permanently unsupported: no backend/upstream exists
+                and none is planned.. ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.list_financial_event_groups(
                 max_results_per_page=max_results_per_page,
@@ -266,8 +274,8 @@ class AsyncFinances:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.list_financial_events(
                 max_results_per_page=max_results_per_page,
@@ -290,8 +298,8 @@ class AsyncFinances:
     ) -> Any:
         """Returns financial events for a specific financial event group.
 
-        **Status: stub** — no upstream maps eventGroupId to a financial event set. Returns empty response pending Phase
-        5.
+        **Status: not supported** — no upstream maps eventGroupId to a financial event set. Kept in the spec for
+        SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             event_group_id: The identifier of the financial event group.
@@ -306,8 +314,10 @@ class AsyncFinances:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error Not Implemented — this operation is spec-defined (kept for
+                SDK/client parity and contract completeness) but is permanently unsupported: no backend/upstream exists
+                and none is planned.. ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.list_financial_events_by_group_id(
                 event_group_id,
@@ -343,8 +353,8 @@ class AsyncFinances:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.list_financial_events_by_order_id(
                 order_id,
@@ -371,8 +381,9 @@ class FinancesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
     ) -> ApiResult[Any, ListFinancialEventGroupsErrorBody]:
         """Returns financial event groups for the seller.
 
-        **Status: stub** — no upstream endpoint found that models the SP-API FinancialEventGroup (requires eventGroupId
-        keying, date-range filter, and cursor pagination). Returns empty response pending Phase 5.
+        **Status: not supported** — no upstream endpoint found that models the SP-API FinancialEventGroup (requires
+        eventGroupId keying, date-range filter, and cursor pagination). Kept in the spec for SDK/client parity and
+        contract completeness ; always returns 501..
 
         Args:
             max_results_per_page: The maximum number of results per page.
@@ -386,7 +397,7 @@ class FinancesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/finances/v4/financialEventGroups"),
+            url_template=self._server.default_catalog_items("/v4/payments/finances/financial-event-groups"),
             query_params=[
                 param[int | None]("MaxResultsPerPage", max_results_per_page),
                 param[RFC3339DateTime | None]("FinancialEventGroupStartedBefore", financial_event_group_started_before),
@@ -428,7 +439,7 @@ class FinancesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/finances/v4/financialEvents"),
+            url_template=self._server.default_catalog_items("/v4/payments/finances/financial-events"),
             query_params=[
                 param[int | None]("MaxResultsPerPage", max_results_per_page),
                 param[RFC3339DateTime | None]("PostedAfter", posted_after),
@@ -453,8 +464,8 @@ class FinancesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
     ) -> ApiResult[Any, ListFinancialEventsByGroupIdErrorBody]:
         """Returns financial events for a specific financial event group.
 
-        **Status: stub** — no upstream maps eventGroupId to a financial event set. Returns empty response pending Phase
-        5.
+        **Status: not supported** — no upstream maps eventGroupId to a financial event set. Kept in the spec for
+        SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             event_group_id: The identifier of the financial event group.
@@ -469,8 +480,10 @@ class FinancesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/finances/v4/financialEventGroups/{eventGroupId}/financialEvents"),
-            path_params=[param[str]("eventGroupId", event_group_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/payments/finances/financial-event-groups/{event-group-id}/financial-events"
+            ),
+            path_params=[param[str]("event-group-id", event_group_id)],
             query_params=[
                 param[int | None]("MaxResultsPerPage", max_results_per_page),
                 param[RFC3339DateTime | None]("PostedAfter", posted_after),
@@ -507,8 +520,8 @@ class FinancesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/finances/v4/orders/{orderId}/financialEvents"),
-            path_params=[param[str]("orderId", order_id)],
+            url_template=self._server.default_catalog_items("/v4/payments/finances/orders/{order-id}/financial-events"),
+            path_params=[param[str]("order-id", order_id)],
             query_params=[
                 param[int | None]("MaxResultsPerPage", max_results_per_page), param[str | None]("NextToken", next_token)
             ],
@@ -531,8 +544,9 @@ class AsyncFinancesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
     ) -> ApiResult[Any, ListFinancialEventGroupsErrorBody]:
         """Returns financial event groups for the seller.
 
-        **Status: stub** — no upstream endpoint found that models the SP-API FinancialEventGroup (requires eventGroupId
-        keying, date-range filter, and cursor pagination). Returns empty response pending Phase 5.
+        **Status: not supported** — no upstream endpoint found that models the SP-API FinancialEventGroup (requires
+        eventGroupId keying, date-range filter, and cursor pagination). Kept in the spec for SDK/client parity and
+        contract completeness ; always returns 501..
 
         Args:
             max_results_per_page: The maximum number of results per page.
@@ -546,7 +560,7 @@ class AsyncFinancesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/finances/v4/financialEventGroups"),
+            url_template=self._server.default_catalog_items("/v4/payments/finances/financial-event-groups"),
             query_params=[
                 param[int | None]("MaxResultsPerPage", max_results_per_page),
                 param[RFC3339DateTime | None]("FinancialEventGroupStartedBefore", financial_event_group_started_before),
@@ -588,7 +602,7 @@ class AsyncFinancesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/finances/v4/financialEvents"),
+            url_template=self._server.default_catalog_items("/v4/payments/finances/financial-events"),
             query_params=[
                 param[int | None]("MaxResultsPerPage", max_results_per_page),
                 param[RFC3339DateTime | None]("PostedAfter", posted_after),
@@ -613,8 +627,8 @@ class AsyncFinancesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
     ) -> ApiResult[Any, ListFinancialEventsByGroupIdErrorBody]:
         """Returns financial events for a specific financial event group.
 
-        **Status: stub** — no upstream maps eventGroupId to a financial event set. Returns empty response pending Phase
-        5.
+        **Status: not supported** — no upstream maps eventGroupId to a financial event set. Kept in the spec for
+        SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             event_group_id: The identifier of the financial event group.
@@ -629,8 +643,10 @@ class AsyncFinancesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/finances/v4/financialEventGroups/{eventGroupId}/financialEvents"),
-            path_params=[param[str]("eventGroupId", event_group_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/payments/finances/financial-event-groups/{event-group-id}/financial-events"
+            ),
+            path_params=[param[str]("event-group-id", event_group_id)],
             query_params=[
                 param[int | None]("MaxResultsPerPage", max_results_per_page),
                 param[RFC3339DateTime | None]("PostedAfter", posted_after),
@@ -667,8 +683,8 @@ class AsyncFinancesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/finances/v4/orders/{orderId}/financialEvents"),
-            path_params=[param[str]("orderId", order_id)],
+            url_template=self._server.default_catalog_items("/v4/payments/finances/orders/{order-id}/financial-events"),
+            path_params=[param[str]("order-id", order_id)],
             query_params=[
                 param[int | None]("MaxResultsPerPage", max_results_per_page), param[str | None]("NextToken", next_token)
             ],

@@ -4,25 +4,21 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .enums.offer_type import OfferTypeOrStr
-from .enums.quantity_discount_type import QuantityDiscountTypeOrStr
+from .enums.offer_customer_type import OfferCustomerTypeOrStr
 from .money_type import MoneyType, MoneyTypeDict
 
 
 class BuyBoxPriceType(SdkBaseModel):
-    """Schema for an individual Buy Box price."""
+    """Buy Box price information for an item condition and applicable offer type."""
 
     condition: str
-    """Indicates the condition of the item. For example: New, Used, Collectible, Refurbished, or Club."""
+    """Indicates the item condition. Examples include New, Restored, and Pre-Owned."""
 
-    offer_type: Optional[OfferTypeOrStr] = Field(default=UNSET, alias="offerType")
-    """Indicates whether the offer is a B2B or B2C offer."""
+    offer_type: Optional[OfferCustomerTypeOrStr] = Field(default=UNSET, alias="offerType")
+    """Indicates whether the offer is business-to-consumer (``B2C``) or business-to-business (``B2B``)."""
 
     quantity_tier: Optional[int] = Field(default=UNSET, alias="quantityTier")
-    """Indicates at what quantity this price becomes active."""
-
-    quantity_discount_type: Optional[QuantityDiscountTypeOrStr] = Field(default=UNSET, alias="quantityDiscountType")
-    """Indicates the type of quantity discount this price applies to."""
+    """Indicates the quantity at which this price becomes active."""
 
     landed_price: MoneyType = Field(alias="LandedPrice")
     """Currency type and monetary value."""
@@ -33,16 +29,15 @@ class BuyBoxPriceType(SdkBaseModel):
     shipping: MoneyType = Field(alias="Shipping")
     """Currency type and monetary value."""
 
-    seller_id: Optional[str] = Field(default=UNSET, alias="sellerId")
-    """The seller identifier for the offer."""
+    seller_name: Optional[str] = Field(default=UNSET, alias="sellerName")
+    """Name of the seller associated with the offer."""
 
 
 class BuyBoxPriceTypeDict(TypedDict):
     condition: str
-    offer_type: NotRequired[OfferTypeOrStr]
+    offer_type: NotRequired[OfferCustomerTypeOrStr]
     quantity_tier: NotRequired[int]
-    quantity_discount_type: NotRequired[QuantityDiscountTypeOrStr]
     landed_price: MoneyTypeDict
     listing_price: MoneyTypeDict
     shipping: MoneyTypeDict
-    seller_id: NotRequired[str]
+    seller_name: NotRequired[str]

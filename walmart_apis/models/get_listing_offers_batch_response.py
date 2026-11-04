@@ -7,10 +7,10 @@ from .listing_offers_response import ListingOffersResponse, ListingOffersRespons
 
 
 class GetListingOffersBatchResponse(SdkBaseModel):
-    """The response associated with the getListingOffersBatch API call."""
+    """Response containing the results returned by the ``getListingOffersBatch`` operation."""
 
     responses: Optional[list[ListingOffersResponse]] = UNSET
-    """A list of getListingOffers batched responses."""
+    """List of responses returned for the batched ``getListingOffers`` requests. Contains 1–20 responses."""
 
 
 class GetListingOffersBatchResponseDict(TypedDict):

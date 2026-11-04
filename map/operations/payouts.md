@@ -8,30 +8,30 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.payouts.configure_auto_payout
 
-- **Route**: `PUT /disbursements/v4/payment/autoPayout`
+- **Route**: `PUT /v4/payments/payout-settings`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def configure_auto_payout(body: DisbursementsV4PaymentAutoPayoutRequest | DisbursementsV4PaymentAutoPayoutRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
+- **Server**: `default_catalog_items`
+- **Signature**: `def configure_auto_payout(body: ConfigureAutoPayoutRequest | ConfigureAutoPayoutRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
 - **Returns (parsed)**: `PayoutStatusResponse`
 - **Returns (raw)**: `ApiResult[PayoutStatusResponse, ConfigureAutoPayoutErrorBody]`
 - **Error**: `ConfigureAutoPayoutErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 401, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 500, 501] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
-| `DisbursementsV4PaymentAutoPayoutRequest` | `walmart_apis/models/disbursements_v4_payment_auto_payout_request.py` |
-| `DisbursementsV4PaymentAutoPayoutRequestDict` | `walmart_apis/models/disbursements_v4_payment_auto_payout_request.py` |
+| `ConfigureAutoPayoutRequest` | `walmart_apis/models/configure_auto_payout_request.py` |
+| `ConfigureAutoPayoutRequestDict` | `walmart_apis/models/configure_auto_payout_request.py` |
 | `PayoutStatusResponse` | `walmart_apis/models/payout_status_response.py` |
 | `ConfigureAutoPayoutErrorBody` | `walmart_apis/errors/configure_auto_payout_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |
 
 ### client.payouts.get_annual_statement_opts
 
-- **Route**: `GET /disbursements/v4/payment/annualStatementOpts`
+- **Route**: `GET /v4/payments/annual-statement-opts`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_annual_statement_opts(*, request_options: RequestOptionsOrDict | None = None)`
 - **Returns (parsed)**: `AnnualStatementOptsResponse`
 - **Returns (raw)**: `ApiResult[AnnualStatementOptsResponse, GetAnnualStatementOptsErrorBody]`
@@ -46,9 +46,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.payouts.get_faster_payout_eligibility
 
-- **Route**: `GET /disbursements/v4/payment/fasterPayoutEligibility`
+- **Route**: `GET /v4/payments/payouts/eligibility`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_faster_payout_eligibility(*, request_options: RequestOptionsOrDict | None = None)`
 - **Returns (parsed)**: `FasterPayoutEligibilityResponse`
 - **Returns (raw)**: `ApiResult[FasterPayoutEligibilityResponse, GetFasterPayoutEligibilityErrorBody]`
@@ -63,9 +63,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.payouts.get_payment_status
 
-- **Route**: `GET /disbursements/v4/payment/paymentstatus`
+- **Route**: `GET /v4/payments/status`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_payment_status(*, request_options: RequestOptionsOrDict | None = None)`
 - **Returns (parsed)**: `PayoutStatusResponse`
 - **Returns (raw)**: `ApiResult[PayoutStatusResponse, GetPaymentStatusErrorBody]`
@@ -80,14 +80,14 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.payouts.initiate_faster_payout
 
-- **Route**: `POST /disbursements/v4/payment/fasterPayout`
+- **Route**: `POST /v4/payments/payouts`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def initiate_faster_payout(*, request_options: RequestOptionsOrDict | None = None)`
 - **Returns (parsed)**: `InitiatePayoutResponse`
 - **Returns (raw)**: `ApiResult[InitiatePayoutResponse, InitiateFasterPayoutErrorBody]`
 - **Error**: `InitiateFasterPayoutErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 401, 409, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 409, 500, 501] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |

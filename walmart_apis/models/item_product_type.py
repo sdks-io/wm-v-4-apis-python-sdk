@@ -7,8 +7,10 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 
 class ItemProductType(SdkBaseModel):
+    """Product type assigned to the catalog item."""
+
     product_type: Optional[str] = Field(default=UNSET, alias="productType")
-    """Walmart product type (e.g. "Electronics", "Clothing")"""
+    """Walmart product type, such as Electronics or Clothing."""
 
 
 class ItemProductTypeDict(TypedDict):

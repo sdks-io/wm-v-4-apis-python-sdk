@@ -8,12 +8,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.listings_items.delete_listings_item
 
-- **Route**: `DELETE /listings/v4/items/{sellerId}/{sku}`
+- **Route**: `DELETE /v4/items/listings/{seller-id}/{sku}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def delete_listings_item(seller_id: str, sku: str, marketplace_ids: list[str], *, issue_locale: str | None = "en_US", request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_id`, `sku`, `marketplace_ids`
-- **Params**: `seller_id` — path `sellerId` · `sku` — path · `marketplace_ids` — query `marketplaceIds` · `issue_locale` — query `issueLocale`
+- **Params**: `seller_id` — path `seller-id` · `sku` — path · `marketplace_ids` — query `marketplaceIds` · `issue_locale` — query `issueLocale`
 - **Returns (parsed)**: `ListingsItemSubmissionResponse`
 - **Returns (raw)**: `ApiResult[ListingsItemSubmissionResponse, DeleteListingsItemErrorBody]`
 - **Error**: `DeleteListingsItemErrorBody` — **Case A (typed)**
@@ -27,32 +27,32 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.listings_items.get_listings_item
 
-- **Route**: `GET /listings/v4/items/{sellerId}/{sku}`
+- **Route**: `GET /v4/items/listings/{seller-id}/{sku}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def get_listings_item(seller_id: str, sku: str, marketplace_ids: list[str], *, issue_locale: str | None = "en_US", included_data: list[IncludedDatum1OrStr] | None = None, request_options: RequestOptionsOrDict | None = None)`
+- **Server**: `default_catalog_items`
+- **Signature**: `def get_listings_item(seller_id: str, sku: str, marketplace_ids: list[str], *, issue_locale: str | None = "en_US", included_data: list[IncludedDatumListingsItemsOrStr] | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_id`, `sku`, `marketplace_ids`
-- **Params**: `seller_id` — path `sellerId` · `sku` — path · `marketplace_ids` — query `marketplaceIds` · `issue_locale` — query `issueLocale` · `included_data` — query `includedData`
-- **Returns (parsed)**: `Item1`
-- **Returns (raw)**: `ApiResult[Item1, GetListingsItemErrorBody]`
+- **Params**: `seller_id` — path `seller-id` · `sku` — path · `marketplace_ids` — query `marketplaceIds` · `issue_locale` — query `issueLocale` · `included_data` — query `includedData`
+- **Returns (parsed)**: `ItemListingsItems`
+- **Returns (raw)**: `ApiResult[ItemListingsItems, GetListingsItemErrorBody]`
 - **Error**: `GetListingsItemErrorBody` — **Case A (typed)**
 - **Error arms**: `ErrorList` [400, 403, 404, 429, 500] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
-| `IncludedDatum1OrStr` | `walmart_apis/models/enums/included_datum1.py` |
-| `Item1` | `walmart_apis/models/item1.py` |
+| `IncludedDatumListingsItemsOrStr` | `walmart_apis/models/enums/included_datum_listings_items.py` |
+| `ItemListingsItems` | `walmart_apis/models/item_listings_items.py` |
 | `GetListingsItemErrorBody` | `walmart_apis/errors/get_listings_item_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |
 
 ### client.listings_items.patch_listings_item
 
-- **Route**: `PATCH /listings/v4/items/{sellerId}/{sku}`
+- **Route**: `PATCH /v4/items/listings/{seller-id}/{sku}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def patch_listings_item(seller_id: str, sku: str, marketplace_ids: list[str], body: ListingsItemPatchRequest | ListingsItemPatchRequestDict, *, issue_locale: str | None = "en_US", request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_id`, `sku`, `marketplace_ids`, `body`
-- **Params**: `seller_id` — path `sellerId` · `sku` — path · `marketplace_ids` — query `marketplaceIds` · `issue_locale` — query `issueLocale` · `body` — JSON body
+- **Params**: `seller_id` — path `seller-id` · `sku` — path · `marketplace_ids` — query `marketplaceIds` · `issue_locale` — query `issueLocale` · `body` — JSON body
 - **Returns (parsed)**: `ListingsItemSubmissionResponse`
 - **Returns (raw)**: `ApiResult[ListingsItemSubmissionResponse, PatchListingsItemErrorBody]`
 - **Error**: `PatchListingsItemErrorBody` — **Case A (typed)**
@@ -68,12 +68,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.listings_items.put_listings_item
 
-- **Route**: `PUT /listings/v4/items/{sellerId}/{sku}`
+- **Route**: `PUT /v4/items/listings/{seller-id}/{sku}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def put_listings_item(seller_id: str, sku: str, marketplace_ids: list[str], body: ListingsItemPutRequest | ListingsItemPutRequestDict, *, issue_locale: str | None = "en_US", request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_id`, `sku`, `marketplace_ids`, `body`
-- **Params**: `seller_id` — path `sellerId` · `sku` — path · `marketplace_ids` — query `marketplaceIds` · `issue_locale` — query `issueLocale` · `body` — JSON body
+- **Params**: `seller_id` — path `seller-id` · `sku` — path · `marketplace_ids` — query `marketplaceIds` · `issue_locale` — query `issueLocale` · `body` — JSON body
 - **Returns (parsed)**: `ListingsItemSubmissionResponse`
 - **Returns (raw)**: `ApiResult[ListingsItemSubmissionResponse, PutListingsItemErrorBody]`
 - **Error**: `PutListingsItemErrorBody` — **Case A (typed)**
@@ -89,21 +89,24 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.listings_items.search_listings_items
 
-- **Route**: `GET /listings/v4/items/{sellerId}`
+- **Route**: `GET /v4/items/listings/{seller-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def search_listings_items(seller_id: str, marketplace_ids: list[str], *, included_data: list[IncludedDatum1OrStr] | None = None, page_size: int | None = 10, page_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
+- **Server**: `default_catalog_items`
+- **Signature**: `def search_listings_items(seller_id: str, marketplace_ids: list[str], *, included_data: list[IncludedDatumListingsItemsOrStr] | None = None, identifier_type: IdentifierTypeListingsItemsOrStr | None = None, identifier_value: str | None = None, lifecycle_status: list[str] | None = None, published_status: list[str] | None = None, unpublished_reasons: list[str] | None = None, inventory_status: list[str] | None = None, fulfillment_type: list[str] | None = None, min_customer_rating: float | None = None, max_customer_rating: float | None = None, min_price: float | None = None, max_price: float | None = None, sort_by: SortByOrStr | None = None, sort_order: SortOrderOrStr | None = SortOrder.ASC, page_size: int | None = 10, page_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_id`, `marketplace_ids`
-- **Params**: `seller_id` — path `sellerId` · `marketplace_ids` — query `marketplaceIds` · `included_data` — query `includedData` · `page_size` — query `pageSize` · `page_token` — query `pageToken`
-- **Returns (parsed)**: `ItemSearchResults1`
-- **Returns (raw)**: `ApiResult[ItemSearchResults1, SearchListingsItemsErrorBody]`
+- **Params**: `seller_id` — path `seller-id` · `marketplace_ids` — query `marketplaceIds` · `included_data` — query `includedData` · `identifier_type` — query `identifierType` · `identifier_value` — query `identifierValue` · `lifecycle_status` — query `lifecycleStatus` · `published_status` — query `publishedStatus` · `unpublished_reasons` — query `unpublishedReasons` · `inventory_status` — query `inventoryStatus` · `fulfillment_type` — query `fulfillmentType` · `min_customer_rating` — query `minCustomerRating` · `max_customer_rating` — query `maxCustomerRating` · `min_price` — query `minPrice` · `max_price` — query `maxPrice` · `sort_by` — query `sortBy` · `sort_order` — query `sortOrder` · `page_size` — query `pageSize` · `page_token` — query `pageToken`
+- **Returns (parsed)**: `ItemSearchResultsListingsItems`
+- **Returns (raw)**: `ApiResult[ItemSearchResultsListingsItems, SearchListingsItemsErrorBody]`
 - **Error**: `SearchListingsItemsErrorBody` — **Case A (typed)**
 - **Error arms**: `ErrorList` [400, 403, 429, 500] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
-| `IncludedDatum1OrStr` | `walmart_apis/models/enums/included_datum1.py` |
-| `ItemSearchResults1` | `walmart_apis/models/item_search_results1.py` |
+| `IncludedDatumListingsItemsOrStr` | `walmart_apis/models/enums/included_datum_listings_items.py` |
+| `IdentifierTypeListingsItemsOrStr` | `walmart_apis/models/enums/identifier_type_listings_items.py` |
+| `SortByOrStr` | `walmart_apis/models/enums/sort_by.py` |
+| `SortOrderOrStr` | `walmart_apis/models/enums/sort_order.py` |
+| `ItemSearchResultsListingsItems` | `walmart_apis/models/item_search_results_listings_items.py` |
 | `SearchListingsItemsErrorBody` | `walmart_apis/errors/search_listings_items_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |
 

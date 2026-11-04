@@ -8,7 +8,7 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 class UpdateInventoryRequest(SdkBaseModel):
     quantity: int
-    """Declared on-hand quantity (maps to PIS inputQty). Must be ≥ 0."""
+    """Declared on-hand quantity. Must be ≥ 0."""
 
     ship_node: Optional[str] = Field(default=UNSET, alias="shipNode")
     fulfillment_lag: Optional[int] = Field(default=UNSET, alias="fulfillmentLag")

@@ -8,12 +8,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.fulfillment_outbound.cancel_fulfillment_order
 
-- **Route**: `PUT /wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}/cancel`
+- **Route**: `PUT /v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}/cancel`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def cancel_fulfillment_order(seller_fulfillment_order_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_fulfillment_order_id`
-- **Params**: `seller_fulfillment_order_id` — path `sellerFulfillmentOrderId`
+- **Params**: `seller_fulfillment_order_id` — path `seller-fulfillment-order-id`
 - **Returns (parsed)**: `CancelFulfillmentOrderResponse`
 - **Returns (raw)**: `ApiResult[CancelFulfillmentOrderResponse, CancelFulfillmentOrderErrorBody]`
 - **Error**: `CancelFulfillmentOrderErrorBody` — **Case A (typed)**
@@ -27,9 +27,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.fulfillment_outbound.create_fulfillment_order
 
-- **Route**: `POST /wfs/outbound/v4/fulfillmentOrders`
+- **Route**: `POST /v4/fulfillment/outbound/orders`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def create_fulfillment_order(body: CreateFulfillmentOrderRequest | CreateFulfillmentOrderRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
@@ -48,12 +48,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.fulfillment_outbound.get_fulfillment_order
 
-- **Route**: `GET /wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}`
+- **Route**: `GET /v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_fulfillment_order(seller_fulfillment_order_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_fulfillment_order_id`
-- **Params**: `seller_fulfillment_order_id` — path `sellerFulfillmentOrderId`
+- **Params**: `seller_fulfillment_order_id` — path `seller-fulfillment-order-id`
 - **Returns (parsed)**: `GetFulfillmentOrderResponse`
 - **Returns (raw)**: `ApiResult[GetFulfillmentOrderResponse, GetFulfillmentOrderErrorBody]`
 - **Error**: `GetFulfillmentOrderErrorBody` — **Case A (typed)**
@@ -67,12 +67,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.fulfillment_outbound.get_fulfillment_order_shipments
 
-- **Route**: `GET /wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}/shipments`
+- **Route**: `GET /v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}/shipments`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_fulfillment_order_shipments(seller_fulfillment_order_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_fulfillment_order_id`
-- **Params**: `seller_fulfillment_order_id` — path `sellerFulfillmentOrderId`
+- **Params**: `seller_fulfillment_order_id` — path `seller-fulfillment-order-id`
 - **Returns (parsed)**: `GetFulfillmentOrderShipmentsResponse`
 - **Returns (raw)**: `ApiResult[GetFulfillmentOrderShipmentsResponse, GetFulfillmentOrderShipmentsErrorBody]`
 - **Error**: `GetFulfillmentOrderShipmentsErrorBody` — **Case A (typed)**
@@ -86,9 +86,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.fulfillment_outbound.get_fulfillment_preview
 
-- **Route**: `POST /wfs/outbound/v4/fulfillmentOrders/preview`
+- **Route**: `POST /v4/fulfillment/outbound/orders/preview`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_fulfillment_preview(body: GetFulfillmentPreviewRequest | GetFulfillmentPreviewRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
@@ -107,9 +107,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.fulfillment_outbound.list_all_fulfillment_orders
 
-- **Route**: `GET /wfs/outbound/v4/fulfillmentOrders`
+- **Route**: `GET /v4/fulfillment/outbound/orders`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def list_all_fulfillment_orders(*, query_start_date: RFC3339DateTime | None = None, next_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `query_start_date` — query `queryStartDate` · `next_token` — query `nextToken`
 - **Returns (parsed)**: `ListAllFulfillmentOrdersResponse`
@@ -125,12 +125,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.fulfillment_outbound.update_fulfillment_order
 
-- **Route**: `PUT /wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}`
+- **Route**: `PUT /v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def update_fulfillment_order(seller_fulfillment_order_id: str, body: UpdateFulfillmentOrderRequest | UpdateFulfillmentOrderRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `seller_fulfillment_order_id`, `body`
-- **Params**: `seller_fulfillment_order_id` — path `sellerFulfillmentOrderId` · `body` — JSON body
+- **Params**: `seller_fulfillment_order_id` — path `seller-fulfillment-order-id` · `body` — JSON body
 - **Returns (parsed)**: `UpdateFulfillmentOrderResponse`
 - **Returns (raw)**: `ApiResult[UpdateFulfillmentOrderResponse, UpdateFulfillmentOrderErrorBody]`
 - **Error**: `UpdateFulfillmentOrderErrorBody` — **Case A (typed)**

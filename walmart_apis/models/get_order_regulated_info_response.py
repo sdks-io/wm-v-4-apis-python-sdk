@@ -7,10 +7,10 @@ from .regulated_info import RegulatedInfo, RegulatedInfoDict
 
 
 class GetOrderRegulatedInfoResponse(SdkBaseModel):
+    """Verification requirements for an order containing regulated items."""
+
     payload: Optional[RegulatedInfo] = UNSET
-    """Verification requirements for an order containing regulated items. Mirrors Amazon SP-API Orders v0
-    ``RegulatedInformation`` plus a ``regulatedCategory`` discriminator so a caller can short- circuit when the order is
-    not regulated at all."""
+    """Age and identity verification requirements associated with an order."""
 
 
 class GetOrderRegulatedInfoResponseDict(TypedDict):

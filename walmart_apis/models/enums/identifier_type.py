@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class IdentifierType(str, Enum):
+    """Type of identifier, such as Walmart Item ID."""
+
     WALMART_ITEM_ID = "WALMART_ITEM_ID"
     GTIN = "GTIN"
     UPC = "UPC"

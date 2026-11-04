@@ -8,9 +8,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.settlement.list_settlement_details
 
-- **Route**: `GET /disbursements/v4/payment/settlementDetails`
+- **Route**: `GET /v4/payments/settlement-details`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def list_settlement_details(partner_id: str, report_date: str, *, page_size: int | None = 10, next_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `partner_id`, `report_date`
 - **Params**: `partner_id` — query `partnerId` · `report_date` — query `reportDate` · `page_size` — query `pageSize` · `next_token` — query `nextToken`
@@ -27,9 +27,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.settlement.list_settlement_periods
 
-- **Route**: `GET /disbursements/v4/payment/settlementPeriods`
+- **Route**: `GET /v4/payments/settlement-periods`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def list_settlement_periods(*, page_size: int | None = 10, next_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `page_size` — query `pageSize` · `next_token` — query `nextToken`
 - **Returns (parsed)**: `SettlementPeriodsResponse`
@@ -45,15 +45,15 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.settlement.search_transactions
 
-- **Route**: `GET /disbursements/v4/payment/search/transactions`
+- **Route**: `GET /v4/payments/transactions`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def search_transactions(*, page_size: int | None = 10, next_token: str | None = None, posted_after: RFC3339DateTime | None = None, posted_before: RFC3339DateTime | None = None, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `page_size` — query `pageSize` · `next_token` — query `nextToken` · `posted_after` — query `postedAfter` · `posted_before` — query `postedBefore`
 - **Returns (parsed)**: `TransactionSearchResponse`
 - **Returns (raw)**: `ApiResult[TransactionSearchResponse, SearchTransactionsErrorBody]`
 - **Error**: `SearchTransactionsErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 401, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 500, 501] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |

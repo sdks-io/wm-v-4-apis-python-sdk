@@ -4,7 +4,7 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .enums.compression_algorithm import CompressionAlgorithmOrStr
+from .enums.compression_algorithm_feeds import CompressionAlgorithmFeedsOrStr
 
 
 class FeedDocument(SdkBaseModel):
@@ -14,11 +14,11 @@ class FeedDocument(SdkBaseModel):
     url: str
     """Pre-signed URL to download the document (valid 15 minutes) — do not log"""
 
-    compression_algorithm: Optional[CompressionAlgorithmOrStr] = Field(default=UNSET, alias="compressionAlgorithm")
+    compression_algorithm: Optional[CompressionAlgorithmFeedsOrStr] = Field(default=UNSET, alias="compressionAlgorithm")
     """Compression applied to the document; decompress before parsing if present"""
 
 
 class FeedDocumentDict(TypedDict):
     feed_document_id: str
     url: str
-    compression_algorithm: NotRequired[CompressionAlgorithmOrStr]
+    compression_algorithm: NotRequired[CompressionAlgorithmFeedsOrStr]

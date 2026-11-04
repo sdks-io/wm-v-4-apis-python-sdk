@@ -13,7 +13,7 @@ UpdateFinalPayoutCaseStatusErrorBody: TypeAlias = ErrorList | RawError
 class _UpdateFinalPayoutCaseStatusError:
     def map(self, status_code: int, content: bytes) -> UpdateFinalPayoutCaseStatusErrorBody:
         match status_code:
-            case 400 | 404 | 500:
+            case 400 | 401 | 404 | 500 | 501:
                 return decode_json[ErrorList](content)
             case _:
                 return RawError(status_code, content)

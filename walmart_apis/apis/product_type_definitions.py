@@ -16,12 +16,14 @@ from ..errors.get_definitions_product_type_error import (
     GetDefinitionsProductTypeErrorBody,
     get_definitions_product_type_error_mapper,
 )
+from ..errors.get_taxonomy_error import GetTaxonomyErrorBody, get_taxonomy_error_mapper
 from ..errors.search_definitions_product_types_error import (
     SearchDefinitionsProductTypesErrorBody,
     search_definitions_product_types_error_mapper,
 )
 from ..models.product_type_definition import ProductTypeDefinition
 from ..models.product_type_list import ProductTypeList
+from ..models.taxonomy import Taxonomy
 from ..server.server import Server
 
 
@@ -37,7 +39,8 @@ class ProductTypeDefinitions:
         locale: str | None = "en_US",
         request_options: RequestOptionsOrDict | None = None,
     ) -> ProductTypeDefinition:
-        """**Placeholder — not yet implemented.**
+        """Returns the attribute JSON Schema for one product type. Validates the product type exists against the live
+        taxonomy (404 otherwise).
 
         Args:
             product_type: Value sent with the request.
@@ -58,6 +61,37 @@ class ProductTypeDefinitions:
             ),
         )
 
+    def get_taxonomy(
+        self,
+        *,
+        category: str | None = None,
+        locale: str | None = "en_US",
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> Taxonomy:
+        """Returns the category -> product-type-group -> product-type hierarchy, or the subset under one category when
+        ``category`` is supplied.
+
+        ** D1 consolidation.** Replaces four V3 operations with one V4 endpoint: ``items.getTaxonomyResponse``,
+        ``utilities.getTaxonomyResponse`` (duplicate full-tree reads), ``utilities.getDepartmentList`` (call this with
+        no ``category``), and ``utilities.getCategories`` (call this with ``category`` set to the department/category
+        name — the taxonomy has no separate numeric department id, so the name is the identifier).
+
+        Args:
+            category: Scope the response to one category (matches ``TaxonomyCategory.category``).
+            locale: Value sent with the request.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Taxonomy tree
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
+                | RawError``."""
+        return unwrap(
+            self._with_raw_response.get_taxonomy(category=category, locale=locale, request_options=request_options)
+        )
+
     def search_definitions_product_types(
         self,
         *,
@@ -66,7 +100,8 @@ class ProductTypeDefinitions:
         locale: str | None = "en_US",
         request_options: RequestOptionsOrDict | None = None,
     ) -> ProductTypeList:
-        """**Placeholder — not yet implemented.**
+        """Lists product types from the Walmart Item Classification taxonomy, optionally narrowed by ``keywords``
+        (substring search) or ``itemName`` (model-backed product-type recommendation for a free-text title).
 
         Args:
             keywords: Value sent with the request.
@@ -104,7 +139,8 @@ class AsyncProductTypeDefinitions:
         locale: str | None = "en_US",
         request_options: RequestOptionsOrDict | None = None,
     ) -> ProductTypeDefinition:
-        """**Placeholder — not yet implemented.**
+        """Returns the attribute JSON Schema for one product type. Validates the product type exists against the live
+        taxonomy (404 otherwise).
 
         Args:
             product_type: Value sent with the request.
@@ -125,6 +161,39 @@ class AsyncProductTypeDefinitions:
             ),
         )
 
+    async def get_taxonomy(
+        self,
+        *,
+        category: str | None = None,
+        locale: str | None = "en_US",
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> Taxonomy:
+        """Returns the category -> product-type-group -> product-type hierarchy, or the subset under one category when
+        ``category`` is supplied.
+
+        ** D1 consolidation.** Replaces four V3 operations with one V4 endpoint: ``items.getTaxonomyResponse``,
+        ``utilities.getTaxonomyResponse`` (duplicate full-tree reads), ``utilities.getDepartmentList`` (call this with
+        no ``category``), and ``utilities.getCategories`` (call this with ``category`` set to the department/category
+        name — the taxonomy has no separate numeric department id, so the name is the identifier).
+
+        Args:
+            category: Scope the response to one category (matches ``TaxonomyCategory.category``).
+            locale: Value sent with the request.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            Taxonomy tree
+
+        Raises:
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
+                | RawError``."""
+        return unwrap(
+            await self._with_raw_response.get_taxonomy(
+                category=category, locale=locale, request_options=request_options
+            ),
+        )
+
     async def search_definitions_product_types(
         self,
         *,
@@ -133,7 +202,8 @@ class AsyncProductTypeDefinitions:
         locale: str | None = "en_US",
         request_options: RequestOptionsOrDict | None = None,
     ) -> ProductTypeList:
-        """**Placeholder — not yet implemented.**
+        """Lists product types from the Walmart Item Classification taxonomy, optionally narrowed by ``keywords``
+        (substring search) or ``itemName`` (model-backed product-type recommendation for a free-text title).
 
         Args:
             keywords: Value sent with the request.
@@ -168,7 +238,8 @@ class ProductTypeDefinitionsWithRawResponse(SecuredRawResponse[RawClient, Server
         locale: str | None = "en_US",
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ProductTypeDefinition, GetDefinitionsProductTypeErrorBody]:
-        """**Placeholder — not yet implemented.**
+        """Returns the attribute JSON Schema for one product type. Validates the product type exists against the live
+        taxonomy (404 otherwise).
 
         Args:
             product_type: Value sent with the request.
@@ -181,12 +252,45 @@ class ProductTypeDefinitionsWithRawResponse(SecuredRawResponse[RawClient, Server
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/definitions/v4/productTypes/{productType}"),
+            url_template=self._server.default_catalog_items("/definitions/v4/productTypes/{productType}"),
             path_params=[param[str]("productType", product_type)],
             query_params=[param[str | None]("sellerId", seller_id), param[str | None]("locale", locale)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[ProductTypeDefinition],
             error_mapper=get_definitions_product_type_error_mapper,
+            request_options=request_options,
+        )
+
+    def get_taxonomy(
+        self,
+        *,
+        category: str | None = None,
+        locale: str | None = "en_US",
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[Taxonomy, GetTaxonomyErrorBody]:
+        """Returns the category -> product-type-group -> product-type hierarchy, or the subset under one category when
+        ``category`` is supplied.
+
+        ** D1 consolidation.** Replaces four V3 operations with one V4 endpoint: ``items.getTaxonomyResponse``,
+        ``utilities.getTaxonomyResponse`` (duplicate full-tree reads), ``utilities.getDepartmentList`` (call this with
+        no ``category``), and ``utilities.getCategories`` (call this with ``category`` set to the department/category
+        name — the taxonomy has no separate numeric department id, so the name is the identifier).
+
+        Args:
+            category: Scope the response to one category (matches ``TaxonomyCategory.category``).
+            locale: Value sent with the request.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/definitions/v4/taxonomy"),
+            query_params=[param[str | None]("category", category), param[str | None]("locale", locale)],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=json_decoder[Taxonomy],
+            error_mapper=get_taxonomy_error_mapper,
             request_options=request_options,
         )
 
@@ -198,7 +302,8 @@ class ProductTypeDefinitionsWithRawResponse(SecuredRawResponse[RawClient, Server
         locale: str | None = "en_US",
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ProductTypeList, SearchDefinitionsProductTypesErrorBody]:
-        """**Placeholder — not yet implemented.**
+        """Lists product types from the Walmart Item Classification taxonomy, optionally narrowed by ``keywords``
+        (substring search) or ``itemName`` (model-backed product-type recommendation for a free-text title).
 
         Args:
             keywords: Value sent with the request.
@@ -211,7 +316,7 @@ class ProductTypeDefinitionsWithRawResponse(SecuredRawResponse[RawClient, Server
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/definitions/v4/productTypes"),
+            url_template=self._server.default_catalog_items("/definitions/v4/productTypes"),
             query_params=[
                 param[str | None]("keywords", keywords),
                 param[str | None]("itemName", item_name),
@@ -233,7 +338,8 @@ class AsyncProductTypeDefinitionsWithRawResponse(SecuredRawResponse[AsyncRawClie
         locale: str | None = "en_US",
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ProductTypeDefinition, GetDefinitionsProductTypeErrorBody]:
-        """**Placeholder — not yet implemented.**
+        """Returns the attribute JSON Schema for one product type. Validates the product type exists against the live
+        taxonomy (404 otherwise).
 
         Args:
             product_type: Value sent with the request.
@@ -246,12 +352,45 @@ class AsyncProductTypeDefinitionsWithRawResponse(SecuredRawResponse[AsyncRawClie
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/definitions/v4/productTypes/{productType}"),
+            url_template=self._server.default_catalog_items("/definitions/v4/productTypes/{productType}"),
             path_params=[param[str]("productType", product_type)],
             query_params=[param[str | None]("sellerId", seller_id), param[str | None]("locale", locale)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[ProductTypeDefinition],
             error_mapper=get_definitions_product_type_error_mapper,
+            request_options=request_options,
+        )
+
+    async def get_taxonomy(
+        self,
+        *,
+        category: str | None = None,
+        locale: str | None = "en_US",
+        request_options: RequestOptionsOrDict | None = None,
+    ) -> ApiResult[Taxonomy, GetTaxonomyErrorBody]:
+        """Returns the category -> product-type-group -> product-type hierarchy, or the subset under one category when
+        ``category`` is supplied.
+
+        ** D1 consolidation.** Replaces four V3 operations with one V4 endpoint: ``items.getTaxonomyResponse``,
+        ``utilities.getTaxonomyResponse`` (duplicate full-tree reads), ``utilities.getDepartmentList`` (call this with
+        no ``category``), and ``utilities.getCategories`` (call this with ``category`` set to the department/category
+        name — the taxonomy has no separate numeric department id, so the name is the identifier).
+
+        Args:
+            category: Scope the response to one category (matches ``TaxonomyCategory.category``).
+            locale: Value sent with the request.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
+
+        Returns:
+            An ``ApiResult`` holding the deserialized response or the error body."""
+        return await self._client.execute(
+            http_method="GET",
+            url_template=self._server.default_catalog_items("/definitions/v4/taxonomy"),
+            query_params=[param[str | None]("category", category), param[str | None]("locale", locale)],
+            auth_scheme=self._auth.wallet_auth,
+            decoder=async_json_decoder[Taxonomy],
+            error_mapper=get_taxonomy_error_mapper,
             request_options=request_options,
         )
 
@@ -263,7 +402,8 @@ class AsyncProductTypeDefinitionsWithRawResponse(SecuredRawResponse[AsyncRawClie
         locale: str | None = "en_US",
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ProductTypeList, SearchDefinitionsProductTypesErrorBody]:
-        """**Placeholder — not yet implemented.**
+        """Lists product types from the Walmart Item Classification taxonomy, optionally narrowed by ``keywords``
+        (substring search) or ``itemName`` (model-backed product-type recommendation for a free-text title).
 
         Args:
             keywords: Value sent with the request.
@@ -276,7 +416,7 @@ class AsyncProductTypeDefinitionsWithRawResponse(SecuredRawResponse[AsyncRawClie
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/definitions/v4/productTypes"),
+            url_template=self._server.default_catalog_items("/definitions/v4/productTypes"),
             query_params=[
                 param[str | None]("keywords", keywords),
                 param[str | None]("itemName", item_name),

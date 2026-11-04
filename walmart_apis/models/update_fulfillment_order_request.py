@@ -4,19 +4,19 @@ from pydantic import EmailStr, Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .address import Address, AddressDict
+from .address_fulfillment_outbound_wfs import AddressFulfillmentOutboundWfs, AddressFulfillmentOutboundWfsDict
 from .enums.shipping_speed_category import ShippingSpeedCategoryOrStr
 
 
 class UpdateFulfillmentOrderRequest(SdkBaseModel):
     displayable_order_comment: Optional[str] = Field(default=UNSET, alias="displayableOrderComment")
     shipping_speed_category: Optional[ShippingSpeedCategoryOrStr] = Field(default=UNSET, alias="shippingSpeedCategory")
-    destination_address: Optional[Address] = Field(default=UNSET, alias="destinationAddress")
+    destination_address: Optional[AddressFulfillmentOutboundWfs] = Field(default=UNSET, alias="destinationAddress")
     notification_emails: Optional[list[EmailStr]] = Field(default=UNSET, alias="notificationEmails")
 
 
 class UpdateFulfillmentOrderRequestDict(TypedDict):
     displayable_order_comment: NotRequired[str]
     shipping_speed_category: NotRequired[ShippingSpeedCategoryOrStr]
-    destination_address: NotRequired[AddressDict]
+    destination_address: NotRequired[AddressFulfillmentOutboundWfsDict]
     notification_emails: NotRequired[list[EmailStr]]

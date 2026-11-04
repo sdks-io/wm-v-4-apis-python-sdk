@@ -5,7 +5,7 @@ from typing import Any
 from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
-from ..core import UNSET, Optional, SdkBaseModel
+from ..core import UNSET, Optional, OptionalNullable, SdkBaseModel
 from .item_identifiers import ItemIdentifiers, ItemIdentifiersDict
 from .item_image import ItemImage, ItemImageDict
 from .item_product_type import ItemProductType, ItemProductTypeDict
@@ -14,19 +14,29 @@ from .sales_rank import SalesRank, SalesRankDict
 
 
 class Item(SdkBaseModel):
+    """Catalog information for an item in the specified marketplace."""
+
     walmart_item_id: str = Field(alias="walmartItemId")
-    """Walmart Product ID (WPID) — alphanumeric catalog identifier"""
+    """Walmart catalog item identifier. Confirm whether this is a 14-digit Walmart Item ID or an alphanumeric Walmart
+    Product ID (WPID)."""
 
     marketplace_id: str = Field(alias="marketplaceId")
+    """Walmart Marketplace identifier associated with the item."""
+
     attributes: Optional[dict[str, Any]] = UNSET
-    """Key product attributes (name, brand, description, etc.)"""
+    """Product attributes, such as name, brand, and description."""
 
     identifiers: Optional[ItemIdentifiers] = UNSET
+    """Walmart item identifiers and seller SKU identifiers associated with the item."""
+
     images: Optional[list[ItemImage]] = UNSET
     product_types: Optional[list[ItemProductType]] = Field(default=UNSET, alias="productTypes")
     sales_ranks: Optional[list[SalesRank]] = Field(default=UNSET, alias="salesRanks")
     relationships: Optional[list[ItemRelationship]] = UNSET
-    """Variant relationships (e.g. color/size variants)"""
+    """Relationships between this catalog item and related catalog items."""
+
+    variant_count: OptionalNullable[int] = Field(default=UNSET, alias="variantCount")
+    """Number of items in the variant group, when available."""
 
 
 class ItemDict(TypedDict):
@@ -38,3 +48,4 @@ class ItemDict(TypedDict):
     product_types: NotRequired[list[ItemProductTypeDict]]
     sales_ranks: NotRequired[list[SalesRankDict]]
     relationships: NotRequired[list[ItemRelationshipDict]]
+    variant_count: NotRequired[int | None]

@@ -49,8 +49,8 @@ class Notifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(self._with_raw_response.create_destination(body, request_options=request_options))
 
     def create_subscription(
@@ -68,8 +68,8 @@ class Notifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             self._with_raw_response.create_subscription(notification_type, body, request_options=request_options)
         )
@@ -88,8 +88,8 @@ class Notifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(self._with_raw_response.delete_destination(destination_id, request_options=request_options))
 
     def delete_subscription_by_id(
@@ -107,8 +107,8 @@ class Notifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             self._with_raw_response.delete_subscription_by_id(
                 subscription_id, notification_type, request_options=request_options
@@ -127,8 +127,8 @@ class Notifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(self._with_raw_response.get_destination(destination_id, request_options=request_options))
 
     def get_destinations(self, *, request_options: RequestOptionsOrDict | None = None) -> ChannelList:
@@ -142,8 +142,8 @@ class Notifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(self._with_raw_response.get_destinations(request_options=request_options))
 
     def get_subscription(
@@ -165,8 +165,8 @@ class Notifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             self._with_raw_response.get_subscription(
                 notification_type, payload_version=payload_version, request_options=request_options
@@ -188,8 +188,8 @@ class Notifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             self._with_raw_response.get_subscription_by_id(
                 subscription_id, notification_type, request_options=request_options
@@ -211,8 +211,8 @@ class Notifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             self._with_raw_response.send_test_notification(notification_type, body, request_options=request_options)
         )
@@ -238,8 +238,8 @@ class AsyncNotifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(await self._with_raw_response.create_destination(body, request_options=request_options))
 
     async def create_subscription(
@@ -257,8 +257,8 @@ class AsyncNotifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             await self._with_raw_response.create_subscription(notification_type, body, request_options=request_options)
         )
@@ -277,8 +277,8 @@ class AsyncNotifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(await self._with_raw_response.delete_destination(destination_id, request_options=request_options))
 
     async def delete_subscription_by_id(
@@ -296,8 +296,8 @@ class AsyncNotifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             await self._with_raw_response.delete_subscription_by_id(
                 subscription_id, notification_type, request_options=request_options
@@ -318,8 +318,8 @@ class AsyncNotifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(await self._with_raw_response.get_destination(destination_id, request_options=request_options))
 
     async def get_destinations(self, *, request_options: RequestOptionsOrDict | None = None) -> ChannelList:
@@ -333,8 +333,8 @@ class AsyncNotifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(await self._with_raw_response.get_destinations(request_options=request_options))
 
     async def get_subscription(
@@ -356,8 +356,8 @@ class AsyncNotifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             await self._with_raw_response.get_subscription(
                 notification_type, payload_version=payload_version, request_options=request_options
@@ -379,8 +379,8 @@ class AsyncNotifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             await self._with_raw_response.get_subscription_by_id(
                 subscription_id, notification_type, request_options=request_options
@@ -402,8 +402,8 @@ class AsyncNotifications:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Too Many Requests Internal Server Error ``error`` is
-                ``RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Too Many
+                Requests Internal Server Error ``error`` is ``RawError``."""
         return unwrap(
             await self._with_raw_response.send_test_notification(
                 notification_type, body, request_options=request_options
@@ -430,7 +430,7 @@ class NotificationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/notifications/v4/destinations"),
+            url_template=self._server.default_catalog_items("/v4/notifications/destinations"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[Any](body),
             auth_scheme=self._auth.wallet_auth,
@@ -454,8 +454,8 @@ class NotificationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}"),
-            path_params=[param[str]("notificationType", notification_type)],
+            url_template=self._server.default_catalog_items("/v4/notifications/subscriptions/{notification-type}"),
+            path_params=[param[str]("notification-type", notification_type)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[Any](body),
             auth_scheme=self._auth.wallet_auth,
@@ -478,8 +478,8 @@ class NotificationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/notifications/v4/destinations/{destinationId}"),
-            path_params=[param[str]("destinationId", destination_id)],
+            url_template=self._server.default_catalog_items("/v4/notifications/destinations/{destination-id}"),
+            path_params=[param[str]("destination-id", destination_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[Channel],
@@ -502,9 +502,11 @@ class NotificationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}/{subscriptionId}"),
+            url_template=self._server.default_catalog_items(
+                "/v4/notifications/{notification-type}/subscriptions/{subscription-id}"
+            ),
             path_params=[
-                param[str]("subscriptionId", subscription_id), param[str]("notificationType", notification_type)
+                param[str]("subscription-id", subscription_id), param[str]("notification-type", notification_type)
             ],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
@@ -527,8 +529,8 @@ class NotificationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/notifications/v4/destinations/{destinationId}"),
-            path_params=[param[str]("destinationId", destination_id)],
+            url_template=self._server.default_catalog_items("/v4/notifications/destinations/{destination-id}"),
+            path_params=[param[str]("destination-id", destination_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[Channel],
             error_mapper=get_destination_error_mapper,
@@ -548,7 +550,7 @@ class NotificationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/notifications/v4/destinations"),
+            url_template=self._server.default_catalog_items("/v4/notifications/destinations"),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[ChannelList],
             error_mapper=get_destinations_error_mapper,
@@ -574,8 +576,8 @@ class NotificationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}"),
-            path_params=[param[str]("notificationType", notification_type)],
+            url_template=self._server.default_catalog_items("/v4/notifications/subscriptions/{notification-type}"),
+            path_params=[param[str]("notification-type", notification_type)],
             query_params=[param[str | None]("payloadVersion", payload_version)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[Any],
@@ -598,9 +600,11 @@ class NotificationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}/{subscriptionId}"),
+            url_template=self._server.default_catalog_items(
+                "/v4/notifications/{notification-type}/subscriptions/{subscription-id}"
+            ),
             path_params=[
-                param[str]("subscriptionId", subscription_id), param[str]("notificationType", notification_type)
+                param[str]("subscription-id", subscription_id), param[str]("notification-type", notification_type)
             ],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[Any],
@@ -623,8 +627,8 @@ class NotificationsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSch
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}/testNotification"),
-            path_params=[param[str]("notificationType", notification_type)],
+            url_template=self._server.default_catalog_items("/v4/notifications/{notification-type}/test-notification"),
+            path_params=[param[str]("notification-type", notification_type)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[Any](body),
             auth_scheme=self._auth.wallet_auth,
@@ -649,7 +653,7 @@ class AsyncNotificationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/notifications/v4/destinations"),
+            url_template=self._server.default_catalog_items("/v4/notifications/destinations"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[Any](body),
             auth_scheme=self._auth.wallet_auth,
@@ -673,8 +677,8 @@ class AsyncNotificationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}"),
-            path_params=[param[str]("notificationType", notification_type)],
+            url_template=self._server.default_catalog_items("/v4/notifications/subscriptions/{notification-type}"),
+            path_params=[param[str]("notification-type", notification_type)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[Any](body),
             auth_scheme=self._auth.wallet_auth,
@@ -697,8 +701,8 @@ class AsyncNotificationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/notifications/v4/destinations/{destinationId}"),
-            path_params=[param[str]("destinationId", destination_id)],
+            url_template=self._server.default_catalog_items("/v4/notifications/destinations/{destination-id}"),
+            path_params=[param[str]("destination-id", destination_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[Channel],
@@ -721,9 +725,11 @@ class AsyncNotificationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}/{subscriptionId}"),
+            url_template=self._server.default_catalog_items(
+                "/v4/notifications/{notification-type}/subscriptions/{subscription-id}"
+            ),
             path_params=[
-                param[str]("subscriptionId", subscription_id), param[str]("notificationType", notification_type)
+                param[str]("subscription-id", subscription_id), param[str]("notification-type", notification_type)
             ],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
@@ -746,8 +752,8 @@ class AsyncNotificationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/notifications/v4/destinations/{destinationId}"),
-            path_params=[param[str]("destinationId", destination_id)],
+            url_template=self._server.default_catalog_items("/v4/notifications/destinations/{destination-id}"),
+            path_params=[param[str]("destination-id", destination_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[Channel],
             error_mapper=get_destination_error_mapper,
@@ -767,7 +773,7 @@ class AsyncNotificationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/notifications/v4/destinations"),
+            url_template=self._server.default_catalog_items("/v4/notifications/destinations"),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[ChannelList],
             error_mapper=get_destinations_error_mapper,
@@ -793,8 +799,8 @@ class AsyncNotificationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}"),
-            path_params=[param[str]("notificationType", notification_type)],
+            url_template=self._server.default_catalog_items("/v4/notifications/subscriptions/{notification-type}"),
+            path_params=[param[str]("notification-type", notification_type)],
             query_params=[param[str | None]("payloadVersion", payload_version)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[Any],
@@ -817,9 +823,11 @@ class AsyncNotificationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}/{subscriptionId}"),
+            url_template=self._server.default_catalog_items(
+                "/v4/notifications/{notification-type}/subscriptions/{subscription-id}"
+            ),
             path_params=[
-                param[str]("subscriptionId", subscription_id), param[str]("notificationType", notification_type)
+                param[str]("subscription-id", subscription_id), param[str]("notification-type", notification_type)
             ],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[Any],
@@ -842,8 +850,8 @@ class AsyncNotificationsWithRawResponse(SecuredRawResponse[AsyncRawClient, Serve
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/notifications/v4/subscriptions/{notificationType}/testNotification"),
-            path_params=[param[str]("notificationType", notification_type)],
+            url_template=self._server.default_catalog_items("/v4/notifications/{notification-type}/test-notification"),
+            path_params=[param[str]("notification-type", notification_type)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[Any](body),
             auth_scheme=self._auth.wallet_auth,

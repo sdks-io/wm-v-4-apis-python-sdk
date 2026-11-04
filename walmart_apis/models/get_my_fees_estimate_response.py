@@ -8,12 +8,15 @@ from .get_my_fees_estimate_result import GetMyFeesEstimateResult, GetMyFeesEstim
 
 
 class GetMyFeesEstimateResponse(SdkBaseModel):
-    """Response for single-item fee estimate endpoints. Mirrors SP-API GetMyFeesEstimateResponse."""
+    """Fee estimate result and any errors returned for a single-item request."""
 
     payload: Optional[GetMyFeesEstimateResult] = UNSET
-    """Wraps the fee estimate result for a single-item endpoint."""
+    """Fee estimate result returned for a single-item request."""
 
     errors: Optional[ErrorList] = UNSET
+    """RFC 9457 problem details object returned by a failed request. Carries the RFC 9457 standard members plus an
+    ``errors`` extension member listing each individual error. Clients must ignore members they don't recognise (RFC
+    9457 section 3.2)."""
 
 
 class GetMyFeesEstimateResponseDict(TypedDict):

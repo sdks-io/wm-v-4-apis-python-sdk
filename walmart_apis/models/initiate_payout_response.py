@@ -11,6 +11,7 @@ class InitiatePayoutResponse(SdkBaseModel):
     payout_id: Optional[str] = Field(default=UNSET, alias="payoutId")
     status: Optional[str] = UNSET
     amount: Optional[Money] = UNSET
+    """Canonical monetary amount (string value + ISO 4217 currency code)."""
 
 
 class InitiatePayoutResponseDict(TypedDict):

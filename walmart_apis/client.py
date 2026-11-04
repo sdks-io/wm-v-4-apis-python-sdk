@@ -32,6 +32,7 @@ from .apis.sellers import Sellers
 from .apis.settlement import Settlement
 from .apis.shipping import Shipping
 from .apis.solicitations import Solicitations
+from .apis.supply_source_api import SupplySourceApi
 from .apis.uploads import Uploads
 from .apis.wfs_inbound import WfsInbound
 from .apis.wfs_inventory import WfsInventory
@@ -121,9 +122,9 @@ class WalmartApisClient(BaseWalmartApisClient[RawClient]):
                         if seller_auth_authorization_code_token_source is not None
                         else AuthorizationCodeTokenSource[SellerAuthAuthorizationCodeScope](
                             client=self._raw_client,
-                            authorization_url=self._server.default("/auth/v4/authorize"),
-                            token_url=self._server.default("/auth/v4/token"),
-                            refresh_url=self._server.default("/auth/v4/token"),
+                            authorization_url=self._server.auth_server("/authorize"),
+                            token_url=self._server.default("/v4/auth/token"),
+                            refresh_url=self._server.default("/v4/auth/token"),
                             placement=client_secret_basic,
                         )
                     ),
@@ -141,7 +142,7 @@ class WalmartApisClient(BaseWalmartApisClient[RawClient]):
                         if seller_auth_client_credentials_token_source is not None
                         else ClientCredentialsTokenSource[SellerAuthClientCredentialsScope](
                             client=self._raw_client,
-                            token_url=self._server.default("/auth/v4/token"),
+                            token_url=self._server.default("/v4/auth/token"),
                             placement=client_secret_basic,
                         )
                     ),
@@ -162,7 +163,7 @@ class WalmartApisClient(BaseWalmartApisClient[RawClient]):
                         if wallet_auth_token_source is not None
                         else ClientCredentialsTokenSource[WalletAuthScope](
                             client=self._raw_client,
-                            token_url=self._server.default1("/auth/token"),
+                            token_url=self._server.access_token_server("/token"),
                             placement=client_secret_basic,
                         )
                     ),
@@ -251,6 +252,10 @@ class WalmartApisClient(BaseWalmartApisClient[RawClient]):
     @cached_property
     def settlement(self) -> Settlement:
         return Settlement(self._raw_client, self._server, self._auth)
+
+    @cached_property
+    def supply_source_api(self) -> SupplySourceApi:
+        return SupplySourceApi(self._raw_client, self._server, self._auth)
 
     @cached_property
     def uploads(self) -> Uploads:

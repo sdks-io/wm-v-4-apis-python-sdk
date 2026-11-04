@@ -27,7 +27,10 @@ class Disputes:
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> DisputeEligibilityResponse:
         """Returns whether the authenticated seller is eligible to raise a payment dispute and, if not, the reason for
-        ineligibility. Delegates to GMPPaymentsPlatform (Phase 5).
+        ineligibility.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for dispute eligibility checks. Kept in the
+        spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -37,8 +40,10 @@ class Disputes:
             Success
 
         Raises:
-            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error
-                ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error Not
+                Implemented — this operation is spec-defined (kept for SDK/client parity and contract completeness) but
+                is permanently unsupported: no backend/upstream exists and none is planned.. ``error`` is ``ErrorList |
+                RawError``."""
         return unwrap(self._with_raw_response.check_dispute_eligibility(request_options=request_options))
 
     @property
@@ -54,7 +59,10 @@ class AsyncDisputes:
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> DisputeEligibilityResponse:
         """Returns whether the authenticated seller is eligible to raise a payment dispute and, if not, the reason for
-        ineligibility. Delegates to GMPPaymentsPlatform (Phase 5).
+        ineligibility.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for dispute eligibility checks. Kept in the
+        spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -64,8 +72,10 @@ class AsyncDisputes:
             Success
 
         Raises:
-            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error
-                ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error Not
+                Implemented — this operation is spec-defined (kept for SDK/client parity and contract completeness) but
+                is permanently unsupported: no backend/upstream exists and none is planned.. ``error`` is ``ErrorList |
+                RawError``."""
         return unwrap(await self._with_raw_response.check_dispute_eligibility(request_options=request_options))
 
     @property
@@ -78,7 +88,10 @@ class DisputesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[DisputeEligibilityResponse, CheckDisputeEligibilityErrorBody]:
         """Returns whether the authenticated seller is eligible to raise a payment dispute and, if not, the reason for
-        ineligibility. Delegates to GMPPaymentsPlatform (Phase 5).
+        ineligibility.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for dispute eligibility checks. Kept in the
+        spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -88,7 +101,7 @@ class DisputesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/disputeEligibilityCheck"),
+            url_template=self._server.default_catalog_items("/v4/payments/disputes/eligibility"),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[DisputeEligibilityResponse],
             error_mapper=check_dispute_eligibility_error_mapper,
@@ -101,7 +114,10 @@ class AsyncDisputesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[DisputeEligibilityResponse, CheckDisputeEligibilityErrorBody]:
         """Returns whether the authenticated seller is eligible to raise a payment dispute and, if not, the reason for
-        ineligibility. Delegates to GMPPaymentsPlatform (Phase 5).
+        ineligibility.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for dispute eligibility checks. Kept in the
+        spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -111,7 +127,7 @@ class AsyncDisputesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/disputeEligibilityCheck"),
+            url_template=self._server.default_catalog_items("/v4/payments/disputes/eligibility"),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[DisputeEligibilityResponse],
             error_mapper=check_dispute_eligibility_error_mapper,

@@ -26,17 +26,18 @@ from ..errors.get_tracking_error import GetTrackingErrorBody, get_tracking_error
 from ..errors.one_click_shipment_error import OneClickShipmentErrorBody, one_click_shipment_error_mapper
 from ..errors.purchase_shipment_error import PurchaseShipmentErrorBody, purchase_shipment_error_mapper
 from ..errors.submit_ndr_feedback_error import SubmitNdrFeedbackErrorBody, submit_ndr_feedback_error_mapper
-from ..models.cancel_shipment_response1 import CancelShipmentResponse1
-from ..models.enums.format1 import Format1OrStr
+from ..models.cancel_shipment_response_shipping import CancelShipmentResponseShipping
+from ..models.enums.format_shipping import FormatShippingOrStr
 from ..models.get_access_points_response import GetAccessPointsResponse
 from ..models.get_additional_inputs_response import GetAdditionalInputsResponse
-from ..models.get_fulfillment_order_response import GetFulfillmentOrderResponse
-from ..models.get_fulfillment_order_shipments_response import GetFulfillmentOrderShipmentsResponse
 from ..models.get_rates_request import GetRatesRequest, GetRatesRequestDict
+from ..models.get_rates_response import GetRatesResponse
 from ..models.get_shipment_documents_response import GetShipmentDocumentsResponse
 from ..models.get_tracking_response import GetTrackingResponse
 from ..models.one_click_shipment_request import OneClickShipmentRequest, OneClickShipmentRequestDict
+from ..models.one_click_shipment_response import OneClickShipmentResponse
 from ..models.purchase_shipment_request import PurchaseShipmentRequest, PurchaseShipmentRequestDict
+from ..models.purchase_shipment_response import PurchaseShipmentResponse
 from ..models.submit_ndr_feedback_request import SubmitNdrFeedbackRequest, SubmitNdrFeedbackRequestDict
 from ..server.server import Server
 
@@ -47,7 +48,7 @@ class Shipping:
 
     def cancel_shipment2(
         self, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelShipmentResponse1:
+    ) -> CancelShipmentResponseShipping:
         """Cancels a shipment that has not yet shipped. Cancellation eligibility is carrier-dependent; refer to the
         response cancellation status to confirm.
 
@@ -119,7 +120,7 @@ class Shipping:
 
     def get_rates(
         self, body: GetRatesRequest | GetRatesRequestDict, *, request_options: RequestOptionsOrDict | None = None
-    ) -> GetFulfillmentOrderResponse:
+    ) -> GetRatesResponse:
         """Returns a list of shipping rate quotes for the given shipment request. The seller can then call
         purchaseShipment with the selected rateId to commit to a label purchase.
 
@@ -141,7 +142,7 @@ class Shipping:
         shipment_id: str,
         *,
         package_client_reference_id: str | None = None,
-        format_: Format1OrStr | None = None,
+        format_: FormatShippingOrStr | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> GetShipmentDocumentsResponse:
         """Returns the label, customs, and other printable documents associated with a previously-purchased shipment.
@@ -199,7 +200,7 @@ class Shipping:
         body: OneClickShipmentRequest | OneClickShipmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> GetFulfillmentOrderShipmentsResponse:
+    ) -> OneClickShipmentResponse:
         """Convenience endpoint that combines rate quote and purchase into a single round trip when the seller already
         knows the desired service level. Returns the purchased shipment record directly.
 
@@ -221,7 +222,7 @@ class Shipping:
         body: PurchaseShipmentRequest | PurchaseShipmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> GetFulfillmentOrderShipmentsResponse:
+    ) -> PurchaseShipmentResponse:
         """Purchases the shipping label for the rate selected from a prior getRates response. Returns the shipment
         record with label document references.
 
@@ -271,7 +272,7 @@ class AsyncShipping:
 
     async def cancel_shipment2(
         self, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> CancelShipmentResponse1:
+    ) -> CancelShipmentResponseShipping:
         """Cancels a shipment that has not yet shipped. Cancellation eligibility is carrier-dependent; refer to the
         response cancellation status to confirm.
 
@@ -343,7 +344,7 @@ class AsyncShipping:
 
     async def get_rates(
         self, body: GetRatesRequest | GetRatesRequestDict, *, request_options: RequestOptionsOrDict | None = None
-    ) -> GetFulfillmentOrderResponse:
+    ) -> GetRatesResponse:
         """Returns a list of shipping rate quotes for the given shipment request. The seller can then call
         purchaseShipment with the selected rateId to commit to a label purchase.
 
@@ -365,7 +366,7 @@ class AsyncShipping:
         shipment_id: str,
         *,
         package_client_reference_id: str | None = None,
-        format_: Format1OrStr | None = None,
+        format_: FormatShippingOrStr | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> GetShipmentDocumentsResponse:
         """Returns the label, customs, and other printable documents associated with a previously-purchased shipment.
@@ -425,7 +426,7 @@ class AsyncShipping:
         body: OneClickShipmentRequest | OneClickShipmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> GetFulfillmentOrderShipmentsResponse:
+    ) -> OneClickShipmentResponse:
         """Convenience endpoint that combines rate quote and purchase into a single round trip when the seller already
         knows the desired service level. Returns the purchased shipment record directly.
 
@@ -447,7 +448,7 @@ class AsyncShipping:
         body: PurchaseShipmentRequest | PurchaseShipmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> GetFulfillmentOrderShipmentsResponse:
+    ) -> PurchaseShipmentResponse:
         """Purchases the shipping label for the rate selected from a prior getRates response. Returns the shipment
         record with label document references.
 
@@ -494,7 +495,7 @@ class AsyncShipping:
 class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
     def cancel_shipment2(
         self, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelShipmentResponse1, CancelShipment2ErrorBody]:
+    ) -> ApiResult[CancelShipmentResponseShipping, CancelShipment2ErrorBody]:
         """Cancels a shipment that has not yet shipped. Cancellation eligibility is carrier-dependent; refer to the
         response cancellation status to confirm.
 
@@ -507,11 +508,11 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/shipping/v4/shipments/{shipmentId}/cancel"),
-            path_params=[param[str]("shipmentId", shipment_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/shipments/{shipment-id}/cancel"),
+            path_params=[param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[CancelShipmentResponse1],
+            decoder=json_decoder[CancelShipmentResponseShipping],
             error_mapper=cancel_shipment2_error_mapper,
             request_options=request_options,
         )
@@ -538,7 +539,7 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/shipping/v4/accessPoints"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/access-points"),
             query_params=[
                 param[str]("accessPointTypes", access_point_types),
                 param[str]("countryCode", country_code),
@@ -567,7 +568,9 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/shipping/v4/shipments/additionalInputs/schema"),
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/shipping/shipments/additional-input-schemas"
+            ),
             query_params=[param[str]("rateId", rate_id), param[str]("requestToken", request_token)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetAdditionalInputsResponse],
@@ -577,7 +580,7 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
 
     def get_rates(
         self, body: GetRatesRequest | GetRatesRequestDict, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[GetFulfillmentOrderResponse, GetRatesErrorBody]:
+    ) -> ApiResult[GetRatesResponse, GetRatesErrorBody]:
         """Returns a list of shipping rate quotes for the given shipment request. The seller can then call
         purchaseShipment with the selected rateId to commit to a label purchase.
 
@@ -590,11 +593,11 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/shipping/v4/shipments/rates"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/shipment-rates"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GetRatesRequest | GetRatesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[GetFulfillmentOrderResponse],
+            decoder=json_decoder[GetRatesResponse],
             error_mapper=get_rates_error_mapper,
             request_options=request_options,
         )
@@ -604,7 +607,7 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
         shipment_id: str,
         *,
         package_client_reference_id: str | None = None,
-        format_: Format1OrStr | None = None,
+        format_: FormatShippingOrStr | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[GetShipmentDocumentsResponse, GetShipmentDocumentsErrorBody]:
         """Returns the label, customs, and other printable documents associated with a previously-purchased shipment.
@@ -621,11 +624,13 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/shipping/v4/shipments/{shipmentId}/documents"),
-            path_params=[param[str]("shipmentId", shipment_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/shipping/shipments/{shipment-id}/documents"
+            ),
+            path_params=[param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[str | None]("packageClientReferenceId", package_client_reference_id),
-                param[Format1OrStr | None]("format", format_),
+                param[FormatShippingOrStr | None]("format", format_),
             ],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetShipmentDocumentsResponse],
@@ -652,7 +657,7 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/shipping/v4/tracking"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/tracking-events"),
             query_params=[param[str]("trackingId", tracking_id), param[str | None]("carrierId", carrier_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetTrackingResponse],
@@ -665,7 +670,7 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
         body: OneClickShipmentRequest | OneClickShipmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[GetFulfillmentOrderShipmentsResponse, OneClickShipmentErrorBody]:
+    ) -> ApiResult[OneClickShipmentResponse, OneClickShipmentErrorBody]:
         """Convenience endpoint that combines rate quote and purchase into a single round trip when the seller already
         knows the desired service level. Returns the purchased shipment record directly.
 
@@ -678,11 +683,11 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/shipping/v4/oneClickShipment"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/shipments/oneClickShipment"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[OneClickShipmentRequest | OneClickShipmentRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[GetFulfillmentOrderShipmentsResponse],
+            decoder=json_decoder[OneClickShipmentResponse],
             error_mapper=one_click_shipment_error_mapper,
             request_options=request_options,
         )
@@ -692,7 +697,7 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
         body: PurchaseShipmentRequest | PurchaseShipmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[GetFulfillmentOrderShipmentsResponse, PurchaseShipmentErrorBody]:
+    ) -> ApiResult[PurchaseShipmentResponse, PurchaseShipmentErrorBody]:
         """Purchases the shipping label for the rate selected from a prior getRates response. Returns the shipment
         record with label document references.
 
@@ -705,11 +710,11 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/shipping/v4/shipments"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/shipments"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[PurchaseShipmentRequest | PurchaseShipmentRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=json_decoder[GetFulfillmentOrderShipmentsResponse],
+            decoder=json_decoder[PurchaseShipmentResponse],
             error_mapper=purchase_shipment_error_mapper,
             request_options=request_options,
         )
@@ -732,7 +737,7 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/shipping/v4/ndrFeedback"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/ndr-feedback"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[SubmitNdrFeedbackRequest | SubmitNdrFeedbackRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -745,7 +750,7 @@ class ShippingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]
 class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, AsyncAuthSchemes]):
     async def cancel_shipment2(
         self, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[CancelShipmentResponse1, CancelShipment2ErrorBody]:
+    ) -> ApiResult[CancelShipmentResponseShipping, CancelShipment2ErrorBody]:
         """Cancels a shipment that has not yet shipped. Cancellation eligibility is carrier-dependent; refer to the
         response cancellation status to confirm.
 
@@ -758,11 +763,11 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/shipping/v4/shipments/{shipmentId}/cancel"),
-            path_params=[param[str]("shipmentId", shipment_id)],
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/shipments/{shipment-id}/cancel"),
+            path_params=[param[str]("shipment-id", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[CancelShipmentResponse1],
+            decoder=async_json_decoder[CancelShipmentResponseShipping],
             error_mapper=cancel_shipment2_error_mapper,
             request_options=request_options,
         )
@@ -789,7 +794,7 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/shipping/v4/accessPoints"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/access-points"),
             query_params=[
                 param[str]("accessPointTypes", access_point_types),
                 param[str]("countryCode", country_code),
@@ -818,7 +823,9 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/shipping/v4/shipments/additionalInputs/schema"),
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/shipping/shipments/additional-input-schemas"
+            ),
             query_params=[param[str]("rateId", rate_id), param[str]("requestToken", request_token)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetAdditionalInputsResponse],
@@ -828,7 +835,7 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
 
     async def get_rates(
         self, body: GetRatesRequest | GetRatesRequestDict, *, request_options: RequestOptionsOrDict | None = None
-    ) -> ApiResult[GetFulfillmentOrderResponse, GetRatesErrorBody]:
+    ) -> ApiResult[GetRatesResponse, GetRatesErrorBody]:
         """Returns a list of shipping rate quotes for the given shipment request. The seller can then call
         purchaseShipment with the selected rateId to commit to a label purchase.
 
@@ -841,11 +848,11 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/shipping/v4/shipments/rates"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/shipment-rates"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GetRatesRequest | GetRatesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[GetFulfillmentOrderResponse],
+            decoder=async_json_decoder[GetRatesResponse],
             error_mapper=get_rates_error_mapper,
             request_options=request_options,
         )
@@ -855,7 +862,7 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
         shipment_id: str,
         *,
         package_client_reference_id: str | None = None,
-        format_: Format1OrStr | None = None,
+        format_: FormatShippingOrStr | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[GetShipmentDocumentsResponse, GetShipmentDocumentsErrorBody]:
         """Returns the label, customs, and other printable documents associated with a previously-purchased shipment.
@@ -872,11 +879,13 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/shipping/v4/shipments/{shipmentId}/documents"),
-            path_params=[param[str]("shipmentId", shipment_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/shipping/shipments/{shipment-id}/documents"
+            ),
+            path_params=[param[str]("shipment-id", shipment_id)],
             query_params=[
                 param[str | None]("packageClientReferenceId", package_client_reference_id),
-                param[Format1OrStr | None]("format", format_),
+                param[FormatShippingOrStr | None]("format", format_),
             ],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetShipmentDocumentsResponse],
@@ -903,7 +912,7 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/shipping/v4/tracking"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/tracking-events"),
             query_params=[param[str]("trackingId", tracking_id), param[str | None]("carrierId", carrier_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetTrackingResponse],
@@ -916,7 +925,7 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
         body: OneClickShipmentRequest | OneClickShipmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[GetFulfillmentOrderShipmentsResponse, OneClickShipmentErrorBody]:
+    ) -> ApiResult[OneClickShipmentResponse, OneClickShipmentErrorBody]:
         """Convenience endpoint that combines rate quote and purchase into a single round trip when the seller already
         knows the desired service level. Returns the purchased shipment record directly.
 
@@ -929,11 +938,11 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/shipping/v4/oneClickShipment"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/shipments/oneClickShipment"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[OneClickShipmentRequest | OneClickShipmentRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[GetFulfillmentOrderShipmentsResponse],
+            decoder=async_json_decoder[OneClickShipmentResponse],
             error_mapper=one_click_shipment_error_mapper,
             request_options=request_options,
         )
@@ -943,7 +952,7 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
         body: PurchaseShipmentRequest | PurchaseShipmentRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
-    ) -> ApiResult[GetFulfillmentOrderShipmentsResponse, PurchaseShipmentErrorBody]:
+    ) -> ApiResult[PurchaseShipmentResponse, PurchaseShipmentErrorBody]:
         """Purchases the shipping label for the rate selected from a prior getRates response. Returns the shipment
         record with label document references.
 
@@ -956,11 +965,11 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/shipping/v4/shipments"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/shipments"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[PurchaseShipmentRequest | PurchaseShipmentRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
-            decoder=async_json_decoder[GetFulfillmentOrderShipmentsResponse],
+            decoder=async_json_decoder[PurchaseShipmentResponse],
             error_mapper=purchase_shipment_error_mapper,
             request_options=request_options,
         )
@@ -983,7 +992,7 @@ class AsyncShippingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, As
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/shipping/v4/ndrFeedback"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/shipping/ndr-feedback"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[SubmitNdrFeedbackRequest | SubmitNdrFeedbackRequestDict](body),
             auth_scheme=self._auth.wallet_auth,

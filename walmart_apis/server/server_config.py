@@ -27,92 +27,126 @@ class DefaultEnvironment2ConfigDict(TypedDict):
     base_url: NotRequired[str]
 
 
-class DefaultEnvironment3Config(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
-    base_url: str = "https://walmart-apis-mock-server.onrender.com/seller"
-
-
-class DefaultEnvironment3ConfigDict(TypedDict):
-    base_url: NotRequired[str]
-
-
 class DefaultConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
     production: DefaultProductionConfig = Field(default_factory=DefaultProductionConfig)
     environment2: DefaultEnvironment2Config = Field(default_factory=DefaultEnvironment2Config)
-    environment3: DefaultEnvironment3Config = Field(default_factory=DefaultEnvironment3Config)
 
     def resolve(self, environment: Environment, path: str) -> UrlTemplate:
-        if environment == "production":
-            production = self.production
-            return UrlTemplate(base_url=production.base_url, path=path)
-        if environment == "environment2":
-            environment2 = self.environment2
-            return UrlTemplate(base_url=environment2.base_url, path=path)
-        environment3 = self.environment3
-        return UrlTemplate(base_url=environment3.base_url, path=path)
+        variant = self.production if environment == "production" else self.environment2
+        return UrlTemplate(base_url=variant.base_url, path=path)
 
 
 class DefaultConfigDict(TypedDict):
     production: NotRequired[DefaultProductionConfigDict]
     environment2: NotRequired[DefaultEnvironment2ConfigDict]
-    environment3: NotRequired[DefaultEnvironment3ConfigDict]
 
 
-class Default1ProductionConfig(BaseModel):
+class AuthServerProductionConfig(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    base_url: str = "https://login.account.wal-mart.com"
+
+
+class AuthServerProductionConfigDict(TypedDict):
+    base_url: NotRequired[str]
+
+
+class AuthServerEnvironment2Config(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    base_url: str = "https://login.account.wal-mart.com"
+
+
+class AuthServerEnvironment2ConfigDict(TypedDict):
+    base_url: NotRequired[str]
+
+
+class AuthServerConfig(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    production: AuthServerProductionConfig = Field(default_factory=AuthServerProductionConfig)
+    environment2: AuthServerEnvironment2Config = Field(default_factory=AuthServerEnvironment2Config)
+
+    def resolve(self, environment: Environment, path: str) -> UrlTemplate:
+        variant = self.production if environment == "production" else self.environment2
+        return UrlTemplate(base_url=variant.base_url, path=path)
+
+
+class AuthServerConfigDict(TypedDict):
+    production: NotRequired[AuthServerProductionConfigDict]
+    environment2: NotRequired[AuthServerEnvironment2ConfigDict]
+
+
+class DefaultCatalogItemsProductionConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
     base_url: str = "https://marketplace.walmart.com/seller/v1"
 
 
-class Default1ProductionConfigDict(TypedDict):
+class DefaultCatalogItemsProductionConfigDict(TypedDict):
     base_url: NotRequired[str]
 
 
-class Default1Environment2Config(BaseModel):
+class DefaultCatalogItemsEnvironment2Config(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
     base_url: str = "https://sandbox.marketplace.walmart.com/seller/v1"
 
 
-class Default1Environment2ConfigDict(TypedDict):
+class DefaultCatalogItemsEnvironment2ConfigDict(TypedDict):
     base_url: NotRequired[str]
 
 
-class Default1Environment3Config(BaseModel):
+class DefaultCatalogItemsConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
-    base_url: str = "https://walmart-apis-mock-server.onrender.com/seller/v1"
-
-
-class Default1Environment3ConfigDict(TypedDict):
-    base_url: NotRequired[str]
-
-
-class Default1Config(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
-    production: Default1ProductionConfig = Field(default_factory=Default1ProductionConfig)
-    environment2: Default1Environment2Config = Field(default_factory=Default1Environment2Config)
-    environment3: Default1Environment3Config = Field(default_factory=Default1Environment3Config)
+    production: DefaultCatalogItemsProductionConfig = Field(default_factory=DefaultCatalogItemsProductionConfig)
+    environment2: DefaultCatalogItemsEnvironment2Config = Field(default_factory=DefaultCatalogItemsEnvironment2Config)
 
     def resolve(self, environment: Environment, path: str) -> UrlTemplate:
-        if environment == "production":
-            production = self.production
-            return UrlTemplate(base_url=production.base_url, path=path)
-        if environment == "environment2":
-            environment2 = self.environment2
-            return UrlTemplate(base_url=environment2.base_url, path=path)
-        environment3 = self.environment3
-        return UrlTemplate(base_url=environment3.base_url, path=path)
+        variant = self.production if environment == "production" else self.environment2
+        return UrlTemplate(base_url=variant.base_url, path=path)
 
 
-class Default1ConfigDict(TypedDict):
-    production: NotRequired[Default1ProductionConfigDict]
-    environment2: NotRequired[Default1Environment2ConfigDict]
-    environment3: NotRequired[Default1Environment3ConfigDict]
+class DefaultCatalogItemsConfigDict(TypedDict):
+    production: NotRequired[DefaultCatalogItemsProductionConfigDict]
+    environment2: NotRequired[DefaultCatalogItemsEnvironment2ConfigDict]
+
+
+class AccessTokenServerProductionConfig(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    base_url: str = "https://marketplace.walmart.com/seller/auth/v4"
+
+
+class AccessTokenServerProductionConfigDict(TypedDict):
+    base_url: NotRequired[str]
+
+
+class AccessTokenServerEnvironment2Config(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    base_url: str = "https://marketplace.walmart.com/seller/auth/v4"
+
+
+class AccessTokenServerEnvironment2ConfigDict(TypedDict):
+    base_url: NotRequired[str]
+
+
+class AccessTokenServerConfig(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    production: AccessTokenServerProductionConfig = Field(default_factory=AccessTokenServerProductionConfig)
+    environment2: AccessTokenServerEnvironment2Config = Field(default_factory=AccessTokenServerEnvironment2Config)
+
+    def resolve(self, environment: Environment, path: str) -> UrlTemplate:
+        variant = self.production if environment == "production" else self.environment2
+        return UrlTemplate(base_url=variant.base_url, path=path)
+
+
+class AccessTokenServerConfigDict(TypedDict):
+    production: NotRequired[AccessTokenServerProductionConfigDict]
+    environment2: NotRequired[AccessTokenServerEnvironment2ConfigDict]
 
 
 class ServerConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
     default: DefaultConfig = Field(default_factory=DefaultConfig)
-    default1: Default1Config = Field(default_factory=Default1Config)
+    auth_server: AuthServerConfig = Field(default_factory=AuthServerConfig)
+    default_catalog_items: DefaultCatalogItemsConfig = Field(default_factory=DefaultCatalogItemsConfig)
+    access_token_server: AccessTokenServerConfig = Field(default_factory=AccessTokenServerConfig)
 
     @classmethod
     def coerce(cls, value: ServerConfigOrDict | None) -> ServerConfig:
@@ -123,7 +157,9 @@ class ServerConfig(BaseModel):
 
 class ServerConfigDict(TypedDict):
     default: NotRequired[DefaultConfigDict]
-    default1: NotRequired[Default1ConfigDict]
+    auth_server: NotRequired[AuthServerConfigDict]
+    default_catalog_items: NotRequired[DefaultCatalogItemsConfigDict]
+    access_token_server: NotRequired[AccessTokenServerConfigDict]
 
 
 ServerConfigOrDict: TypeAlias = ServerConfig | ServerConfigDict

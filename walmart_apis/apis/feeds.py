@@ -33,6 +33,7 @@ from ..models.create_feed_response import CreateFeedResponse
 from ..models.enums.content_type import ContentTypeOrStr
 from ..models.enums.feed_status import FeedStatusOrStr
 from ..models.enums.feed_type import FeedTypeOrStr
+from ..models.enums.feed_type1 import FeedType1OrStr
 from ..models.feed import Feed
 from ..models.get_feeds_response import GetFeedsResponse
 from ..server.server import Server
@@ -43,10 +44,9 @@ class Feeds:
         self._with_raw_response = FeedsWithRawResponse(client, server, auth)
 
     def cancel_feed(self, feed_id: str, *, request_options: RequestOptionsOrDict | None = None) -> CancelFeedResponse:
-        """**Placeholder — not yet implemented.** Cancels the feed identified by feedId if it is still queued or in
-        progress. Mirrors Amazon SP-API ``cancelFeed`` (DELETE /feeds/2021-06-30/feeds/{feedId}) so partners can
-        generate a client against the final contract now. A feed that has already reached DONE or ERROR cannot be
-        cancelled.
+        """Cancels the feed identified by feedId if it is still queued or in progress. Mirrors Amazon SP-API
+        ``cancelFeed`` (DELETE /feeds/2021-06-30/feeds/{feedId}) for contract-shape parity above). A feed that has
+        already reached DONE or ERROR cannot be cancelled.
 
         Args:
             feed_id: Value sent with the request.
@@ -57,26 +57,24 @@ class Feeds:
             Cancellation accepted
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``ErrorList1 | RawError``."""
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
+                | RawError``."""
         return unwrap(self._with_raw_response.cancel_feed(feed_id, request_options=request_options))
 
     def create_feed(
         self,
-        feed_type: FeedTypeOrStr,
+        feed_type: FeedType1OrStr,
         file: FileInput,
         *,
-        marketplace_id: str | None = None,
         content_type: ContentTypeOrStr | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CreateFeedResponse:
         """Upload a feed file and submit it for asynchronous processing in a single call. The server handles document
-        storage internally. Use the returned feedId to poll processing status via GET /feeds/v4/feeds/{feedId}.
+        storage internally. Use the returned feedId to poll processing status via GET /v4/feeds/{feed-id}.
 
         Args:
             feed_type: The type of feed being submitted
             file: The feed content file to upload and process
-            marketplace_id: Marketplace identifier (opaque token). If omitted, the service applies WALMART_US.
             content_type: MIME type of the uploaded feed content. If omitted, the server infers from the file's
                 Content-Type in the multipart header.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -86,15 +84,11 @@ class Feeds:
             Feed accepted for processing
 
         Raises:
-            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList1 |
+            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList |
                 RawError``."""
         return unwrap(
             self._with_raw_response.create_feed(
-                feed_type,
-                file,
-                marketplace_id=marketplace_id,
-                content_type=content_type,
-                request_options=request_options,
+                feed_type, file, content_type=content_type, request_options=request_options
             ),
         )
 
@@ -110,8 +104,8 @@ class Feeds:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``ErrorList1 | RawError``."""
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
+                | RawError``."""
         return unwrap(self._with_raw_response.get_feed(feed_id, request_options=request_options))
 
     def get_feed_document(self, feed_id: str, *, request_options: RequestOptionsOrDict | None = None) -> FileResponse:
@@ -131,8 +125,8 @@ class Feeds:
             Binary file stream
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``ErrorList1 | RawError``."""
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
+                | RawError``."""
         return unwrap(self._with_raw_response.get_feed_document(feed_id, request_options=request_options))
 
     def get_feeds(
@@ -162,7 +156,7 @@ class Feeds:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList1 |
+            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList |
                 RawError``."""
         return unwrap(
             self._with_raw_response.get_feeds(
@@ -188,10 +182,9 @@ class AsyncFeeds:
     async def cancel_feed(
         self, feed_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> CancelFeedResponse:
-        """**Placeholder — not yet implemented.** Cancels the feed identified by feedId if it is still queued or in
-        progress. Mirrors Amazon SP-API ``cancelFeed`` (DELETE /feeds/2021-06-30/feeds/{feedId}) so partners can
-        generate a client against the final contract now. A feed that has already reached DONE or ERROR cannot be
-        cancelled.
+        """Cancels the feed identified by feedId if it is still queued or in progress. Mirrors Amazon SP-API
+        ``cancelFeed`` (DELETE /feeds/2021-06-30/feeds/{feedId}) for contract-shape parity above). A feed that has
+        already reached DONE or ERROR cannot be cancelled.
 
         Args:
             feed_id: Value sent with the request.
@@ -202,26 +195,24 @@ class AsyncFeeds:
             Cancellation accepted
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``ErrorList1 | RawError``."""
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
+                | RawError``."""
         return unwrap(await self._with_raw_response.cancel_feed(feed_id, request_options=request_options))
 
     async def create_feed(
         self,
-        feed_type: FeedTypeOrStr,
+        feed_type: FeedType1OrStr,
         file: AsyncFileInput,
         *,
-        marketplace_id: str | None = None,
         content_type: ContentTypeOrStr | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CreateFeedResponse:
         """Upload a feed file and submit it for asynchronous processing in a single call. The server handles document
-        storage internally. Use the returned feedId to poll processing status via GET /feeds/v4/feeds/{feedId}.
+        storage internally. Use the returned feedId to poll processing status via GET /v4/feeds/{feed-id}.
 
         Args:
             feed_type: The type of feed being submitted
             file: The feed content file to upload and process
-            marketplace_id: Marketplace identifier (opaque token). If omitted, the service applies WALMART_US.
             content_type: MIME type of the uploaded feed content. If omitted, the server infers from the file's
                 Content-Type in the multipart header.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -231,15 +222,11 @@ class AsyncFeeds:
             Feed accepted for processing
 
         Raises:
-            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList1 |
+            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList |
                 RawError``."""
         return unwrap(
             await self._with_raw_response.create_feed(
-                feed_type,
-                file,
-                marketplace_id=marketplace_id,
-                content_type=content_type,
-                request_options=request_options,
+                feed_type, file, content_type=content_type, request_options=request_options
             ),
         )
 
@@ -255,8 +242,8 @@ class AsyncFeeds:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``ErrorList1 | RawError``."""
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
+                | RawError``."""
         return unwrap(await self._with_raw_response.get_feed(feed_id, request_options=request_options))
 
     async def get_feed_document(
@@ -278,8 +265,8 @@ class AsyncFeeds:
             Binary file stream
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is
-                ``ErrorList1 | RawError``."""
+            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
+                | RawError``."""
         return unwrap(await self._with_raw_response.get_feed_document(feed_id, request_options=request_options))
 
     async def get_feeds(
@@ -309,7 +296,7 @@ class AsyncFeeds:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList1 |
+            ApiError: Bad Request Forbidden Rate limit exceeded Internal Server Error ``error`` is ``ErrorList |
                 RawError``."""
         return unwrap(
             await self._with_raw_response.get_feeds(
@@ -332,10 +319,9 @@ class FeedsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
     def cancel_feed(
         self, feed_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CancelFeedResponse, CancelFeedErrorBody]:
-        """**Placeholder — not yet implemented.** Cancels the feed identified by feedId if it is still queued or in
-        progress. Mirrors Amazon SP-API ``cancelFeed`` (DELETE /feeds/2021-06-30/feeds/{feedId}) so partners can
-        generate a client against the final contract now. A feed that has already reached DONE or ERROR cannot be
-        cancelled.
+        """Cancels the feed identified by feedId if it is still queued or in progress. Mirrors Amazon SP-API
+        ``cancelFeed`` (DELETE /feeds/2021-06-30/feeds/{feedId}) for contract-shape parity above). A feed that has
+        already reached DONE or ERROR cannot be cancelled.
 
         Args:
             feed_id: Value sent with the request.
@@ -346,8 +332,8 @@ class FeedsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/feeds/v4/feeds/{feedId}"),
-            path_params=[param[str]("feedId", feed_id)],
+            url_template=self._server.default_catalog_items("/v4/feeds/{feed-id}"),
+            path_params=[param[str]("feed-id", feed_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[CancelFeedResponse],
@@ -357,20 +343,18 @@ class FeedsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
 
     def create_feed(
         self,
-        feed_type: FeedTypeOrStr,
+        feed_type: FeedType1OrStr,
         file: FileInput,
         *,
-        marketplace_id: str | None = None,
         content_type: ContentTypeOrStr | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CreateFeedResponse, CreateFeedErrorBody]:
         """Upload a feed file and submit it for asynchronous processing in a single call. The server handles document
-        storage internally. Use the returned feedId to poll processing status via GET /feeds/v4/feeds/{feedId}.
+        storage internally. Use the returned feedId to poll processing status via GET /v4/feeds/{feed-id}.
 
         Args:
             feed_type: The type of feed being submitted
             file: The feed content file to upload and process
-            marketplace_id: Marketplace identifier (opaque token). If omitted, the service applies WALMART_US.
             content_type: MIME type of the uploaded feed content. If omitted, the server infers from the file's
                 Content-Type in the multipart header.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -380,10 +364,8 @@ class FeedsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/feeds/v4/feeds"),
-            query_params=[
-                param[FeedTypeOrStr]("feedType", feed_type), param[str | None]("marketplaceId", marketplace_id)
-            ],
+            url_template=self._server.default_catalog_items("/v4/feeds"),
+            query_params=[param[FeedType1OrStr]("feedType", feed_type)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=multipart_body(file_part("file", file), param[ContentTypeOrStr | None]("contentType", content_type)),
             auth_scheme=self._auth.wallet_auth,
@@ -406,8 +388,8 @@ class FeedsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/feeds/v4/feeds/{feedId}"),
-            path_params=[param[str]("feedId", feed_id)],
+            url_template=self._server.default_catalog_items("/v4/feeds/{feed-id}"),
+            path_params=[param[str]("feed-id", feed_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[Feed],
             error_mapper=get_feed_error_mapper,
@@ -433,8 +415,8 @@ class FeedsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the body unread or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/feeds/v4/feeds/{feedId}/document"),
-            path_params=[param[str]("feedId", feed_id)],
+            url_template=self._server.default_catalog_items("/v4/feeds/{feed-id}/document"),
+            path_params=[param[str]("feed-id", feed_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=file_decoder,
             error_mapper=get_feed_document_error_mapper,
@@ -468,7 +450,7 @@ class FeedsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/feeds/v4/feeds"),
+            url_template=self._server.default_catalog_items("/v4/feeds"),
             query_params=[
                 param[list[FeedTypeOrStr] | None]("feedTypes", feed_types),
                 param[list[FeedStatusOrStr] | None]("feedStatuses", feed_statuses),
@@ -488,10 +470,9 @@ class AsyncFeedsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Async
     async def cancel_feed(
         self, feed_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[CancelFeedResponse, CancelFeedErrorBody]:
-        """**Placeholder — not yet implemented.** Cancels the feed identified by feedId if it is still queued or in
-        progress. Mirrors Amazon SP-API ``cancelFeed`` (DELETE /feeds/2021-06-30/feeds/{feedId}) so partners can
-        generate a client against the final contract now. A feed that has already reached DONE or ERROR cannot be
-        cancelled.
+        """Cancels the feed identified by feedId if it is still queued or in progress. Mirrors Amazon SP-API
+        ``cancelFeed`` (DELETE /feeds/2021-06-30/feeds/{feedId}) for contract-shape parity above). A feed that has
+        already reached DONE or ERROR cannot be cancelled.
 
         Args:
             feed_id: Value sent with the request.
@@ -502,8 +483,8 @@ class AsyncFeedsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Async
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/feeds/v4/feeds/{feedId}"),
-            path_params=[param[str]("feedId", feed_id)],
+            url_template=self._server.default_catalog_items("/v4/feeds/{feed-id}"),
+            path_params=[param[str]("feed-id", feed_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[CancelFeedResponse],
@@ -513,20 +494,18 @@ class AsyncFeedsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Async
 
     async def create_feed(
         self,
-        feed_type: FeedTypeOrStr,
+        feed_type: FeedType1OrStr,
         file: AsyncFileInput,
         *,
-        marketplace_id: str | None = None,
         content_type: ContentTypeOrStr | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CreateFeedResponse, CreateFeedErrorBody]:
         """Upload a feed file and submit it for asynchronous processing in a single call. The server handles document
-        storage internally. Use the returned feedId to poll processing status via GET /feeds/v4/feeds/{feedId}.
+        storage internally. Use the returned feedId to poll processing status via GET /v4/feeds/{feed-id}.
 
         Args:
             feed_type: The type of feed being submitted
             file: The feed content file to upload and process
-            marketplace_id: Marketplace identifier (opaque token). If omitted, the service applies WALMART_US.
             content_type: MIME type of the uploaded feed content. If omitted, the server infers from the file's
                 Content-Type in the multipart header.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -536,10 +515,8 @@ class AsyncFeedsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Async
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/feeds/v4/feeds"),
-            query_params=[
-                param[FeedTypeOrStr]("feedType", feed_type), param[str | None]("marketplaceId", marketplace_id)
-            ],
+            url_template=self._server.default_catalog_items("/v4/feeds"),
+            query_params=[param[FeedType1OrStr]("feedType", feed_type)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=multipart_body(file_part("file", file), param[ContentTypeOrStr | None]("contentType", content_type)),
             auth_scheme=self._auth.wallet_auth,
@@ -562,8 +539,8 @@ class AsyncFeedsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Async
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/feeds/v4/feeds/{feedId}"),
-            path_params=[param[str]("feedId", feed_id)],
+            url_template=self._server.default_catalog_items("/v4/feeds/{feed-id}"),
+            path_params=[param[str]("feed-id", feed_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[Feed],
             error_mapper=get_feed_error_mapper,
@@ -589,8 +566,8 @@ class AsyncFeedsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Async
             An ``ApiResult`` holding the body unread or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/feeds/v4/feeds/{feedId}/document"),
-            path_params=[param[str]("feedId", feed_id)],
+            url_template=self._server.default_catalog_items("/v4/feeds/{feed-id}/document"),
+            path_params=[param[str]("feed-id", feed_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_file_decoder,
             error_mapper=get_feed_document_error_mapper,
@@ -624,7 +601,7 @@ class AsyncFeedsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Async
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/feeds/v4/feeds"),
+            url_template=self._server.default_catalog_items("/v4/feeds"),
             query_params=[
                 param[list[FeedTypeOrStr] | None]("feedTypes", feed_types),
                 param[list[FeedStatusOrStr] | None]("feedStatuses", feed_statuses),

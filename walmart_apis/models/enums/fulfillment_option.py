@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class FulfillmentOption(str, Enum):
+    """Fulfillment option associated with the order line."""
+
     S2_H = "S2H"
     S2_S = "S2S"
     PICKUP_TODAY = "PICKUP_TODAY"

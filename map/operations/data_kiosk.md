@@ -10,7 +10,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `DELETE /data-kiosk/v4/queries/{queryId}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def cancel_query(query_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `query_id`
 - **Params**: `query_id` — path `queryId`
@@ -29,7 +29,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `POST /data-kiosk/v4/queries`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def create_query(body: CreateQuerySpecification | CreateQuerySpecificationDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
@@ -50,7 +50,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /data-kiosk/v4/documents/{documentId}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_document(document_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `document_id`
 - **Params**: `document_id` — path `documentId`
@@ -69,7 +69,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /data-kiosk/v4/queries`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_queries(*, processing_statuses: list[ProcessingStatusOrStr] | None = None, page_size: int | None = 10, created_since: RFC3339DateTime | None = None, created_until: RFC3339DateTime | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `processing_statuses` — query `processingStatuses` · `page_size` — query `pageSize` · `created_since` — query `createdSince` · `created_until` — query `createdUntil` · `pagination_token` — query `paginationToken`
 - **Returns (parsed)**: `GetQueriesResponse`
@@ -88,7 +88,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /data-kiosk/v4/queries/{queryId}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_query(query_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `query_id`
 - **Params**: `query_id` — path `queryId`

@@ -13,6 +13,8 @@ class ItemOfferByMarketplace(SdkBaseModel):
     marketplace_id: Optional[str] = Field(default=UNSET, alias="marketplaceId")
     offer_type: Optional[OfferTypeOrStr] = Field(default=UNSET, alias="offerType")
     price: Optional[Money] = UNSET
+    """Canonical monetary amount (string value + ISO 4217 currency code)."""
+
     points: Optional[Points] = UNSET
 
 

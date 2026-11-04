@@ -7,22 +7,51 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 
 class Address(SdkBaseModel):
-    name: str
+    """Specific details to identify a place."""
+
     address_line1: str = Field(alias="addressLine1")
+    """Street address information."""
+
     address_line2: Optional[str] = Field(default=UNSET, alias="addressLine2")
+    """Additional street address information."""
+
     city: str
-    state_or_region: str = Field(alias="stateOrRegion")
+    """The city."""
+
+    company_name: Optional[str] = Field(default=UNSET, alias="companyName")
+    """The name of the business."""
+
+    country_code: str = Field(alias="countryCode")
+    """The country code in two-character ISO 3166-1 alpha-2 format."""
+
+    district_or_county: Optional[str] = Field(default=UNSET, alias="districtOrCounty")
+    """The district or county."""
+
+    email: Optional[str] = UNSET
+    """The email address."""
+
+    name: str
+    """The name of the individual who is the primary contact."""
+
+    phone_number: Optional[str] = Field(default=UNSET, alias="phoneNumber")
+    """The phone number."""
+
     postal_code: str = Field(alias="postalCode")
-    country_code: str = Field(default="US", alias="countryCode")
-    phone: Optional[str] = UNSET
+    """The postal code."""
+
+    state_or_province_code: Optional[str] = Field(default=UNSET, alias="stateOrProvinceCode")
+    """The state or province code."""
 
 
 class AddressDict(TypedDict):
-    name: str
     address_line1: str
     address_line2: NotRequired[str]
     city: str
-    state_or_region: str
-    postal_code: str
+    company_name: NotRequired[str]
     country_code: str
-    phone: NotRequired[str]
+    district_or_county: NotRequired[str]
+    email: NotRequired[str]
+    name: str
+    phone_number: NotRequired[str]
+    postal_code: str
+    state_or_province_code: NotRequired[str]

@@ -4,7 +4,10 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, RFC3339DateTime, SdkBaseModel
-from .address1 import Address1, Address1Dict
+from .address_merchant_fulfillment_seller_fulfilled_labels import (
+    AddressMerchantFulfillmentSellerFulfilledLabels,
+    AddressMerchantFulfillmentSellerFulfilledLabelsDict,
+)
 from .channel_details import ChannelDetails, ChannelDetailsDict
 from .package import Package, PackageDict
 from .requested_value_added_service import RequestedValueAddedService, RequestedValueAddedServiceDict
@@ -12,9 +15,9 @@ from .service_selection import ServiceSelection, ServiceSelectionDict
 
 
 class GetRatesRequest(SdkBaseModel):
-    ship_to: Address1 = Field(alias="shipTo")
-    ship_from: Address1 = Field(alias="shipFrom")
-    return_to: Optional[Address1] = Field(default=UNSET, alias="returnTo")
+    ship_to: AddressMerchantFulfillmentSellerFulfilledLabels = Field(alias="shipTo")
+    ship_from: AddressMerchantFulfillmentSellerFulfilledLabels = Field(alias="shipFrom")
+    return_to: Optional[AddressMerchantFulfillmentSellerFulfilledLabels] = Field(default=UNSET, alias="returnTo")
     ship_date: Optional[RFC3339DateTime] = Field(default=UNSET, alias="shipDate")
     """When the shipment will be tendered to the carrier."""
 
@@ -27,9 +30,9 @@ class GetRatesRequest(SdkBaseModel):
 
 
 class GetRatesRequestDict(TypedDict):
-    ship_to: Address1Dict
-    ship_from: Address1Dict
-    return_to: NotRequired[Address1Dict]
+    ship_to: AddressMerchantFulfillmentSellerFulfilledLabelsDict
+    ship_from: AddressMerchantFulfillmentSellerFulfilledLabelsDict
+    return_to: NotRequired[AddressMerchantFulfillmentSellerFulfilledLabelsDict]
     ship_date: NotRequired[RFC3339DateTime]
     packages: list[PackageDict]
     channel_details: ChannelDetailsDict

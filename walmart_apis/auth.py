@@ -127,16 +127,18 @@ WalletAuthScope: TypeAlias = Literal[
     "listings:write",
     "orders:read",
     "orders:write",
-    "disbursements:read",
-    "disbursements:write",
-    "finances:read",
+    "seller-api:disbursements:read",
+    "seller-api:disbursements:write",
+    "seller-api:finances:read",
     "pricing:read",
     "definitions:read",
     "reports:read",
     "reports:write",
-    "sellers:read",
+    "seller-api:sellers:read",
     "shipping:read",
     "shipping:write",
+    "seller-api:fulfillment:read",
+    "seller-api:fulfillment:write",
     "uploads:write",
 ]
 """``catalog:read``: Read catalog data. ``analytics:read``: Submit and retrieve Data Kiosk analytics queries and
@@ -145,11 +147,13 @@ access. ``fulfillment:read``: Read WFS fulfillment orders and shipments, Read el
 ``fulfillment:write``: Create, update, and cancel WFS fulfillment orders, Purchase and cancel shipping labels.
 ``inventory:read``: Read inventory data. ``inventory:write``: Update inventory quantities. ``listings:read``: Read
 listings items, Read listing restrictions for items. ``listings:write``: Create, update, patch, and delete listings
-items. ``orders:read``: Read orders. ``orders:write``: Acknowledge, ship, cancel orders. ``disbursements:read``: Read
-settlement, reconciliation, and payout data. ``disbursements:write``: Initiate and configure payout operations.
-``finances:read``: Read financial event groups and financial events. ``pricing:read``: Read seller pricing and
-competitive pricing data. ``definitions:read``: Read product type definitions. ``reports:read``: Read and download
-seller reports and schedules. ``reports:write``: Create and cancel reports and schedules. ``sellers:read``: Read seller
-account and marketplace participation info. ``shipping:read``: Read shipping rates, tracking, documents, and access
-points. ``shipping:write``: Purchase, cancel, and submit NDR feedback on shipments. ``uploads:write``: Create upload
-destinations for feed and report documents."""
+items. ``orders:read``: Read orders. ``orders:write``: Acknowledge, ship, cancel orders.
+``seller-api:disbursements:read``: Read settlement, reconciliation, and payout data. ``seller-api:disbursements:write``:
+Initiate and configure payout operations. ``seller-api:finances:read``: Read financial event groups and financial
+events. ``pricing:read``: Read seller pricing and competitive pricing data. ``definitions:read``: Read product type
+definitions. ``reports:read``: Read and download seller reports and schedules. ``reports:write``: Create and cancel
+reports and schedules. ``seller-api:sellers:read``: Read seller account and marketplace participation info.
+``shipping:read``: Read shipping rates, tracking, documents, and access points. ``shipping:write``: Purchase, cancel,
+and submit NDR feedback on shipments. ``seller-api:fulfillment:read``: Read supply sources (fulfillment centers).
+``seller-api:fulfillment:write``: Create and update supply sources (fulfillment centers). ``uploads:write``: Create
+upload destinations for feed and report documents."""

@@ -7,8 +7,7 @@ from ..core import RFC3339DateTime, SdkBaseModel
 
 
 class CommonAppointmentSlotTime(SdkBaseModel):
-    """An appointment slot time with start and end., Contains details for a transportation carrier appointment., An
-    appointment slot time with start and end., Contains details for a transportation carrier appointment."""
+    """An appointment slot time with start and end."""
 
     end_time: RFC3339DateTime = Field(alias="endTime")
     """The end timestamp of the appointment in UTC."""

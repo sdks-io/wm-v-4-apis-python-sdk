@@ -9,6 +9,8 @@ from .department import Department, DepartmentDict
 
 
 class Refinements(SdkBaseModel):
+    """Department and classification information associated with search results."""
+
     departments: Optional[list[Department]] = UNSET
     classification_refinements: Optional[list[ClassificationRefinement]] = Field(
         default=UNSET, alias="classificationRefinements"

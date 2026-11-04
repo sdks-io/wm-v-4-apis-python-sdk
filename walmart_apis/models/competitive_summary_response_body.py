@@ -9,22 +9,22 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 
 class CompetitiveSummaryResponseBody(SdkBaseModel):
-    """The body of a competitive summary response."""
+    """Competitive summary information returned for a Walmart item."""
 
     walmart_item_id: Optional[str] = Field(default=UNSET, alias="walmartItemId")
-    """The Walmart Item ID of the item."""
+    """Walmart Item ID that identifies the item."""
 
     marketplace_id: Optional[str] = Field(default=UNSET, alias="marketplaceId")
-    """A marketplace identifier."""
+    """Walmart Marketplace identifier associated with the item."""
 
     featured_buying_options: Optional[list[Any]] = Field(default=UNSET, alias="featuredBuyingOptions")
-    """A list of featured buying options."""
+    """Featured buying options returned for the item."""
 
     lowest_priced_offers: Optional[list[Any]] = Field(default=UNSET, alias="lowestPricedOffers")
-    """A list of lowest priced offers by condition."""
+    """Lowest-priced offers returned for the item, grouped by condition."""
 
     reference_prices: Optional[list[Any]] = Field(default=UNSET, alias="referencePrices")
-    """A list of reference prices."""
+    """Reference prices returned for the item."""
 
 
 class CompetitiveSummaryResponseBodyDict(TypedDict):

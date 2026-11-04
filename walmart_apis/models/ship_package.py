@@ -4,26 +4,29 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .package_dimensions1 import PackageDimensions1, PackageDimensions1Dict
+from .package_dimensions_orders import PackageDimensionsOrders, PackageDimensionsOrdersDict
 from .ship_package_line import ShipPackageLine, ShipPackageLineDict
 from .tracking_info import TrackingInfo, TrackingInfoDict
 
 
 class ShipPackage(SdkBaseModel):
+    """Tracking, dimensions, and order lines associated with a package."""
+
     package_id: Optional[str] = Field(default=UNSET, alias="packageId")
-    """Caller-supplied stable identifier for this physical package. Optional — server falls back to the package's
-    tracking number when echoed in the response."""
+    """Optional identifier supplied for the physical package."""
 
     tracking_info: TrackingInfo = Field(alias="trackingInfo")
-    dimensions: Optional[PackageDimensions1] = UNSET
-    """Physical dimensions of a shipped package. All numeric values are non-negative; unit enums avoid the
-    unit-ambiguity bug that bit gmp-orders-mono PayloadUtil pre-2024."""
+    """Carrier, tracking number, and shipment details."""
+
+    dimensions: Optional[PackageDimensionsOrders] = UNSET
+    """Physical dimensions and weight of a package."""
 
     lines: list[ShipPackageLine]
+    """Order lines included in this package. Provide at least one line."""
 
 
 class ShipPackageDict(TypedDict):
     package_id: NotRequired[str]
     tracking_info: TrackingInfoDict
-    dimensions: NotRequired[PackageDimensions1Dict]
+    dimensions: NotRequired[PackageDimensionsOrdersDict]
     lines: list[ShipPackageLineDict]

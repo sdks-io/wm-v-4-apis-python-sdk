@@ -5,8 +5,7 @@ from ...core import open_enum_validator
 
 
 class RequiredVerificationMethod(str, Enum):
-    """How the buyer must prove identity at delivery. NONE means no verification is required (NOT_REGULATED orders
-    always return NONE)."""
+    """Identification method required at delivery. ``NONE`` indicates no verification method."""
 
     NONE = "NONE"
     DRIVERS_LICENSE = "DRIVERS_LICENSE"

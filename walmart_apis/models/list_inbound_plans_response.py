@@ -9,10 +9,10 @@ from .common_pagination import CommonPagination, CommonPaginationDict
 
 
 class ListInboundPlansResponse(SdkBaseModel):
-    """The ``listInboundPlans`` response."""
+    """Paginated response containing inbound plan summaries."""
 
     inbound_plans: Optional[list[CommonInboundPlanSummary]] = Field(default=UNSET, alias="inboundPlans")
-    """A list of inbound plans with minimal information."""
+    """Inbound plans that match the request criteria, including summary information for each plan."""
 
     pagination: Optional[CommonPagination] = UNSET
     """Contains tokens to fetch from a certain page."""

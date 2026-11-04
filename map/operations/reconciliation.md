@@ -8,9 +8,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reconciliation.check_download_report_by_period
 
-- **Route**: `GET /disbursements/v4/payment/checkDownloadReportByPeriod`
+- **Route**: `GET /v4/payments/reports`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def check_download_report_by_period(partner_id: str, date: Date, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `partner_id`, `date`
 - **Params**: `partner_id` — query `partnerId` · `date` — query
@@ -27,12 +27,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reconciliation.download_reconciliation_report
 
-- **Route**: `GET /disbursements/v4/payment/reconciliation/download`
+- **Route**: `GET /v4/payments/reports/reconciliation-reports/{reconciliation-report-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def download_reconciliation_report(partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `partner_id`, `report_date`
-- **Params**: `partner_id` — query `partnerId` · `report_date` — query `reportDate`
+- **Server**: `default_catalog_items`
+- **Signature**: `def download_reconciliation_report(reconciliation_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None)`
+  - required, positional: `reconciliation_report_id`, `partner_id`
+- **Params**: `reconciliation_report_id` — path `reconciliation-report-id` · `partner_id` — query `partnerId`
 - **Returns (parsed)**: `FileResponse`
 - **Returns (raw)**: `ApiResult[FileResponse, DownloadReconciliationReportErrorBody]`
 - **Error**: `DownloadReconciliationReportErrorBody` — **Case A (typed)**
@@ -45,9 +45,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reconciliation.list_reconciliation_dates
 
-- **Route**: `GET /disbursements/v4/payment/reconciliation/dateList`
+- **Route**: `GET /v4/payments/reports/reconciliation/date-list`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def list_reconciliation_dates(partner_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `partner_id`
 - **Params**: `partner_id` — query `partnerId`

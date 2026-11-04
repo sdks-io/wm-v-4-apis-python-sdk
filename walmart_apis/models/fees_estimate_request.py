@@ -9,25 +9,26 @@ from .price_to_estimate_fees import PriceToEstimateFees, PriceToEstimateFeesDict
 
 
 class FeesEstimateRequest(SdkBaseModel):
-    """Fee estimate parameters for a single item. Used in both single-item and batch endpoints. Mirrors SP-API
-    FeesEstimateRequest."""
+    """Pricing and fulfillment information used to estimate fees for an item."""
 
     marketplace_id: str = Field(alias="MarketplaceId")
     """Marketplace identifier."""
 
     is_walmart_fulfilled: bool = Field(alias="IsWalmartFulfilled")
-    """true if fulfilled by Walmart Fulfillment Services (WFS); false for seller-fulfilled."""
+    """Indicates whether Walmart Fulfillment Services (WFS) fulfills the item. ``true`` indicates WFS fulfillment;
+    ``false`` indicates seller fulfillment."""
 
     price_to_estimate_fees: PriceToEstimateFees = Field(alias="PriceToEstimateFees")
     """Price information used to estimate fees."""
 
     identifier: Optional[str] = Field(default=UNSET, alias="Identifier")
-    """A caller-supplied identifier echoed back in the response for correlation."""
+    """Identifier provided in the request and returned in SellerInputIdentifier to correlate the fee estimate result
+    with the request."""
 
     optional_fulfillment_program: Optional[OptionalFulfillmentProgramOrStr] = Field(
         default=UNSET, alias="OptionalFulfillmentProgram"
     )
-    """Optional fulfillment program override for WFS items."""
+    """Fulfillment program used for the fee estimate."""
 
 
 class FeesEstimateRequestDict(TypedDict):

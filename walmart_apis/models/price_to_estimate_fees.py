@@ -4,24 +4,24 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .money_type1 import MoneyType1, MoneyType1Dict
-from .points1 import Points1, Points1Dict
+from .money_type_product_fees import MoneyTypeProductFees, MoneyTypeProductFeesDict
+from .points_product_fees import PointsProductFees, PointsProductFeesDict
 
 
 class PriceToEstimateFees(SdkBaseModel):
     """Price information used to estimate fees."""
 
-    listing_price: MoneyType1 = Field(alias="ListingPrice")
-    """Currency amount."""
+    listing_price: MoneyTypeProductFees = Field(alias="ListingPrice")
+    """Monetary amount and currency."""
 
-    shipping: Optional[MoneyType1] = Field(default=UNSET, alias="Shipping")
-    """Currency amount."""
+    shipping: Optional[MoneyTypeProductFees] = Field(default=UNSET, alias="Shipping")
+    """Monetary amount and currency."""
 
-    points: Optional[Points1] = Field(default=UNSET, alias="Points")
-    """Walmart Rewards points."""
+    points: Optional[PointsProductFees] = Field(default=UNSET, alias="Points")
+    """Walmart Rewards points information used in the fee estimate."""
 
 
 class PriceToEstimateFeesDict(TypedDict):
-    listing_price: MoneyType1Dict
-    shipping: NotRequired[MoneyType1Dict]
-    points: NotRequired[Points1Dict]
+    listing_price: MoneyTypeProductFeesDict
+    shipping: NotRequired[MoneyTypeProductFeesDict]
+    points: NotRequired[PointsProductFeesDict]

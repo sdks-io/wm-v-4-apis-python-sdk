@@ -8,11 +8,10 @@ from .fees_estimate_request import FeesEstimateRequest, FeesEstimateRequestDict
 
 
 class GetMyFeesEstimateRequest(SdkBaseModel):
-    """Request wrapper for single-item fee estimate endpoints. Mirrors SP-API GetMyFeesEstimateRequest."""
+    """Pricing and fulfillment information for a single-item fee estimate request."""
 
     fees_estimate_request: Optional[FeesEstimateRequest] = Field(default=UNSET, alias="FeesEstimateRequest")
-    """Fee estimate parameters for a single item. Used in both single-item and batch endpoints. Mirrors SP-API
-    FeesEstimateRequest."""
+    """Pricing and fulfillment information used to estimate fees for an item."""
 
 
 class GetMyFeesEstimateRequestDict(TypedDict):

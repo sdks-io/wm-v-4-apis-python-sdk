@@ -8,18 +8,23 @@ from .quantity_with_unit import QuantityWithUnit, QuantityWithUnitDict
 
 
 class DeliverOrderLine(SdkBaseModel):
+    """Delivery information for an order line."""
+
     line_number: str = Field(alias="lineNumber")
+    """Line identifier within the purchase order."""
+
     delivered_quantity: Optional[QuantityWithUnit] = Field(default=UNSET, alias="deliveredQuantity")
+    """Numeric quantity and its unit of measure."""
+
     tracking_number: Optional[str] = Field(default=UNSET, alias="trackingNumber")
-    """Optional proof-of-delivery breadcrumb — the tracking number the carrier scanned at delivery. Not validated
-    against the tracking number the seller posted at ship time; both are preserved verbatim for downstream audit."""
+    """Tracking number reported by the carrier at delivery. This value is optional and is not validated against the
+    tracking number provided at shipment."""
 
     package_number: Optional[str] = Field(default=UNSET, alias="packageNumber")
-    """Optional package identifier within a multi-package shipment. Maps to gmp-orders-mono's per-package delivery
-    event."""
+    """Optional package identifier for a delivery that includes multiple packages."""
 
     delivered_date: Optional[RFC3339DateTime] = Field(default=UNSET, alias="deliveredDate")
-    """ISO-8601 timestamp at which the carrier reported delivery. Optional — if omitted, FMS defaults to server time."""
+    """Date and time when the carrier reported delivery, in ISO 8601 format."""
 
 
 class DeliverOrderLineDict(TypedDict):

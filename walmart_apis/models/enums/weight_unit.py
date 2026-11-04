@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class WeightUnit(str, Enum):
+    """Unit used for package weight."""
+
     LB = "LB"
     KG = "KG"
     OZ = "OZ"

@@ -8,10 +8,10 @@ from .common_pallet import CommonPallet, CommonPalletDict
 
 
 class ListInboundPlanPalletsResponse(SdkBaseModel):
-    """The ``listInboundPlanPallets`` response., The ``listShipmentPallets`` response."""
+    """Paginated response containing pallets in an inbound plan."""
 
     pallets: list[CommonPallet]
-    """The pallets in an inbound plan."""
+    """Pallets included in the inbound plan."""
 
     pagination: Optional[CommonPagination] = UNSET
     """Contains tokens to fetch from a certain page."""

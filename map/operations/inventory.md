@@ -8,9 +8,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.inventory.bulk_update_inventory
 
-- **Route**: `POST /inventory/v4/items/bulk`
+- **Route**: `POST /v4/inventory/items/bulk`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def bulk_update_inventory(body: BulkUpdateInventoryRequest | BulkUpdateInventoryRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
@@ -29,9 +29,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.inventory.get_inventory_for_sku
 
-- **Route**: `GET /inventory/v4/items/{sku}`
+- **Route**: `GET /v4/inventory/items/{sku}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_inventory_for_sku(sku: str, *, ship_node: str | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `sku`
 - **Params**: `sku` — path · `ship_node` — query `shipNode`
@@ -48,9 +48,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.inventory.get_inventory_summaries
 
-- **Route**: `GET /inventory/v4/items`
+- **Route**: `GET /v4/inventory/items`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_inventory_summaries(*, skus: str | None = None, ship_node: str | None = None, page_size: int | None = 100, next_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `skus` — query · `ship_node` — query `shipNode` · `page_size` — query `pageSize` · `next_token` — query `nextToken`
 - **Returns (parsed)**: `GetInventorySummariesResponse`
@@ -66,9 +66,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.inventory.update_inventory_for_sku
 
-- **Route**: `PUT /inventory/v4/items/{sku}`
+- **Route**: `PUT /v4/inventory/items/{sku}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def update_inventory_for_sku(sku: str, body: UpdateInventoryRequest | UpdateInventoryRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `sku`, `body`
 - **Params**: `sku` — path · `body` — JSON body

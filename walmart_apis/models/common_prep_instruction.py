@@ -14,10 +14,13 @@ class CommonPrepInstruction(SdkBaseModel):
     """The type and amount of currency."""
 
     prep_owner: Optional[str] = Field(default=UNSET, alias="prepOwner")
-    """Owner of the preparations. Options include ``SELLER`` or ``NONE``."""
+    """Owner of the preparation (upstream Inbound Order Workflow ``prepOwner``). Options include ``SELLER``,
+    ``WALMART``, or ``NONE``."""
 
     prep_type: Optional[str] = Field(default=UNSET, alias="prepType")
-    """Type of preparation that should be done."""
+    """Type of preparation that should be done (upstream Inbound Order Workflow ``prepType``). WFS currently supports
+    Labeling and Polybagging in practice; ``listInboundPlanItems`` formally enumerates this same concept as ``BAG``,
+    ``TAPE``, ``WRAP``, ``LABEL``."""
 
 
 class CommonPrepInstructionDict(TypedDict):

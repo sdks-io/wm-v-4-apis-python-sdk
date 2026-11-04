@@ -4,7 +4,7 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, RFC3339DateTime, SdkBaseModel
-from .enums.processing_status1 import ProcessingStatus1OrStr
+from .enums.processing_status_feeds import ProcessingStatusFeedsOrStr
 from .feed_processing_summary import FeedProcessingSummary, FeedProcessingSummaryDict
 
 
@@ -27,12 +27,12 @@ class Feed(SdkBaseModel):
     processing_completed_at: Optional[RFC3339DateTime] = Field(default=UNSET, alias="processingCompletedAt")
     """Timestamp when feed processing finished; absent until complete"""
 
-    processing_status: ProcessingStatus1OrStr = Field(alias="processingStatus")
+    processing_status: ProcessingStatusFeedsOrStr = Field(alias="processingStatus")
     """Current processing status of the feed"""
 
     result_feed_document_id: Optional[str] = Field(default=UNSET, alias="resultFeedDocumentId")
     """ID of the result document; present only when processingStatus is DONE. Use with GET
-    /feeds/v4/feeds/{feedId}/document."""
+    /v4/feeds/{feed-id}/document."""
 
     feed_processing_summary: Optional[FeedProcessingSummary] = Field(default=UNSET, alias="feedProcessingSummary")
     """Record-level processing counts; present only when processingStatus is DONE"""
@@ -45,6 +45,6 @@ class FeedDict(TypedDict):
     created_at: RFC3339DateTime
     processing_started_at: NotRequired[RFC3339DateTime]
     processing_completed_at: NotRequired[RFC3339DateTime]
-    processing_status: ProcessingStatus1OrStr
+    processing_status: ProcessingStatusFeedsOrStr
     result_feed_document_id: NotRequired[str]
     feed_processing_summary: NotRequired[FeedProcessingSummaryDict]

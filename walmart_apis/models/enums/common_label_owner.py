@@ -5,10 +5,7 @@ from ...core import open_enum_validator
 
 
 class CommonLabelOwner(str, Enum):
-    """Specifies who will label the items. Options include ``SELLER`` and ``NONE``., The owner of the preparations, if
-    special preparations are required., Specifies who will label the items. Options include ``SELLER`` and ``NONE``.,
-    The owner of the preparations, if special preparations are required., Specifies who will label the items. Options
-    include ``SELLER`` and ``NONE``., The owner of the preparations, if special preparations are required."""
+    """Specifies who will label the items. Options include ``SELLER`` and ``NONE``."""
 
     SELLER = "SELLER"
     NONE = "NONE"

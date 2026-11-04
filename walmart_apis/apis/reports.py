@@ -66,8 +66,8 @@ class Reports:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CreateReportResponse:
-        """Submits a report request. Poll ``GET /reports/{reportId}`` for status. Report type taxonomy TBD — coordinate
-        with Pod 5 for financial reports.
+        """Submits a report request. Poll ``GET /v4/reports/{report-id}`` for status. The report type taxonomy for
+        financial reports is not yet finalized.
 
         Args:
             body: The request body.
@@ -83,14 +83,14 @@ class Reports:
         return unwrap(self._with_raw_response.create_report(body, request_options=request_options))
 
     def download_new_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> FileResponse:
         """Downloads the current-format settlement summary report ZIP. Delegates to mp-payment-reporting GET
         /v3/report/reconreport/v1/reconFile (Swift v1 storage).
 
         Args:
+            summary_report_id: Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -98,20 +98,21 @@ class Reports:
             ZIP file stream
 
         Raises:
-            ApiError: Bad Request Not Found Internal Server Error ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Not Found Internal Server
+                Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
-            self._with_raw_response.download_new_report(partner_id, report_date, request_options=request_options)
+            self._with_raw_response.download_new_report(summary_report_id, partner_id, request_options=request_options)
         )
 
     def download_old_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> FileResponse:
         """Downloads the legacy-format settlement summary report ZIP. Delegates to mp-payment-reporting GET
         /v3/report/reconreport/reconFile (legacy Swift storage).
 
         Args:
+            summary_report_id: Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -119,9 +120,10 @@ class Reports:
             ZIP file stream
 
         Raises:
-            ApiError: Bad Request Not Found Internal Server Error ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Not Found Internal Server
+                Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
-            self._with_raw_response.download_old_report(partner_id, report_date, request_options=request_options)
+            self._with_raw_response.download_old_report(summary_report_id, partner_id, request_options=request_options)
         )
 
     def get_report(self, report_id: str, *, request_options: RequestOptionsOrDict | None = None) -> Report:
@@ -141,12 +143,12 @@ class Reports:
         return unwrap(self._with_raw_response.get_report(report_id, request_options=request_options))
 
     def get_report_document(
-        self, report_document_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, document_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ReportDocument:
         """Returns a pre-signed URL for downloading the completed report. Do not log the pre-signed URL.
 
         Args:
-            report_document_id: Value sent with the request.
+            document_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -156,7 +158,7 @@ class Reports:
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
                 | RawError``."""
-        return unwrap(self._with_raw_response.get_report_document(report_document_id, request_options=request_options))
+        return unwrap(self._with_raw_response.get_report_document(document_id, request_options=request_options))
 
     def get_reports(
         self,
@@ -233,8 +235,8 @@ class AsyncReports:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CreateReportResponse:
-        """Submits a report request. Poll ``GET /reports/{reportId}`` for status. Report type taxonomy TBD — coordinate
-        with Pod 5 for financial reports.
+        """Submits a report request. Poll ``GET /v4/reports/{report-id}`` for status. The report type taxonomy for
+        financial reports is not yet finalized.
 
         Args:
             body: The request body.
@@ -250,14 +252,14 @@ class AsyncReports:
         return unwrap(await self._with_raw_response.create_report(body, request_options=request_options))
 
     async def download_new_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> AsyncFileResponse:
         """Downloads the current-format settlement summary report ZIP. Delegates to mp-payment-reporting GET
         /v3/report/reconreport/v1/reconFile (Swift v1 storage).
 
         Args:
+            summary_report_id: Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -265,20 +267,23 @@ class AsyncReports:
             ZIP file stream
 
         Raises:
-            ApiError: Bad Request Not Found Internal Server Error ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Not Found Internal Server
+                Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
-            await self._with_raw_response.download_new_report(partner_id, report_date, request_options=request_options)
+            await self._with_raw_response.download_new_report(
+                summary_report_id, partner_id, request_options=request_options
+            ),
         )
 
     async def download_old_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> AsyncFileResponse:
         """Downloads the legacy-format settlement summary report ZIP. Delegates to mp-payment-reporting GET
         /v3/report/reconreport/reconFile (legacy Swift storage).
 
         Args:
+            summary_report_id: Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -286,9 +291,12 @@ class AsyncReports:
             ZIP file stream
 
         Raises:
-            ApiError: Bad Request Not Found Internal Server Error ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Not Found Internal Server
+                Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
-            await self._with_raw_response.download_old_report(partner_id, report_date, request_options=request_options)
+            await self._with_raw_response.download_old_report(
+                summary_report_id, partner_id, request_options=request_options
+            ),
         )
 
     async def get_report(self, report_id: str, *, request_options: RequestOptionsOrDict | None = None) -> Report:
@@ -308,12 +316,12 @@ class AsyncReports:
         return unwrap(await self._with_raw_response.get_report(report_id, request_options=request_options))
 
     async def get_report_document(
-        self, report_document_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, document_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ReportDocument:
         """Returns a pre-signed URL for downloading the completed report. Do not log the pre-signed URL.
 
         Args:
-            report_document_id: Value sent with the request.
+            document_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -323,9 +331,7 @@ class AsyncReports:
         Raises:
             ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
                 | RawError``."""
-        return unwrap(
-            await self._with_raw_response.get_report_document(report_document_id, request_options=request_options)
-        )
+        return unwrap(await self._with_raw_response.get_report_document(document_id, request_options=request_options))
 
     async def get_reports(
         self,
@@ -389,8 +395,8 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/reports/v4/reports/{reportId}"),
-            path_params=[param[str]("reportId", report_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/{report-id}"),
+            path_params=[param[str]("report-id", report_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[CancelReportResponse],
@@ -404,8 +410,8 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CreateReportResponse, CreateReportErrorBody]:
-        """Submits a report request. Poll ``GET /reports/{reportId}`` for status. Report type taxonomy TBD — coordinate
-        with Pod 5 for financial reports.
+        """Submits a report request. Poll ``GET /v4/reports/{report-id}`` for status. The report type taxonomy for
+        financial reports is not yet finalized.
 
         Args:
             body: The request body.
@@ -416,7 +422,7 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/reports/v4/reports"),
+            url_template=self._server.default_catalog_items("/v4/reports"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateReportSpecification | CreateReportSpecificationDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -426,14 +432,14 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
         )
 
     def download_new_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[FileResponse, DownloadNewReportErrorBody]:
         """Downloads the current-format settlement summary report ZIP. Delegates to mp-payment-reporting GET
         /v3/report/reconreport/v1/reconFile (Swift v1 storage).
 
         Args:
+            summary_report_id: Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -441,8 +447,11 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the body unread or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/summary/newReportDownload"),
-            query_params=[param[str]("partnerId", partner_id), param[str]("reportDate", report_date)],
+            url_template=self._server.default_catalog_items(
+                "/v4/payments/reports/summary-reports/new/{summary-report-id}"
+            ),
+            path_params=[param[str]("summary-report-id", summary_report_id)],
+            query_params=[param[str]("partnerId", partner_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=file_decoder,
             error_mapper=download_new_report_error_mapper,
@@ -450,14 +459,14 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
         )
 
     def download_old_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[FileResponse, DownloadOldReportErrorBody]:
         """Downloads the legacy-format settlement summary report ZIP. Delegates to mp-payment-reporting GET
         /v3/report/reconreport/reconFile (legacy Swift storage).
 
         Args:
+            summary_report_id: Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -465,8 +474,11 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the body unread or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/summary/oldReportDownload"),
-            query_params=[param[str]("partnerId", partner_id), param[str]("reportDate", report_date)],
+            url_template=self._server.default_catalog_items(
+                "/v4/payments/reports/summary-reports/legacy/{summary-report-id}"
+            ),
+            path_params=[param[str]("summary-report-id", summary_report_id)],
+            query_params=[param[str]("partnerId", partner_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=file_decoder,
             error_mapper=download_old_report_error_mapper,
@@ -487,8 +499,8 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/reports/{reportId}"),
-            path_params=[param[str]("reportId", report_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/{report-id}"),
+            path_params=[param[str]("report-id", report_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[Report],
             error_mapper=get_report_error_mapper,
@@ -496,12 +508,12 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
         )
 
     def get_report_document(
-        self, report_document_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, document_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[ReportDocument, GetReportDocumentErrorBody]:
         """Returns a pre-signed URL for downloading the completed report. Do not log the pre-signed URL.
 
         Args:
-            report_document_id: Value sent with the request.
+            document_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -509,8 +521,8 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/documents/{reportDocumentId}"),
-            path_params=[param[str]("reportDocumentId", report_document_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/documents/{document-id}"),
+            path_params=[param[str]("document-id", document_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[ReportDocument],
             error_mapper=get_report_document_error_mapper,
@@ -545,7 +557,7 @@ class ReportsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/reports"),
+            url_template=self._server.default_catalog_items("/v4/reports"),
             query_params=[
                 param[list[ReportType1OrStr] | None]("reportTypes", report_types),
                 param[list[ProcessingStatusOrStr] | None]("processingStatuses", processing_statuses),
@@ -576,8 +588,8 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/reports/v4/reports/{reportId}"),
-            path_params=[param[str]("reportId", report_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/{report-id}"),
+            path_params=[param[str]("report-id", report_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[CancelReportResponse],
@@ -591,8 +603,8 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CreateReportResponse, CreateReportErrorBody]:
-        """Submits a report request. Poll ``GET /reports/{reportId}`` for status. Report type taxonomy TBD — coordinate
-        with Pod 5 for financial reports.
+        """Submits a report request. Poll ``GET /v4/reports/{report-id}`` for status. The report type taxonomy for
+        financial reports is not yet finalized.
 
         Args:
             body: The request body.
@@ -603,7 +615,7 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/reports/v4/reports"),
+            url_template=self._server.default_catalog_items("/v4/reports"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateReportSpecification | CreateReportSpecificationDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -613,14 +625,14 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
         )
 
     async def download_new_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[AsyncFileResponse, DownloadNewReportErrorBody]:
         """Downloads the current-format settlement summary report ZIP. Delegates to mp-payment-reporting GET
         /v3/report/reconreport/v1/reconFile (Swift v1 storage).
 
         Args:
+            summary_report_id: Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -628,8 +640,11 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the body unread or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/summary/newReportDownload"),
-            query_params=[param[str]("partnerId", partner_id), param[str]("reportDate", report_date)],
+            url_template=self._server.default_catalog_items(
+                "/v4/payments/reports/summary-reports/new/{summary-report-id}"
+            ),
+            path_params=[param[str]("summary-report-id", summary_report_id)],
+            query_params=[param[str]("partnerId", partner_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_file_decoder,
             error_mapper=download_new_report_error_mapper,
@@ -637,14 +652,14 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
         )
 
     async def download_old_report(
-        self, partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None
+        self, summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[AsyncFileResponse, DownloadOldReportErrorBody]:
         """Downloads the legacy-format settlement summary report ZIP. Delegates to mp-payment-reporting GET
         /v3/report/reconreport/reconFile (legacy Swift storage).
 
         Args:
+            summary_report_id: Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026)
             partner_id: Numeric partner/seller ID
-            report_date: Report date in MMddyyyy format (e.g. 06172026)
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -652,8 +667,11 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the body unread or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/summary/oldReportDownload"),
-            query_params=[param[str]("partnerId", partner_id), param[str]("reportDate", report_date)],
+            url_template=self._server.default_catalog_items(
+                "/v4/payments/reports/summary-reports/legacy/{summary-report-id}"
+            ),
+            path_params=[param[str]("summary-report-id", summary_report_id)],
+            query_params=[param[str]("partnerId", partner_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_file_decoder,
             error_mapper=download_old_report_error_mapper,
@@ -674,8 +692,8 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/reports/{reportId}"),
-            path_params=[param[str]("reportId", report_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/{report-id}"),
+            path_params=[param[str]("report-id", report_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[Report],
             error_mapper=get_report_error_mapper,
@@ -683,12 +701,12 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
         )
 
     async def get_report_document(
-        self, report_document_id: str, *, request_options: RequestOptionsOrDict | None = None
+        self, document_id: str, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[ReportDocument, GetReportDocumentErrorBody]:
         """Returns a pre-signed URL for downloading the completed report. Do not log the pre-signed URL.
 
         Args:
-            report_document_id: Value sent with the request.
+            document_id: Value sent with the request.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -696,8 +714,8 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/documents/{reportDocumentId}"),
-            path_params=[param[str]("reportDocumentId", report_document_id)],
+            url_template=self._server.default_catalog_items("/v4/reports/documents/{document-id}"),
+            path_params=[param[str]("document-id", document_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[ReportDocument],
             error_mapper=get_report_document_error_mapper,
@@ -732,7 +750,7 @@ class AsyncReportsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/reports/v4/reports"),
+            url_template=self._server.default_catalog_items("/v4/reports"),
             query_params=[
                 param[list[ReportType1OrStr] | None]("reportTypes", report_types),
                 param[list[ProcessingStatusOrStr] | None]("processingStatuses", processing_statuses),

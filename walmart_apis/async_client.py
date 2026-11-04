@@ -32,6 +32,7 @@ from .apis.sellers import AsyncSellers
 from .apis.settlement import AsyncSettlement
 from .apis.shipping import AsyncShipping
 from .apis.solicitations import AsyncSolicitations
+from .apis.supply_source_api import AsyncSupplySourceApi
 from .apis.uploads import AsyncUploads
 from .apis.wfs_inbound import AsyncWfsInbound
 from .apis.wfs_inventory import AsyncWfsInventory
@@ -123,9 +124,9 @@ class AsyncWalmartApisClient(BaseWalmartApisClient[AsyncRawClient]):
                         if seller_auth_authorization_code_token_source is not None
                         else AsyncAuthorizationCodeTokenSource[SellerAuthAuthorizationCodeScope](
                             client=self._raw_client,
-                            authorization_url=self._server.default("/auth/v4/authorize"),
-                            token_url=self._server.default("/auth/v4/token"),
-                            refresh_url=self._server.default("/auth/v4/token"),
+                            authorization_url=self._server.auth_server("/authorize"),
+                            token_url=self._server.default("/v4/auth/token"),
+                            refresh_url=self._server.default("/v4/auth/token"),
                             placement=client_secret_basic,
                         )
                     ),
@@ -143,7 +144,7 @@ class AsyncWalmartApisClient(BaseWalmartApisClient[AsyncRawClient]):
                         if seller_auth_client_credentials_token_source is not None
                         else AsyncClientCredentialsTokenSource[SellerAuthClientCredentialsScope](
                             client=self._raw_client,
-                            token_url=self._server.default("/auth/v4/token"),
+                            token_url=self._server.default("/v4/auth/token"),
                             placement=client_secret_basic,
                         )
                     ),
@@ -164,7 +165,7 @@ class AsyncWalmartApisClient(BaseWalmartApisClient[AsyncRawClient]):
                         if wallet_auth_token_source is not None
                         else AsyncClientCredentialsTokenSource[WalletAuthScope](
                             client=self._raw_client,
-                            token_url=self._server.default1("/auth/token"),
+                            token_url=self._server.access_token_server("/token"),
                             placement=client_secret_basic,
                         )
                     ),
@@ -253,6 +254,10 @@ class AsyncWalmartApisClient(BaseWalmartApisClient[AsyncRawClient]):
     @cached_property
     def settlement(self) -> AsyncSettlement:
         return AsyncSettlement(self._raw_client, self._server, self._auth)
+
+    @cached_property
+    def supply_source_api(self) -> AsyncSupplySourceApi:
+        return AsyncSupplySourceApi(self._raw_client, self._server, self._auth)
 
     @cached_property
     def uploads(self) -> AsyncUploads:

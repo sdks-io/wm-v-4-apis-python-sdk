@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class ItemType(str, Enum):
+    """Indicates whether Walmart Item ID values or seller SKU values are used to identify the requested items."""
+
     WALMART_ITEM_ID = "WalmartItemId"
     SKU = "Sku"
 

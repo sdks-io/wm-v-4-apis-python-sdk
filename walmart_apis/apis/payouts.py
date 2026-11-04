@@ -27,10 +27,7 @@ from ..errors.get_faster_payout_eligibility_error import (
 from ..errors.get_payment_status_error import GetPaymentStatusErrorBody, get_payment_status_error_mapper
 from ..errors.initiate_faster_payout_error import InitiateFasterPayoutErrorBody, initiate_faster_payout_error_mapper
 from ..models.annual_statement_opts_response import AnnualStatementOptsResponse
-from ..models.disbursements_v4_payment_auto_payout_request import (
-    DisbursementsV4PaymentAutoPayoutRequest,
-    DisbursementsV4PaymentAutoPayoutRequestDict,
-)
+from ..models.configure_auto_payout_request import ConfigureAutoPayoutRequest, ConfigureAutoPayoutRequestDict
 from ..models.faster_payout_eligibility_response import FasterPayoutEligibilityResponse
 from ..models.initiate_payout_response import InitiatePayoutResponse
 from ..models.payout_status_response import PayoutStatusResponse
@@ -43,13 +40,16 @@ class Payouts:
 
     def configure_auto_payout(
         self,
-        body: DisbursementsV4PaymentAutoPayoutRequest | DisbursementsV4PaymentAutoPayoutRequestDict,
+        body: ConfigureAutoPayoutRequest | ConfigureAutoPayoutRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> PayoutStatusResponse:
         """Enables or disables automatic scheduled payouts for the authenticated seller. When enabled, payouts are
         triggered automatically on the standard settlement cadence. Returns updated payout status. Requires
-        disbursements:write scope. Delegates to GMPPaymentsPlatform (Phase 5).
+        disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for writing auto-payout configuration. Kept
+        in the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             body: The request body.
@@ -60,8 +60,10 @@ class Payouts:
             Success
 
         Raises:
-            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error
-                ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error Not
+                Implemented — this operation is spec-defined (kept for SDK/client parity and contract completeness) but
+                is permanently unsupported: no backend/upstream exists and none is planned.. ``error`` is ``ErrorList |
+                RawError``."""
         return unwrap(self._with_raw_response.configure_auto_payout(body, request_options=request_options))
 
     def get_annual_statement_opts(
@@ -102,7 +104,7 @@ class Payouts:
 
     def get_payment_status(self, *, request_options: RequestOptionsOrDict | None = None) -> PayoutStatusResponse:
         """Returns the current payout status for the authenticated seller, including scheduled payout date, amount, and
-        lifecycle state (Pending, Processing, Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform (Phase 5).
+        lifecycle state (Pending, Processing, Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform.
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -118,8 +120,10 @@ class Payouts:
 
     def initiate_faster_payout(self, *, request_options: RequestOptionsOrDict | None = None) -> InitiatePayoutResponse:
         """Triggers an immediate on-demand payout for the authenticated seller, bypassing the standard settlement
-        schedule. Returns the payout ID and initial status. Requires disbursements:write scope. Delegates to
-        GMPPaymentsPlatform (Phase 5).
+        schedule. Returns the payout ID and initial status. Requires disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for initiating a payout on demand. Kept in
+        the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -130,7 +134,9 @@ class Payouts:
 
         Raises:
             ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Conflict — resource state
-                prevents this operation Internal Server Error ``error`` is ``ErrorList | RawError``."""
+                prevents this operation Internal Server Error Not Implemented — this operation is spec-defined (kept for
+                SDK/client parity and contract completeness) but is permanently unsupported: no backend/upstream exists
+                and none is planned.. ``error`` is ``ErrorList | RawError``."""
         return unwrap(self._with_raw_response.initiate_faster_payout(request_options=request_options))
 
     @property
@@ -144,13 +150,16 @@ class AsyncPayouts:
 
     async def configure_auto_payout(
         self,
-        body: DisbursementsV4PaymentAutoPayoutRequest | DisbursementsV4PaymentAutoPayoutRequestDict,
+        body: ConfigureAutoPayoutRequest | ConfigureAutoPayoutRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> PayoutStatusResponse:
         """Enables or disables automatic scheduled payouts for the authenticated seller. When enabled, payouts are
         triggered automatically on the standard settlement cadence. Returns updated payout status. Requires
-        disbursements:write scope. Delegates to GMPPaymentsPlatform (Phase 5).
+        disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for writing auto-payout configuration. Kept
+        in the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             body: The request body.
@@ -161,8 +170,10 @@ class AsyncPayouts:
             Success
 
         Raises:
-            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error
-                ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error Not
+                Implemented — this operation is spec-defined (kept for SDK/client parity and contract completeness) but
+                is permanently unsupported: no backend/upstream exists and none is planned.. ``error`` is ``ErrorList |
+                RawError``."""
         return unwrap(await self._with_raw_response.configure_auto_payout(body, request_options=request_options))
 
     async def get_annual_statement_opts(
@@ -203,7 +214,7 @@ class AsyncPayouts:
 
     async def get_payment_status(self, *, request_options: RequestOptionsOrDict | None = None) -> PayoutStatusResponse:
         """Returns the current payout status for the authenticated seller, including scheduled payout date, amount, and
-        lifecycle state (Pending, Processing, Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform (Phase 5).
+        lifecycle state (Pending, Processing, Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform.
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -221,8 +232,10 @@ class AsyncPayouts:
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> InitiatePayoutResponse:
         """Triggers an immediate on-demand payout for the authenticated seller, bypassing the standard settlement
-        schedule. Returns the payout ID and initial status. Requires disbursements:write scope. Delegates to
-        GMPPaymentsPlatform (Phase 5).
+        schedule. Returns the payout ID and initial status. Requires disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for initiating a payout on demand. Kept in
+        the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -233,7 +246,9 @@ class AsyncPayouts:
 
         Raises:
             ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Conflict — resource state
-                prevents this operation Internal Server Error ``error`` is ``ErrorList | RawError``."""
+                prevents this operation Internal Server Error Not Implemented — this operation is spec-defined (kept for
+                SDK/client parity and contract completeness) but is permanently unsupported: no backend/upstream exists
+                and none is planned.. ``error`` is ``ErrorList | RawError``."""
         return unwrap(await self._with_raw_response.initiate_faster_payout(request_options=request_options))
 
     @property
@@ -244,13 +259,16 @@ class AsyncPayouts:
 class PayoutsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
     def configure_auto_payout(
         self,
-        body: DisbursementsV4PaymentAutoPayoutRequest | DisbursementsV4PaymentAutoPayoutRequestDict,
+        body: ConfigureAutoPayoutRequest | ConfigureAutoPayoutRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[PayoutStatusResponse, ConfigureAutoPayoutErrorBody]:
         """Enables or disables automatic scheduled payouts for the authenticated seller. When enabled, payouts are
         triggered automatically on the standard settlement cadence. Returns updated payout status. Requires
-        disbursements:write scope. Delegates to GMPPaymentsPlatform (Phase 5).
+        disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for writing auto-payout configuration. Kept
+        in the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             body: The request body.
@@ -261,9 +279,9 @@ class PayoutsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/disbursements/v4/payment/autoPayout"),
+            url_template=self._server.default_catalog_items("/v4/payments/payout-settings"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
-            body=json_body[DisbursementsV4PaymentAutoPayoutRequest | DisbursementsV4PaymentAutoPayoutRequestDict](body),
+            body=json_body[ConfigureAutoPayoutRequest | ConfigureAutoPayoutRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[PayoutStatusResponse],
             error_mapper=configure_auto_payout_error_mapper,
@@ -284,7 +302,7 @@ class PayoutsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/annualStatementOpts"),
+            url_template=self._server.default_catalog_items("/v4/payments/annual-statement-opts"),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[AnnualStatementOptsResponse],
             error_mapper=get_annual_statement_opts_error_mapper,
@@ -305,7 +323,7 @@ class PayoutsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/fasterPayoutEligibility"),
+            url_template=self._server.default_catalog_items("/v4/payments/payouts/eligibility"),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[FasterPayoutEligibilityResponse],
             error_mapper=get_faster_payout_eligibility_error_mapper,
@@ -316,7 +334,7 @@ class PayoutsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[PayoutStatusResponse, GetPaymentStatusErrorBody]:
         """Returns the current payout status for the authenticated seller, including scheduled payout date, amount, and
-        lifecycle state (Pending, Processing, Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform (Phase 5).
+        lifecycle state (Pending, Processing, Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform.
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -326,7 +344,7 @@ class PayoutsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/paymentstatus"),
+            url_template=self._server.default_catalog_items("/v4/payments/status"),
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[PayoutStatusResponse],
             error_mapper=get_payment_status_error_mapper,
@@ -337,8 +355,10 @@ class PayoutsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[InitiatePayoutResponse, InitiateFasterPayoutErrorBody]:
         """Triggers an immediate on-demand payout for the authenticated seller, bypassing the standard settlement
-        schedule. Returns the payout ID and initial status. Requires disbursements:write scope. Delegates to
-        GMPPaymentsPlatform (Phase 5).
+        schedule. Returns the payout ID and initial status. Requires disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for initiating a payout on demand. Kept in
+        the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -348,7 +368,7 @@ class PayoutsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/disbursements/v4/payment/fasterPayout"),
+            url_template=self._server.default_catalog_items("/v4/payments/payouts"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[InitiatePayoutResponse],
@@ -360,13 +380,16 @@ class PayoutsWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
 class AsyncPayoutsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, AsyncAuthSchemes]):
     async def configure_auto_payout(
         self,
-        body: DisbursementsV4PaymentAutoPayoutRequest | DisbursementsV4PaymentAutoPayoutRequestDict,
+        body: ConfigureAutoPayoutRequest | ConfigureAutoPayoutRequestDict,
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[PayoutStatusResponse, ConfigureAutoPayoutErrorBody]:
         """Enables or disables automatic scheduled payouts for the authenticated seller. When enabled, payouts are
         triggered automatically on the standard settlement cadence. Returns updated payout status. Requires
-        disbursements:write scope. Delegates to GMPPaymentsPlatform (Phase 5).
+        disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for writing auto-payout configuration. Kept
+        in the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             body: The request body.
@@ -377,9 +400,9 @@ class AsyncPayoutsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/disbursements/v4/payment/autoPayout"),
+            url_template=self._server.default_catalog_items("/v4/payments/payout-settings"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
-            body=json_body[DisbursementsV4PaymentAutoPayoutRequest | DisbursementsV4PaymentAutoPayoutRequestDict](body),
+            body=json_body[ConfigureAutoPayoutRequest | ConfigureAutoPayoutRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[PayoutStatusResponse],
             error_mapper=configure_auto_payout_error_mapper,
@@ -400,7 +423,7 @@ class AsyncPayoutsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/annualStatementOpts"),
+            url_template=self._server.default_catalog_items("/v4/payments/annual-statement-opts"),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[AnnualStatementOptsResponse],
             error_mapper=get_annual_statement_opts_error_mapper,
@@ -421,7 +444,7 @@ class AsyncPayoutsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/fasterPayoutEligibility"),
+            url_template=self._server.default_catalog_items("/v4/payments/payouts/eligibility"),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[FasterPayoutEligibilityResponse],
             error_mapper=get_faster_payout_eligibility_error_mapper,
@@ -432,7 +455,7 @@ class AsyncPayoutsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[PayoutStatusResponse, GetPaymentStatusErrorBody]:
         """Returns the current payout status for the authenticated seller, including scheduled payout date, amount, and
-        lifecycle state (Pending, Processing, Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform (Phase 5).
+        lifecycle state (Pending, Processing, Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform.
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -442,7 +465,7 @@ class AsyncPayoutsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/paymentstatus"),
+            url_template=self._server.default_catalog_items("/v4/payments/status"),
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[PayoutStatusResponse],
             error_mapper=get_payment_status_error_mapper,
@@ -453,8 +476,10 @@ class AsyncPayoutsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
         self, *, request_options: RequestOptionsOrDict | None = None
     ) -> ApiResult[InitiatePayoutResponse, InitiateFasterPayoutErrorBody]:
         """Triggers an immediate on-demand payout for the authenticated seller, bypassing the standard settlement
-        schedule. Returns the payout ID and initial status. Requires disbursements:write scope. Delegates to
-        GMPPaymentsPlatform (Phase 5).
+        schedule. Returns the payout ID and initial status. Requires disbursements:write scope.
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for initiating a payout on demand. Kept in
+        the spec for SDK/client parity and contract completeness ; always returns 501..
 
         Args:
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
@@ -464,7 +489,7 @@ class AsyncPayoutsWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/disbursements/v4/payment/fasterPayout"),
+            url_template=self._server.default_catalog_items("/v4/payments/payouts"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[InitiatePayoutResponse],

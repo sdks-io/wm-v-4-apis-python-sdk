@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class CancellationReason(str, Enum):
+    """Reason for canceling the order line."""
+
     CUSTOMER_REQUESTED = "CUSTOMER_REQUESTED"
     OUT_OF_STOCK = "OUT_OF_STOCK"
     PRICE_ERROR = "PRICE_ERROR"

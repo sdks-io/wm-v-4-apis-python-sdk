@@ -15,5 +15,11 @@ class Server:
     def default(self, path: str) -> UrlTemplate:
         return self.config.default.resolve(self.environment, path)
 
-    def default1(self, path: str) -> UrlTemplate:
-        return self.config.default1.resolve(self.environment, path)
+    def auth_server(self, path: str) -> UrlTemplate:
+        return self.config.auth_server.resolve(self.environment, path)
+
+    def default_catalog_items(self, path: str) -> UrlTemplate:
+        return self.config.default_catalog_items.resolve(self.environment, path)
+
+    def access_token_server(self, path: str) -> UrlTemplate:
+        return self.config.access_token_server.resolve(self.environment, path)

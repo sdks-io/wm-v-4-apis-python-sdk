@@ -4,23 +4,21 @@ from pydantic import Field
 from typing_extensions import TypedDict
 
 from ..core import SdkBaseModel
-from .enums.included_datum2 import IncludedDatum2OrStr
+from .enums.included_datum_product_pricing import IncludedDatumProductPricingOrStr
 
 
 class CompetitiveSummaryRequest(SdkBaseModel):
-    """An individual competitive summary request."""
+    """Competitive summary request for a single Walmart item. Does not carry a marketplaceId -- the marketplace is
+    resolved from the gateway-derived tenant context (x-o-tenant), same as every other pricing endpoint. See
+    PricingValidation#currentMarketplaceId."""
 
     walmart_item_id: str = Field(alias="walmartItemId")
-    """The Walmart Item ID of the item ."""
+    """Walmart Item ID that identifies the item."""
 
-    marketplace_id: str = Field(alias="marketplaceId")
-    """A marketplace identifier."""
-
-    included_data: list[IncludedDatum2OrStr] = Field(alias="includedData")
-    """The list of requested competitive pricing data for the product."""
+    included_data: list[IncludedDatumProductPricingOrStr] = Field(alias="includedData")
+    """Competitive pricing data to include for the item."""
 
 
 class CompetitiveSummaryRequestDict(TypedDict):
     walmart_item_id: str
-    marketplace_id: str
-    included_data: list[IncludedDatum2OrStr]
+    included_data: list[IncludedDatumProductPricingOrStr]

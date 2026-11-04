@@ -5,7 +5,7 @@ from ...core import open_enum_validator
 
 
 class FulfillmentChannel1(str, Enum):
-    """Indicates whether the item is fulfilled by WFS or the seller."""
+    """Indicates whether the item is fulfilled by Walmart Fulfillment Services (WFS) or by the seller."""
 
     WFS = "WFS"
     SELLER = "SELLER"

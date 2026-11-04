@@ -8,7 +8,10 @@ from .cancel_order_line import CancelOrderLine, CancelOrderLineDict
 
 
 class CancelOrderLinesRequest(SdkBaseModel):
+    """Order lines to cancel and associated reasons."""
+
     order_lines: list[CancelOrderLine] = Field(alias="orderLines")
+    """Order lines to cancel."""
 
 
 class CancelOrderLinesRequestDict(TypedDict):

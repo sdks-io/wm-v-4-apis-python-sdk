@@ -16,6 +16,7 @@ class ShippingServiceOptions(SdkBaseModel):
         default=UNSET, alias="carrierWillPickUpOption"
     )
     declared_value: Optional[Money] = Field(default=UNSET, alias="declaredValue")
+    """Canonical monetary amount (string value + ISO 4217 currency code)."""
 
 
 class ShippingServiceOptionsDict(TypedDict):

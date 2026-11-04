@@ -7,34 +7,44 @@ from .enums.grant_type import GrantTypeOrStr
 
 
 class TokenRequest(SdkBaseModel):
-    """Form-encoded token request. Fields required depend on ``grant_type``: ``client_credentials`` (client auth only),
-    ``authorization_code`` (``code`` + ``code_verifier``), ``refresh_token`` (``refresh_token``)."""
+    """Information required to request an OAuth access token. Required properties depend on the selected ``grant_type``:
+      - ``client_credentials``: Authenticate the confidential client using HTTP Basic authentication or ``client_id``
+            and ``client_secret`` in the request body.
+      - ``authorization_code``: Provide ``code``. Public clients must also provide a Proof Key for Code Exchange (PKCE)
+            ``code_verifier``. Confidential clients can omit ``code_verifier`` when they authenticate at the token
+            operation and provide ``redirect_uri``.
+      - ``refresh_token``: Provide ``refresh_token``. Public clients also provide ``client_id``."""
 
     grant_type: GrantTypeOrStr
-    """The OAuth grant type."""
+    """OAuth grant type used to request the access token."""
 
     client_id: Optional[str] = UNSET
-    """Client identifier (client_secret_post / public clients). Omit if using HTTP Basic."""
+    """Client ID for the application. Provide this property when using client credentials in the request body or when
+    required for a public client. Omit it from the request body when using HTTP Basic authentication."""
 
     client_secret: Optional[str] = UNSET
-    """Client secret (client_secret_post). Omit for public clients or HTTP Basic."""
+    """Client secret used to authenticate a confidential client with credentials in the request body. Omit for public
+    clients and when using HTTP Basic authentication. Treat as a secret and do not log it."""
 
     code: Optional[str] = UNSET
-    """Authorization code from ``/auth/v4/authorize`` (authorization_code grant)."""
+    """Authorization code returned by Walmart Account Login. Used with the ``authorization_code`` grant."""
 
     code_verifier: Optional[str] = UNSET
-    """PKCE verifier whose S256 hash equals the earlier ``code_challenge`` (authorization_code grant)."""
+    """PKCE verifier associated with the ``code_challenge`` from the authorization request. Required for public clients
+    using the ``authorization_code`` grant and recommended for all clients. Confidential clients can omit this property
+    only when authenticating at the token operation and providing ``redirect_uri``."""
 
     refresh_token: Optional[str] = UNSET
-    """A previously issued refresh token (refresh_token grant). Rotated on use."""
+    """Previously issued refresh token used with the ``refresh_token`` grant. Treat as a secret and do not log it."""
 
     redirect_uri: Optional[str] = UNSET
-    """Accepted for OAuth 2.0 back-compat on authorization_code; not required in 2.1 (PKCE covers injection)."""
+    """Redirect URI for the authorization flow. Required when a confidential client uses the ``authorization_code``
+    grant without ``code_verifier``."""
 
     scope: Optional[str] = UNSET
-    """**client_credentials:** accepted for compatibility but **not honored**
-     — no down-scoping; not echoed. **refresh_token:** optional;
-    MUST NOT exceed the originally granted scope."""
+    """Requested OAuth scope. For ``client_credentials``, this property is accepted but does not reduce the access
+    provisioned for the client, and the response does not echo the value. For ``refresh_token``, the requested scope
+    must not exceed the scope originally granted."""
 
 
 class TokenRequestDict(TypedDict):

@@ -5,7 +5,7 @@ from ...core import open_enum_validator
 
 
 class Error(str, Enum):
-    """Machine-readable error code."""
+    """Machine-readable code that identifies the token request error."""
 
     INVALID_REQUEST = "invalid_request"
     INVALID_CLIENT = "invalid_client"
@@ -13,6 +13,9 @@ class Error(str, Enum):
     UNAUTHORIZED_CLIENT = "unauthorized_client"
     UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type"
     INVALID_SCOPE = "invalid_scope"
+    MARKETPLACE_AMBIGUOUS = "MARKETPLACE_AMBIGUOUS"
+    SERVER_ERROR = "server_error"
+    TEMPORARILY_UNAVAILABLE = "temporarily_unavailable"
 
     __str__ = str.__str__
 

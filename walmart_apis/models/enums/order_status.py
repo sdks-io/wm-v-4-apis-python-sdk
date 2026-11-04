@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class OrderStatus(str, Enum):
+    """Current status of the order."""
+
     CREATED = "Created"
     ACKNOWLEDGED = "Acknowledged"
     SHIPPED = "Shipped"

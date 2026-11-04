@@ -13,12 +13,12 @@ class QuantityDiscountPriceType(SdkBaseModel):
     """Contains pricing information for bulk purchase discounts."""
 
     quantity_tier: int = Field(alias="quantityTier")
-    """Indicates at what quantity this price becomes active."""
+    """Indicates the quantity at which this price becomes active."""
 
     quantity_discount_type: Literal["QUANTITY_DISCOUNT"] = Field(
         default="QUANTITY_DISCOUNT", alias="quantityDiscountType"
     )
-    """Indicates the type of quantity discount this price applies to."""
+    """Indicates the type of quantity discount that applies to the price."""
 
     listing_price: MoneyType = Field(alias="listingPrice")
     """Currency type and monetary value."""

@@ -77,8 +77,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.create_warranty(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -101,8 +101,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.get_attributes(sp_api_order_id, marketplace_ids, request_options=request_options)
         )
@@ -129,8 +129,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.confirm_customization_details(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -159,8 +159,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.create_confirm_delivery_details(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -189,8 +189,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.create_confirm_order_details(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -219,8 +219,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.create_confirm_service_details(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -249,8 +249,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.create_digital_access_key(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -279,8 +279,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.create_legal_disclosure(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -309,8 +309,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.create_unexpected_problem(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -334,8 +334,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.get_messaging_actions_for_order(
                 sp_api_order_id, marketplace_ids, request_options=request_options
@@ -364,8 +364,8 @@ class Messaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             self._with_raw_response.send_invoice(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -403,8 +403,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.create_warranty(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -427,8 +427,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.get_attributes(
                 sp_api_order_id, marketplace_ids, request_options=request_options
@@ -457,8 +457,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.confirm_customization_details(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -487,8 +487,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.create_confirm_delivery_details(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -517,8 +517,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.create_confirm_order_details(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -547,8 +547,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.create_confirm_service_details(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -577,8 +577,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.create_digital_access_key(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -607,8 +607,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.create_legal_disclosure(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -637,8 +637,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.create_unexpected_problem(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -662,8 +662,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.get_messaging_actions_for_order(
                 sp_api_order_id, marketplace_ids, request_options=request_options
@@ -692,8 +692,8 @@ class AsyncMessaging:
             Success
 
         Raises:
-            ApiError: Bad Request Forbidden Not Found Rate limit exceeded Internal Server Error ``error`` is ``ErrorList
-                | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Forbidden Not Found Rate
+                limit exceeded Internal Server Error ``error`` is ``ErrorList | RawError``."""
         return unwrap(
             await self._with_raw_response.send_invoice(
                 sp_api_order_id, marketplace_ids, body, request_options=request_options
@@ -728,7 +728,7 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/warranty"),
+            url_template=self._server.default_catalog_items("/messaging/v4/orders/{sp-apiOrderId}/messages/warranty"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -755,7 +755,7 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/attributes"),
+            url_template=self._server.default_catalog_items("/messaging/v4/orders/{sp-apiOrderId}/attributes"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             auth_scheme=self._auth.wallet_auth,
@@ -786,7 +786,7 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
+            url_template=self._server.default_catalog_items(
                 "/messaging/v4/orders/{sp-apiOrderId}/messages/confirmCustomizationDetails"
             ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
@@ -821,7 +821,9 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/confirmDeliveryDetails"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/confirmDeliveryDetails"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -854,7 +856,9 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/confirmOrderDetails"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/confirmOrderDetails"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -887,7 +891,9 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/confirmServiceDetails"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/confirmServiceDetails"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -920,7 +926,9 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/digitalAccessKey"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/digitalAccessKey"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -953,7 +961,9 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/legalDisclosure"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/legalDisclosure"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -986,7 +996,9 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/unexpectedProblem"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/unexpectedProblem"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -1014,7 +1026,7 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}"),
+            url_template=self._server.default_catalog_items("/messaging/v4/orders/{sp-apiOrderId}"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             auth_scheme=self._auth.wallet_auth,
@@ -1045,7 +1057,7 @@ class MessagingWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/invoice"),
+            url_template=self._server.default_catalog_items("/messaging/v4/orders/{sp-apiOrderId}/messages/invoice"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -1080,7 +1092,7 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/warranty"),
+            url_template=self._server.default_catalog_items("/messaging/v4/orders/{sp-apiOrderId}/messages/warranty"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -1107,7 +1119,7 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/attributes"),
+            url_template=self._server.default_catalog_items("/messaging/v4/orders/{sp-apiOrderId}/attributes"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             auth_scheme=self._auth.wallet_auth,
@@ -1138,7 +1150,7 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1(
+            url_template=self._server.default_catalog_items(
                 "/messaging/v4/orders/{sp-apiOrderId}/messages/confirmCustomizationDetails"
             ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
@@ -1173,7 +1185,9 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/confirmDeliveryDetails"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/confirmDeliveryDetails"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -1206,7 +1220,9 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/confirmOrderDetails"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/confirmOrderDetails"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -1239,7 +1255,9 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/confirmServiceDetails"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/confirmServiceDetails"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -1272,7 +1290,9 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/digitalAccessKey"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/digitalAccessKey"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -1305,7 +1325,9 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/legalDisclosure"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/legalDisclosure"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -1338,7 +1360,9 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/unexpectedProblem"),
+            url_template=self._server.default_catalog_items(
+                "/messaging/v4/orders/{sp-apiOrderId}/messages/unexpectedProblem"
+            ),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
@@ -1366,7 +1390,7 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}"),
+            url_template=self._server.default_catalog_items("/messaging/v4/orders/{sp-apiOrderId}"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             auth_scheme=self._auth.wallet_auth,
@@ -1397,7 +1421,7 @@ class AsyncMessagingWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/messaging/v4/orders/{sp-apiOrderId}/messages/invoice"),
+            url_template=self._server.default_catalog_items("/messaging/v4/orders/{sp-apiOrderId}/messages/invoice"),
             path_params=[param[str]("sp-apiOrderId", sp_api_order_id)],
             query_params=[param[list[str]]("marketplaceIds", marketplace_ids)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],

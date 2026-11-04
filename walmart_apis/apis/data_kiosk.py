@@ -59,8 +59,8 @@ class DataKiosk:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CreateQueryResponse:
-        """Submits a structured query for async processing. Query language TBD pending ADR (GraphQL vs REST hybrid — Pod
-        4).
+        """Submits a structured query for async processing. Query language is not yet finalized pending ADR (GraphQL vs
+        REST hybrid — Pod 4).
 
         Args:
             body: The request body.
@@ -179,8 +179,8 @@ class AsyncDataKiosk:
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> CreateQueryResponse:
-        """Submits a structured query for async processing. Query language TBD pending ADR (GraphQL vs REST hybrid — Pod
-        4).
+        """Submits a structured query for async processing. Query language is not yet finalized pending ADR (GraphQL vs
+        REST hybrid — Pod 4).
 
         Args:
             body: The request body.
@@ -286,7 +286,7 @@ class DataKioskWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/data-kiosk/v4/queries/{queryId}"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/queries/{queryId}"),
             path_params=[param[str]("queryId", query_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
@@ -301,8 +301,8 @@ class DataKioskWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CreateQueryResponse, CreateQueryErrorBody]:
-        """Submits a structured query for async processing. Query language TBD pending ADR (GraphQL vs REST hybrid — Pod
-        4).
+        """Submits a structured query for async processing. Query language is not yet finalized pending ADR (GraphQL vs
+        REST hybrid — Pod 4).
 
         Args:
             body: The request body.
@@ -313,7 +313,7 @@ class DataKioskWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/data-kiosk/v4/queries"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/queries"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateQuerySpecification | CreateQuerySpecificationDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -336,7 +336,7 @@ class DataKioskWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/data-kiosk/v4/documents/{documentId}"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/documents/{documentId}"),
             path_params=[param[str]("documentId", document_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[Document],
@@ -370,7 +370,7 @@ class DataKioskWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/data-kiosk/v4/queries"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/queries"),
             query_params=[
                 param[list[ProcessingStatusOrStr] | None]("processingStatuses", processing_statuses),
                 param[int | None]("pageSize", page_size),
@@ -398,7 +398,7 @@ class DataKioskWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/data-kiosk/v4/queries/{queryId}"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/queries/{queryId}"),
             path_params=[param[str]("queryId", query_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[Query],
@@ -422,7 +422,7 @@ class AsyncDataKioskWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/data-kiosk/v4/queries/{queryId}"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/queries/{queryId}"),
             path_params=[param[str]("queryId", query_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
@@ -437,8 +437,8 @@ class AsyncDataKioskWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
         *,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[CreateQueryResponse, CreateQueryErrorBody]:
-        """Submits a structured query for async processing. Query language TBD pending ADR (GraphQL vs REST hybrid — Pod
-        4).
+        """Submits a structured query for async processing. Query language is not yet finalized pending ADR (GraphQL vs
+        REST hybrid — Pod 4).
 
         Args:
             body: The request body.
@@ -449,7 +449,7 @@ class AsyncDataKioskWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/data-kiosk/v4/queries"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/queries"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateQuerySpecification | CreateQuerySpecificationDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -472,7 +472,7 @@ class AsyncDataKioskWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/data-kiosk/v4/documents/{documentId}"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/documents/{documentId}"),
             path_params=[param[str]("documentId", document_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[Document],
@@ -506,7 +506,7 @@ class AsyncDataKioskWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/data-kiosk/v4/queries"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/queries"),
             query_params=[
                 param[list[ProcessingStatusOrStr] | None]("processingStatuses", processing_statuses),
                 param[int | None]("pageSize", page_size),
@@ -534,7 +534,7 @@ class AsyncDataKioskWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/data-kiosk/v4/queries/{queryId}"),
+            url_template=self._server.default_catalog_items("/data-kiosk/v4/queries/{queryId}"),
             path_params=[param[str]("queryId", query_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[Query],

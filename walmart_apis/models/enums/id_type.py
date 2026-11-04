@@ -5,7 +5,7 @@ from ...core import open_enum_validator
 
 
 class IdType(str, Enum):
-    """Type of item identifier."""
+    """Type of item identifier provided in ``IdValue``."""
 
     WALMART_ITEM_ID = "WalmartItemId"
     SELLER_SKU = "SellerSKU"

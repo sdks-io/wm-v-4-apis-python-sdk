@@ -5,7 +5,7 @@ from ...core import open_enum_validator
 
 
 class HttpMethodModel(str, Enum):
-    """The HTTP method associated with the individual APIs being called as part of the batch request."""
+    """HTTP method used for the individual API request in the batch."""
 
     GET = "GET"
     PUT = "PUT"

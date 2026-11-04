@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .payload4 import Payload4, Payload4Dict
+from .payload2_shipping import Payload2Shipping, Payload2ShippingDict
 
 
 class GetShipmentDocumentsResponse(SdkBaseModel):
-    payload: Optional[Payload4] = UNSET
+    payload: Optional[Payload2Shipping] = UNSET
 
 
 class GetShipmentDocumentsResponseDict(TypedDict):
-    payload: NotRequired[Payload4Dict]
+    payload: NotRequired[Payload2ShippingDict]

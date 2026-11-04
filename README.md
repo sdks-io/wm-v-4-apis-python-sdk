@@ -9,59 +9,32 @@ The Walmart APIs SDK for Python provides access to the Walmart APIs REST APIs fr
 > **[SDK map](sdk-map.md)** -- a lookup index of the SDK's entire Python surface. Consult it before
 > scanning the source tree; details under [SDK map](#sdk-map).
 
-OAuth token issuance for Walmart Marketplace, covering **both** v4 authorization
-flows in one contract:
+Use the Authorization API to obtain OAuth access tokens for Walmart Marketplace V4 APIs.
 
-1. **Seller-direct** (`client_credentials`) — a seller's own application exchanges
-   its client credentials for a short-lived access token, then calls the v4 APIs
-   with `Authorization: Bearer <token>`.
-2. **Solution-Provider delegated** (`authorization_code` + PKCE, `refresh_token`,
-   and Dynamic Client Registration) — a seller grants a Solution Provider's
-   application access to their Marketplace account.
+Seller applications can use the `client_credentials` grant to obtain an access token.
+Solution Provider applications can use the `authorization_code` grant for delegated
+access and the `refresh_token` grant when a refresh token is available.
 
-Both flows are served by `the Authorization API` as a **stateless proxy** to
-Walmart IAM : IAM remains the sole issuer; no secrets are stored and no
-tokens are signed here. Access tokens are opaque, `Bearer`-type, short-lived;
-refresh tokens (delegated flow) are rotated on use. Never log tokens.
+`POST /v4/auth/token` supports the following grant types:
 
-## One token endpoint, grant dispatch
-`POST /auth/v4/token` handles all three grants (`client_credentials`,
-`authorization_code`, `refresh_token`) via `grant_type` dispatch — the merged v4
-contract ( for seller-direct, for delegated). This is why the two
-formerly separate specs (`openapi.yaml` + `delegated-oauth.yaml`) are now a single
-document: a path can carry exactly one `post:`, so one file makes the shared
-endpoint unambiguous for codegen and for the implementing controller.
+- `client_credentials` for seller-direct authorization.
+- `authorization_code` for delegated Solution Provider authorization.
+- `refresh_token` for delegated authorization using a previously issued refresh token.
 
-## Posture
-- **Seller-direct is OAuth 2.0** : documents what IAM/Apigee already do.
-  IAM cannot add new auth features for this flow, so `client_credentials` issues
-  **no** refresh token, `scope=` is accepted-but-ignored (no down-scoping), and
-  introspection (RFC 7662) / revocation (RFC 7009) / discovery (RFC 8414) are
-  **deliberately absent**.
-- **Delegated is OAuth 2.1** : IAM already supports PKCE (`S256`), refresh
-  rotation (~1-year TTL via `offline_access`), and Dynamic Client Registration
-  (RFC 7591), so this flow specifies them properly.
+Public clients using the `authorization_code` grant must use Proof Key for Code
+Exchange (PKCE) with the `S256` challenge method. Confidential clients can
+authenticate at the token operation as described in the operation requirements.
 
-The one modernization over `/v3` shared by both flows is the **access-token
-header**: v4 uses the standard `Authorization: Bearer` and **does not use
-`WM_SEC.ACCESS_TOKEN`** (the gateway already tolerates Bearer).
+Access tokens use the `Bearer` token type. Send the access token with Marketplace
+V4 API requests as `Authorization: Bearer <token>`. Do not use
+`WM_SEC.ACCESS_TOKEN` for V4 requests.
 
-## Delegated-flow upstream gaps (, pending)
-`GET /auth/v4/authorize` documents the OAuth-2.1-correct target. Three of its
-guarantees depend on upstream changes that are **not yet in place**: `iss`
-emission (RFC 9207), exact `redirect_uri` enforcement, and server-side PKCE `S256`
-enforcement (rejecting `plain`) are IAM / app-store responsibilities tracked in
-. the Authorization API validates the request-side invariants it can and
-redirects correctly; the full end-to-end guarantee lands when IAM + app-store ship
-those changes.
-
-**Pod Owner:** Pod 0 — Core & Auth
-**Implementation target:** the Authorization API (proxy) → Walmart IAM
-, Retrieve catalog and product information from the Walmart Marketplace catalog.
-
-
-**Pod Owner:** Pod 1 — Items & Catalog
-**Implementation target:** Partner Item Query Service (PIQS), Submit analytics queries and retrieve structured data from Walmart's
+Treat access tokens, refresh tokens, and client secrets as sensitive values and
+do not log them.
+, The Catalog Items API lets you search for products in the Walmart Marketplace
+catalog and retrieve detailed catalog item information. Search by keywords,
+Walmart Item IDs, GTINs, UPCs, or seller SKUs, and retrieve product attributes,
+identifiers, images, product types, and other available catalog information., Submit analytics queries and retrieve structured data from Walmart's
 data platform. Modeled after Walmart Seller API Data Kiosk API.
 
 ADR pending: GraphQL vs REST query language — see docs/adr/ once filed.
@@ -74,11 +47,8 @@ document storage and initiates async processing. Poll feed status
 with the feedId returned in the submission response.
 
 **Pod Owner:** Pod 4 — Feeds & Reports
-**Implementation target:** Walmart Feed Service / Bulk Operations
-
-<!-- hello: Atul Soman (@a0s1r2d) joined Pod 4 — 2026-06-04 -->
-<!-- hello: Ramprabhu Murugesan (@rmurug3) joined Pod 4 as lead — 2026-06-04 -->, WFS Inbound Plans API. Walmart Seller API — Fulfillment Inbound contract.
-Terminology: WFS = Walmart Fulfillment Services, Ship Node = fulfillment center., WFS Inbound Delivery Windows, Self-Ship Appointments & Operation Status API. Walmart Seller API — Fulfillment Inbound contract.
+**Implementation target:** Walmart Feed Service / Bulk Operations, Use the Walmart Fulfillment Services (WFS) Inbound Plans API to create and manage inbound plans for shipments
+to Walmart fulfillment centers., WFS Inbound Delivery Windows, Self-Ship Appointments & Operation Status API. Walmart Seller API — Fulfillment Inbound contract.
 Terminology: WFS = Walmart Fulfillment Services, Ship Node = fulfillment center., WFS Inbound Packing. Walmart Seller API — Fulfillment Inbound contract.
 Terminology: WFS = Walmart Fulfillment Services, Ship Node = fulfillment center., WFS Inbound Packing & Placement API. Walmart Seller API — Fulfillment Inbound contract.
 Terminology: WFS = Walmart Fulfillment Services, Ship Node = fulfillment center., WFS Inbound Items, Compliance, Labels & Prep API. Walmart Seller API — Fulfillment Inbound contract.
@@ -89,7 +59,12 @@ to end customers.
 
 
 **Pod Owner:** Pod 2 — Orders & Fulfillment
-**Implementation target:** WFS Outbound / Ship Node Service, Manage seller inventory on the Walmart Marketplace.
+**Implementation target:** WFS Outbound / Ship Node Service
+
+
+**Delivery priority:** Phase 2 — Pod 2 is prioritizing `fulfillment-inbound`
+first. See `PHASE-2.md` in this service's directory for what that does and
+doesn't mean (bug/honesty fixes still welcome; new endpoints on hold)., Manage seller inventory on the Walmart Marketplace.
 
 
 **Pod Owner:** Pod 3 — Inventory & Pricing
@@ -121,15 +96,8 @@ orders. Modeled after Walmart Seller API Merchant Fulfillment API.
 **Pod Owner:** Pod 2 — Orders & Fulfillment
 **Implementation target:** Ship With Walmart (SWW) — SWW-LABEL-SERVICE
 (internal `/v3/sww/labels/*` synchronous REST; see
-docs/mapper/mfn-mapper-feasibility.md), Retrieve and manage Walmart Marketplace orders.
-
-
-**Pod Owner:** Pod 2 — Orders & Fulfillment
-**Implementation target:** Walmart Order Management Service (OMS)
-<!-- hello: Vikram Godbole (@vgodbol) joined Pod 2 — 2026-06-03 -->
-<!-- hello: Suresh Dussa (@s0d08o6) joined Pod 2 — 2026-06-08 -->
-<!-- hello: Leon Jiang (@r0j09pq) joined Pod 2 — 2026-08-10 -->
-<!-- hello: Rashmi Das (@r0d01sm) joined Pod 2 — 2026-08-18 -->, Unified Payments domain API for Walmart Marketplace sellers.
+docs/mapper/mfn-mapper-feasibility.md), Use the Orders API to retrieve and manage Walmart Marketplace orders, including order details, order lines, fulfillment
+updates, cancellations, refunds, and delivery information., Unified Payments domain API for Walmart Marketplace sellers.
 Consolidates Pod 5 (Finances / financial event reporting) and Pod 6
 (Outbound Payments — settlement, reconciliation, payout execution) into a
 single service under the Payments domain .
@@ -144,26 +112,7 @@ issued by the Tokens service (Pod 0, ) in production.
 
 **Domain Owner:** Payments Domain (consolidated Pod 5 + Pod 6)
 **Tech Lead:** @cssehga
-**Replaces:** the payments settlement backend (v3 BFF); the Payments API (Pod 5), Pricing information for seller items and competitive pricing summaries.
-Aligned to SP-API productPricingV0 surface (April 2026 release), with
-Walmart Item ID substituted for ASIN as the primary item identifier .
-
-Three GET endpoints are backed by IQS / GCI catalog_index .
-Five batch/item endpoints are Phase 1 stubs pending implementation —
-through .
-
-**Pod Owner:** Pod 3 — Inventory & Pricing
-**Implementation target:** Walmart Price Service / Competitive Intelligence, Fee estimate endpoints for seller items.
-Aligned to SP-API productFeesV0 surface, with Walmart Item ID substituted
-for ASIN as the primary item identifier , and Amazon-specific
-branding replaced with Walmart equivalents.
-
-All three endpoints are Phase 2 implementations backed by:
-- IQS catalog_index — item enrichment (category, weight, dims, GTIN)
-- Partner Rate Service (Columbus) — referral fee by category
-- WFS Fulfillment Fee Service (payment-app.wfs) — WFS pick-and-pack fees
-
-**Pod Owner:** Pod 3 — Inventory & Pricing, Retrieve Walmart product type definitions, attribute schemas, and
+**Replaces:** the payments settlement backend (v3 BFF); the Payments API (Pod 5), The Product Pricing API retrieves pricing and offer information for seller items, compares competitive pricing, and returns the lowest-priced offers for Walmart items. Batch operations retrieve offer information for multiple items or seller SKUs in a single request., The Product Fees API returns estimated fees for seller items based on item, pricing, and fulfillment information., Retrieve Walmart product type definitions, attribute schemas, and
 item classification rules used when setting up seller listings.
 
 **Pod Owner:** Pod 1 — Items & Catalog
@@ -172,7 +121,7 @@ Supports scheduled and on-demand reports with async processing.
 
 
 **Pod Owner:** Pod 4 — Feeds & Reports
-**Implementation target:** Walmart Seller Reporting Service, Retrieve information about a seller's Walmart Marketplace account
+**Implementation target:** Walmart Seller Reporting Service, Walmart Seller API contract for sales metrics., Walmart Seller API contract for messaging., Walmart Seller API contract for notifications., Walmart Seller API contract for solicitations., Retrieve information about a seller's Walmart Marketplace account
 and marketplace participations.
 
 
@@ -186,7 +135,10 @@ Fulfillment owns this service. Common types (Address, Money, Weight,
 PackageDimensions) are inlined per Pod 2 convention, byte-identical to
 the canonical copies in the Merchant Fulfillment API; (proposed)
 defines the future promotion path to models/_shared/ once the Rule of
-Three triggers a coordinated extraction PR., Create upload destinations (pre-signed URLs) for feed documents and
+Three triggers a coordinated extraction PR., Shipping Management API for sellers to manage supply sources
+(fulfillment centers / ship nodes). This service acts as a facade over
+Aurora Fulfilment Services (AFS), applying field renaming and response
+shaping for the WSA v4 contract., Create upload destinations (pre-signed URLs) for feed documents and
 retrieve previously uploaded documents. Used in conjunction with the
 Feeds service for async bulk operations.
 
@@ -312,7 +264,7 @@ Two generated references cover the SDK; each answers a different question:
 | **[API Reference](api-reference.md)** | Usage guidance for a single **parsed** operation: `client.<group>.<operation>(...)` returns the typed payload and raises `ApiError` on any non-2xx, with `.error` the typed error body, or `RawError` for a status the operation does not document. |
 | **[Raw API Reference](raw-api-reference.md)** | The same for the **raw** variant: `client.<group>.with_raw_response.<operation>(...)` returns `ApiResult[T, E]` and never raises for an API error. |
 
-Both API references carry every one of the 174 operations, with a sync and an async sample and a parameter table each.
+Both API references carry every one of the 184 operations, with a sync and an async sample and a parameter table each.
 
 ## SDK map
 

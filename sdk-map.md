@@ -203,30 +203,22 @@ Typed error bodies (the arms of a Case A alias) are ordinary models — no speci
 
 ```python
 try:
-    client.authorization.authorize(
-        ResponseType1.CODE,
-        "some example string",
-        "https://example.com",
-        "some example string",
-        "some example string",
-        "some example string",
-        CodeChallengeMethod.S256,
-    )
+    response = client.authorization.create_token(GrantType.CLIENT_CREDENTIALS)
 except ApiError as e:
-    # Case A — typed error: e.error is AuthorizeErrorBody
-    if isinstance(e.error, AuthorizeError):
-        # Handle 400
+    # Case A — typed error: e.error is CreateTokenErrorBody
+    if isinstance(e.error, OAuthErrorModel):
+        # Handle 400, 401, 429, 500, 502
         print(e.error)
     if isinstance(e.error, RawError):
         # Any other error status
         print(e.status_code, e.error.text())
 ```
 
-**Raw (`.with_raw_response`) variants: present on every operation** — the same call returns `ApiResult` instead of raising, with the same body on `Failure.error`. Of **174 operations**, **174 are Case A (typed)** and **0 are Case B (raw)**.
+**Raw (`.with_raw_response`) variants: present on every operation** — the same call returns `ApiResult` instead of raising, with the same body on `Failure.error`. Of **184 operations**, **184 are Case A (typed)** and **0 are Case B (raw)**.
 
 ---
 
-## Operations — by controller (30 pages, 174 operations)
+## Operations — by controller (31 pages, 184 operations)
 
 Each links to a sub-page with one block per operation, headed by its full accessor path: the HTTP verb and route (for a mock, a raw request or a provider-side log — never reconstruct it from the method name), the sync parsed signature with its required positional parameters, each parameter's role and — where it differs — wire name, both return types, and its error case — **Case A** names the alias and the status each arm maps from, **Case B** names `RawError`. Every block also carries a **Type sources** table — every *generated* type it names, with the module that declares it. A runtime type — a file alias, a date/time or byte converter — is not listed there.
 
@@ -248,7 +240,7 @@ Sub-pages chunk per `###` block: each block is self-contained given the table ab
 
 | Controller | Class | Ops | Page |
 | --- | --- | --- | --- |
-| `client.authorization` | `Authorization` / `AsyncAuthorization` | 3 | [map/operations/authorization.md](map/operations/authorization.md) |
+| `client.authorization` | `Authorization` / `AsyncAuthorization` | 1 | [map/operations/authorization.md](map/operations/authorization.md) |
 | `client.catalog` | `Catalog` / `AsyncCatalog` | 2 | [map/operations/catalog.md](map/operations/catalog.md) |
 | `client.data_kiosk` | `DataKiosk` / `AsyncDataKiosk` | 5 | [map/operations/data_kiosk.md](map/operations/data_kiosk.md) |
 | `client.disputes` | `Disputes` / `AsyncDisputes` | 1 | [map/operations/disputes.md](map/operations/disputes.md) |
@@ -262,12 +254,13 @@ Sub-pages chunk per `###` block: each block is self-contained given the table ab
 | `client.merchant_fulfillment` | `MerchantFulfillment` / `AsyncMerchantFulfillment` | 5 | [map/operations/merchant_fulfillment.md](map/operations/merchant_fulfillment.md) |
 | `client.orders` | `Orders` / `AsyncOrders` | 14 | [map/operations/orders.md](map/operations/orders.md) |
 | `client.payouts` | `Payouts` / `AsyncPayouts` | 5 | [map/operations/payouts.md](map/operations/payouts.md) |
-| `client.product_type_definitions` | `ProductTypeDefinitions` / `AsyncProductTypeDefinitions` | 2 | [map/operations/product_type_definitions.md](map/operations/product_type_definitions.md) |
+| `client.product_type_definitions` | `ProductTypeDefinitions` / `AsyncProductTypeDefinitions` | 3 | [map/operations/product_type_definitions.md](map/operations/product_type_definitions.md) |
 | `client.reconciliation` | `Reconciliation` / `AsyncReconciliation` | 3 | [map/operations/reconciliation.md](map/operations/reconciliation.md) |
 | `client.report_schedules` | `ReportSchedules` / `AsyncReportSchedules` | 4 | [map/operations/report_schedules.md](map/operations/report_schedules.md) |
 | `client.reports` | `Reports` / `AsyncReports` | 7 | [map/operations/reports.md](map/operations/reports.md) |
 | `client.sellers` | `Sellers` / `AsyncSellers` | 2 | [map/operations/sellers.md](map/operations/sellers.md) |
 | `client.settlement` | `Settlement` / `AsyncSettlement` | 3 | [map/operations/settlement.md](map/operations/settlement.md) |
+| `client.supply_source_api` | `SupplySourceApi` / `AsyncSupplySourceApi` | 4 | [map/operations/supply_source_api.md](map/operations/supply_source_api.md) |
 | `client.uploads` | `Uploads` / `AsyncUploads` | 1 | [map/operations/uploads.md](map/operations/uploads.md) |
 | `client.wfs_inventory` | `WfsInventory` / `AsyncWfsInventory` | 1 | [map/operations/wfs_inventory.md](map/operations/wfs_inventory.md) |
 | `client.messaging` | `Messaging` / `AsyncMessaging` | 11 | [map/operations/messaging.md](map/operations/messaging.md) |
@@ -277,7 +270,7 @@ Sub-pages chunk per `###` block: each block is self-contained given the table ab
 | `client.sales` | `Sales` / `AsyncSales` | 1 | [map/operations/sales.md](map/operations/sales.md) |
 | `client.shipping` | `Shipping` / `AsyncShipping` | 9 | [map/operations/shipping.md](map/operations/shipping.md) |
 | `client.solicitations` | `Solicitations` / `AsyncSolicitations` | 2 | [map/operations/solicitations.md](map/operations/solicitations.md) |
-| `client.wfs_inbound` | `WfsInbound` / `AsyncWfsInbound` | 45 | [map/operations/wfs_inbound.md](map/operations/wfs_inbound.md) |
+| `client.wfs_inbound` | `WfsInbound` / `AsyncWfsInbound` | 52 | [map/operations/wfs_inbound.md](map/operations/wfs_inbound.md) |
 
 ---
 
@@ -287,9 +280,9 @@ Sub-pages chunk per `###` block: each block is self-contained given the table ab
 
 | Group | Count | Directory (module = `<type_name>.py`) |
 | --- | --- | --- |
-| Models (`SdkBaseModel` pydantic classes) | 410 | `walmart_apis/models/` |
-| Enums (`Enum` over `str` / `int`) — Python member names + wire values | 119 | `walmart_apis/models/enums/` |
-| Error aliases (one per Case A operation) | 174 | `walmart_apis/errors/` |
+| Models (`SdkBaseModel` pydantic classes) | 474 | `walmart_apis/models/` |
+| Enums (`Enum` over `str` / `int`) — Python member names + wire values | 138 | `walmart_apis/models/enums/` |
+| Error aliases (one per Case A operation) | 184 | `walmart_apis/errors/` |
 
 Conventions: a model is a `SdkBaseModel` (pydantic) class; a field whose wire name differs from its Python name carries it as `Field(alias=…)` (`access_point_id` ↔ `"accessPointId"`) — read the alias off the field rather than deriving it. An omittable field is annotated `Optional[T]` and defaults to `UNSET`, and one that may also be explicitly null is `OptionalNullable[T]`; both come from `core` and neither is `typing.Optional` — there is no `None` arm unless the spec declared the property nullable, so passing `None` to the first is a type error rather than a value that serializes.
 
@@ -310,13 +303,13 @@ Import paths by content type (`from <package> import <Name>`):
 
 ## Servers & auth
 
-**OAuth2 (authorization code).** Pass `seller_auth_authorization_code` your client id, redirect URI and authorization code; authorization is at `/auth/v4/authorize` and tokens come from `/auth/v4/token`, both on the `default` server. Scopes are the `SellerAuthAuthorizationCodeScope` alias.
+**OAuth2 (authorization code).** Pass `seller_auth_authorization_code` your client id, redirect URI and authorization code; authorization is at `/authorize` and tokens come from `/v4/auth/token`, both on the `default` server. Scopes are the `SellerAuthAuthorizationCodeScope` alias.
 
-**OAuth2 (client credentials).** Pass `seller_auth_client_credentials` your client id and secret; tokens come from `/auth/v4/token` on the `default` server. Scopes are the `SellerAuthClientCredentialsScope` alias.
+**OAuth2 (client credentials).** Pass `seller_auth_client_credentials` your client id and secret; tokens come from `/v4/auth/token` on the `default` server. Scopes are the `SellerAuthClientCredentialsScope` alias.
 
 **Basic auth.** Pass `basic_client_auth={"username": …, "password": …}`, or a `BasicAuthCredentials`.
 
-**OAuth2 (client credentials).** Pass `wallet_auth` your client id and secret; tokens come from `/auth/token` on the `default1` server. Scopes are the `WalletAuthScope` alias.
+**OAuth2 (client credentials).** Pass `wallet_auth` your client id and secret; tokens come from `/token` on the `access_token_server` server. Scopes are the `WalletAuthScope` alias.
 
 Operation blocks name their scheme in an **Auth** bullet; an operation whose spec declares no scheme carries no such bullet.
 
@@ -331,14 +324,15 @@ A scheme you did not configure is skipped silently rather than raising, and the 
 | --- | --- |
 | `"production"` *(default)* | Production |
 | `"environment2"` | Sandbox |
-| `"environment3"` | mock |
 
-**2 servers.** Base-URL templates and override points (`walmart_apis/server/server_config.py`):
+**4 servers.** Base-URL templates and override points (`walmart_apis/server/server_config.py`):
 
-| Server | `"production"` base URL | `"environment2"` base URL | `"environment3"` base URL | Override point |
-| --- | --- | --- | --- | --- |
-| `default` | `https://marketplace.walmart.com/seller` | `https://sandbox.marketplace.walmart.com/seller` | `https://walmart-apis-mock-server.onrender.com/seller` | `{"default": {"production": {"base_url": …}}}` (and the other environments) |
-| `default1` | `https://marketplace.walmart.com/seller/v1` | `https://sandbox.marketplace.walmart.com/seller/v1` | `https://walmart-apis-mock-server.onrender.com/seller/v1` | `{"default1": {"production": {"base_url": …}}}` (and the other environments) |
+| Server | `"production"` base URL | `"environment2"` base URL | Override point |
+| --- | --- | --- | --- |
+| `default` | `https://marketplace.walmart.com/seller` | `https://sandbox.marketplace.walmart.com/seller` | `{"default": {"production": {"base_url": …}}}` (and the other environments) |
+| `auth_server` | `https://login.account.wal-mart.com` | `https://login.account.wal-mart.com` | `{"auth_server": {"production": {"base_url": …}}}` (and the other environments) |
+| `default_catalog_items` | `https://marketplace.walmart.com/seller/v1` | `https://sandbox.marketplace.walmart.com/seller/v1` | `{"default_catalog_items": {"production": {"base_url": …}}}` (and the other environments) |
+| `access_token_server` | `https://marketplace.walmart.com/seller/auth/v4` | `https://marketplace.walmart.com/seller/auth/v4` | `{"access_token_server": {"production": {"base_url": …}}}` (and the other environments) |
 
 Pick a row with `environment=`, and override any of these by passing `server_config=` a dict nested exactly as the columns above read — `{"default": {"production": {"base_url": …}}}` — with each row's variables sitting beside its `base_url`.
 

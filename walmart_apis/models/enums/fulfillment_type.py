@@ -5,6 +5,8 @@ from ...core import open_enum_validator
 
 
 class FulfillmentType(str, Enum):
+    """Type of fulfillment used for the order."""
+
     SELLER_FULFILLED = "SellerFulfilled"
     WFS = "WFS"
 

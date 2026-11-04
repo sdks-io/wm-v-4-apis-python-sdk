@@ -10,14 +10,14 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `POST /solicitations/v4/orders/{sp-apiOrderId}/solicitations/productReviewAndSellerFeedback`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def create_product_review_and_seller_feedback_solicitation(sp_api_order_id: str, marketplace_ids: list[str], *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `sp_api_order_id`, `marketplace_ids`
 - **Params**: `sp_api_order_id` — path `sp-apiOrderId` · `marketplace_ids` — query `marketplaceIds`
 - **Returns (parsed)**: `Any`
 - **Returns (raw)**: `ApiResult[Any, CreateProductReviewAndSellerFeedbackSolicitationErrorBody]`
 - **Error**: `CreateProductReviewAndSellerFeedbackSolicitationErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 403, 404, 429, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 403, 404, 429, 500] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -28,14 +28,14 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /solicitations/v4/orders/{sp-apiOrderId}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_solicitation_actions_for_order(sp_api_order_id: str, marketplace_ids: list[str], *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `sp_api_order_id`, `marketplace_ids`
 - **Params**: `sp_api_order_id` — path `sp-apiOrderId` · `marketplace_ids` — query `marketplaceIds`
 - **Returns (parsed)**: `Any`
 - **Returns (raw)**: `ApiResult[Any, GetSolicitationActionsForOrderErrorBody]`
 - **Error**: `GetSolicitationActionsForOrderErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 403, 404, 429, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 403, 404, 429, 500] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |

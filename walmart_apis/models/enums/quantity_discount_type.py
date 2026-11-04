@@ -5,7 +5,7 @@ from ...core import open_enum_validator
 
 
 class QuantityDiscountType(str, Enum):
-    """Indicates the type of quantity discount this price applies to."""
+    """Indicates the type of quantity discount that applies to the price."""
 
     QUANTITY_DISCOUNT = "QUANTITY_DISCOUNT"
 

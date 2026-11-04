@@ -8,7 +8,10 @@ from .acknowledge_order_line import AcknowledgeOrderLine, AcknowledgeOrderLineDi
 
 
 class AcknowledgeOrderRequest(SdkBaseModel):
+    """Order lines to acknowledge."""
+
     order_lines: list[AcknowledgeOrderLine] = Field(alias="orderLines")
+    """Order lines to acknowledge."""
 
 
 class AcknowledgeOrderRequestDict(TypedDict):

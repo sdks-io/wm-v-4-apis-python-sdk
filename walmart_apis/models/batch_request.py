@@ -9,16 +9,16 @@ from .enums.http_method_model import HttpMethodModelOrStr
 
 
 class BatchRequest(SdkBaseModel):
-    """Common properties of batch requests against individual APIs."""
+    """Common properties for individual API requests submitted as part of a batch."""
 
     uri: str
-    """The resource path of the operation being called in batch, without query parameters."""
+    """Resource path of the operation being called in the batch, without query parameters."""
 
     method: HttpMethodModelOrStr
-    """The HTTP method associated with the individual APIs being called as part of the batch request."""
+    """HTTP method used for the individual API request in the batch."""
 
     headers: Optional[Any] = UNSET
-    """A mapping of additional HTTP headers to send for the individual batch request."""
+    """Additional HTTP headers to send with an individual batch request."""
 
 
 class BatchRequestDict(TypedDict):

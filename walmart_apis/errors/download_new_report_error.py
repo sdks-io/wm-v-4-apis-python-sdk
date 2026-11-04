@@ -13,7 +13,7 @@ DownloadNewReportErrorBody: TypeAlias = ErrorList | RawError
 class _DownloadNewReportError:
     def map(self, status_code: int, content: bytes) -> DownloadNewReportErrorBody:
         match status_code:
-            case 400 | 404 | 500:
+            case 400 | 401 | 404 | 500:
                 return decode_json[ErrorList](content)
             case _:
                 return RawError(status_code, content)

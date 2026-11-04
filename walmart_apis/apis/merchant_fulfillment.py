@@ -280,7 +280,7 @@ class MerchantFulfillmentWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/mfn/v4/shipments/{shipmentId}"),
+            url_template=self._server.default_catalog_items("/mfn/v4/shipments/{shipmentId}"),
             path_params=[param[str]("shipmentId", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
@@ -307,7 +307,7 @@ class MerchantFulfillmentWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/mfn/v4/shipments"),
+            url_template=self._server.default_catalog_items("/mfn/v4/shipments"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateShipmentRequest | CreateShipmentRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -334,7 +334,7 @@ class MerchantFulfillmentWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/mfn/v4/eligibleShippingServices"),
+            url_template=self._server.default_catalog_items("/mfn/v4/eligibleShippingServices"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GetEligibleShippingServicesRequest | GetEligibleShippingServicesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -362,7 +362,7 @@ class MerchantFulfillmentWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/mfn/v4/shipments/{shipmentId}/label"),
+            url_template=self._server.default_catalog_items("/mfn/v4/shipments/{shipmentId}/label"),
             path_params=[param[str]("shipmentId", shipment_id)],
             query_params=[param[FormatOrStr | None]("format", format_)],
             auth_scheme=self._auth.wallet_auth,
@@ -385,7 +385,7 @@ class MerchantFulfillmentWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/mfn/v4/shipments/{shipmentId}"),
+            url_template=self._server.default_catalog_items("/mfn/v4/shipments/{shipmentId}"),
             path_params=[param[str]("shipmentId", shipment_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetShipmentResponse],
@@ -409,7 +409,7 @@ class AsyncMerchantFulfillmentWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="DELETE",
-            url_template=self._server.default1("/mfn/v4/shipments/{shipmentId}"),
+            url_template=self._server.default_catalog_items("/mfn/v4/shipments/{shipmentId}"),
             path_params=[param[str]("shipmentId", shipment_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
@@ -436,7 +436,7 @@ class AsyncMerchantFulfillmentWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/mfn/v4/shipments"),
+            url_template=self._server.default_catalog_items("/mfn/v4/shipments"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateShipmentRequest | CreateShipmentRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -463,7 +463,7 @@ class AsyncMerchantFulfillmentWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/mfn/v4/eligibleShippingServices"),
+            url_template=self._server.default_catalog_items("/mfn/v4/eligibleShippingServices"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GetEligibleShippingServicesRequest | GetEligibleShippingServicesRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -491,7 +491,7 @@ class AsyncMerchantFulfillmentWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/mfn/v4/shipments/{shipmentId}/label"),
+            url_template=self._server.default_catalog_items("/mfn/v4/shipments/{shipmentId}/label"),
             path_params=[param[str]("shipmentId", shipment_id)],
             query_params=[param[FormatOrStr | None]("format", format_)],
             auth_scheme=self._auth.wallet_auth,
@@ -514,7 +514,7 @@ class AsyncMerchantFulfillmentWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/mfn/v4/shipments/{shipmentId}"),
+            url_template=self._server.default_catalog_items("/mfn/v4/shipments/{shipmentId}"),
             path_params=[param[str]("shipmentId", shipment_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetShipmentResponse],

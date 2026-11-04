@@ -13,7 +13,7 @@ GetAccountErrorBody: TypeAlias = ErrorList | RawError
 class _GetAccountError:
     def map(self, status_code: int, content: bytes) -> GetAccountErrorBody:
         match status_code:
-            case 400 | 403 | 429 | 500:
+            case 400 | 403 | 404 | 429 | 500:
                 return decode_json[ErrorList](content)
             case _:
                 return RawError(status_code, content)

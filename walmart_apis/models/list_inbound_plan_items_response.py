@@ -8,11 +8,10 @@ from .common_pagination import CommonPagination, CommonPaginationDict
 
 
 class ListInboundPlanItemsResponse(SdkBaseModel):
-    """The ``listInboundPlanItems`` response., The ``listPackingGroupItems`` response., The ``listShipmentItems``
-    response."""
+    """Paginated response containing items in an inbound plan."""
 
     items: list[CommonItem]
-    """The items in an inbound plan."""
+    """Items included in the inbound plan."""
 
     pagination: Optional[CommonPagination] = UNSET
     """Contains tokens to fetch from a certain page."""

@@ -9,8 +9,13 @@ from .enums.identifier_type import IdentifierTypeOrStr
 
 class ItemIdentifier(SdkBaseModel):
     identifier_type: Optional[IdentifierTypeOrStr] = Field(default=UNSET, alias="identifierType")
+    """Type of identifier, such as Walmart Item ID."""
+
     identifier: Optional[str] = UNSET
+    """Machine-readable identifier value, such as a 14-digit Walmart Item ID or a 12-digit UPC."""
+
     marketplace_id: Optional[str] = Field(default=UNSET, alias="marketplaceId")
+    """Walmart Marketplace identifier associated with the item."""
 
 
 class ItemIdentifierDict(TypedDict):

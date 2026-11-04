@@ -7,10 +7,10 @@ from .item_offers_request import ItemOffersRequest, ItemOffersRequestDict
 
 
 class GetItemOffersBatchRequest(SdkBaseModel):
-    """The request associated with the getItemOffersBatch API call."""
+    """Request containing Walmart Item ID offer requests for the ``getItemOffersBatch`` operation."""
 
     requests: Optional[list[ItemOffersRequest]] = UNSET
-    """A list of getItemOffers batched requests to run."""
+    """List of ``getItemOffers`` requests to process in a batch. Contains 1–20 requests."""
 
 
 class GetItemOffersBatchRequestDict(TypedDict):

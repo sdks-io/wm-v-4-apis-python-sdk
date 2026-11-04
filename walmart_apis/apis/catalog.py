@@ -32,12 +32,15 @@ class Catalog:
         included_data: list[IncludedDatumOrStr] | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> Item:
-        """Send a ``GET`` request.
+        """Retrieves information about an item in the Walmart Marketplace catalog using its Walmart Item ID. Returns
+        available product information for the specified marketplace. Use ``includedData`` to select specific data
+        sections, such as attributes, identifiers, images, and product types.
 
         Args:
-            walmart_item_id: Walmart Item ID (14-digit numeric identifier)
-            marketplace_ids: Walmart marketplace identifiers. Use WALMART_US for the US marketplace.
-            included_data: Data sections to include in the response
+            walmart_item_id: Specifies the 14-digit Walmart Item ID of the catalog item to retrieve.
+            marketplace_ids: Walmart Marketplace identifiers that scope the request. Use ``WALMART_US`` for the US
+                marketplace.
+            included_data: Product information sections to include in the response.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -67,24 +70,21 @@ class Catalog:
         page_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ItemSearchResults:
-        """Search the Walmart Marketplace catalog using keywords, WalmartItemId, GTIN, UPC, or seller SKU. Returns
-        matching catalog items.
+        """Searches the Walmart Marketplace catalog using keywords or item identifiers, including Walmart Item IDs,
+        Global Trade Item Numbers (GTINs), Universal Product Codes (UPCs), and seller SKUs. Returns matching catalog
+        items and requested product information for the specified marketplace.
 
         Args:
-            marketplace_ids: Walmart marketplace identifiers. Use WALMART_US for the US marketplace.
-            keywords: Keyword search terms
-            walmart_item_ids: Comma-separated Walmart Item IDs (14-digit). Max 20.
-            seller_sku: Seller-defined SKU
-            gtin: Global Trade Item Number (14-digit)
-            upc: Universal Product Code (12-digit)
-            included_data: Data sections to include in the response
-            page_size: Number of results per page (1–20). **Known limitation:** The PIQS keyword search backend
-                hard-caps results at 40 items per call regardless of this value.
-            page_token: Token for the next page of results, obtained from ``pagination.nextToken`` in a previous
-                response. **Known limitation:** Cursor-based pagination is not currently supported for keyword search.
-                The PIQS search backend (``/v3/items/walmart/search``) does not return a ``nextCursor`` and does not
-                honour this parameter. Results are capped at 40 items per call. Reserved for future use once PIQS
-                exposes pagination support.
+            marketplace_ids: Walmart Marketplace identifiers that scope the request. Use ``WALMART_US`` for the US
+                marketplace.
+            keywords: Keywords used to search for matching catalog items.
+            walmart_item_ids: Comma-separated Walmart Item IDs to search for, with a maximum of 20 IDs.
+            seller_sku: Seller-defined stock keeping unit (SKU) used to search for catalog items.
+            gtin: Global Trade Item Number (GTIN) used to search for catalog items. Must contain 14 digits.
+            upc: Universal Product Code (UPC) used to search for catalog items. Must contain 12 digits.
+            included_data: Product information sections to include in the response.
+            page_size: Maximum number of results requested per page (1–20). Defaults to 10.
+            page_token: Token for requesting another page, when cursor-based pagination is supported.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -126,12 +126,15 @@ class AsyncCatalog:
         included_data: list[IncludedDatumOrStr] | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> Item:
-        """Send a ``GET`` request.
+        """Retrieves information about an item in the Walmart Marketplace catalog using its Walmart Item ID. Returns
+        available product information for the specified marketplace. Use ``includedData`` to select specific data
+        sections, such as attributes, identifiers, images, and product types.
 
         Args:
-            walmart_item_id: Walmart Item ID (14-digit numeric identifier)
-            marketplace_ids: Walmart marketplace identifiers. Use WALMART_US for the US marketplace.
-            included_data: Data sections to include in the response
+            walmart_item_id: Specifies the 14-digit Walmart Item ID of the catalog item to retrieve.
+            marketplace_ids: Walmart Marketplace identifiers that scope the request. Use ``WALMART_US`` for the US
+                marketplace.
+            included_data: Product information sections to include in the response.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -161,24 +164,21 @@ class AsyncCatalog:
         page_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ItemSearchResults:
-        """Search the Walmart Marketplace catalog using keywords, WalmartItemId, GTIN, UPC, or seller SKU. Returns
-        matching catalog items.
+        """Searches the Walmart Marketplace catalog using keywords or item identifiers, including Walmart Item IDs,
+        Global Trade Item Numbers (GTINs), Universal Product Codes (UPCs), and seller SKUs. Returns matching catalog
+        items and requested product information for the specified marketplace.
 
         Args:
-            marketplace_ids: Walmart marketplace identifiers. Use WALMART_US for the US marketplace.
-            keywords: Keyword search terms
-            walmart_item_ids: Comma-separated Walmart Item IDs (14-digit). Max 20.
-            seller_sku: Seller-defined SKU
-            gtin: Global Trade Item Number (14-digit)
-            upc: Universal Product Code (12-digit)
-            included_data: Data sections to include in the response
-            page_size: Number of results per page (1–20). **Known limitation:** The PIQS keyword search backend
-                hard-caps results at 40 items per call regardless of this value.
-            page_token: Token for the next page of results, obtained from ``pagination.nextToken`` in a previous
-                response. **Known limitation:** Cursor-based pagination is not currently supported for keyword search.
-                The PIQS search backend (``/v3/items/walmart/search``) does not return a ``nextCursor`` and does not
-                honour this parameter. Results are capped at 40 items per call. Reserved for future use once PIQS
-                exposes pagination support.
+            marketplace_ids: Walmart Marketplace identifiers that scope the request. Use ``WALMART_US`` for the US
+                marketplace.
+            keywords: Keywords used to search for matching catalog items.
+            walmart_item_ids: Comma-separated Walmart Item IDs to search for, with a maximum of 20 IDs.
+            seller_sku: Seller-defined stock keeping unit (SKU) used to search for catalog items.
+            gtin: Global Trade Item Number (GTIN) used to search for catalog items. Must contain 14 digits.
+            upc: Universal Product Code (UPC) used to search for catalog items. Must contain 12 digits.
+            included_data: Product information sections to include in the response.
+            page_size: Maximum number of results requested per page (1–20). Defaults to 10.
+            page_token: Token for requesting another page, when cursor-based pagination is supported.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -217,12 +217,15 @@ class CatalogWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
         included_data: list[IncludedDatumOrStr] | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[Item, GetCatalogItemErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves information about an item in the Walmart Marketplace catalog using its Walmart Item ID. Returns
+        available product information for the specified marketplace. Use ``includedData`` to select specific data
+        sections, such as attributes, identifiers, images, and product types.
 
         Args:
-            walmart_item_id: Walmart Item ID (14-digit numeric identifier)
-            marketplace_ids: Walmart marketplace identifiers. Use WALMART_US for the US marketplace.
-            included_data: Data sections to include in the response
+            walmart_item_id: Specifies the 14-digit Walmart Item ID of the catalog item to retrieve.
+            marketplace_ids: Walmart Marketplace identifiers that scope the request. Use ``WALMART_US`` for the US
+                marketplace.
+            included_data: Product information sections to include in the response.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -230,8 +233,8 @@ class CatalogWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/catalog/v4/items/{walmartItemId}"),
-            path_params=[param[str]("walmartItemId", walmart_item_id)],
+            url_template=self._server.default_catalog_items("/v4/catalog/items/{walmart-item-id}"),
+            path_params=[param[str]("walmart-item-id", walmart_item_id)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[list[IncludedDatumOrStr] | None]("includedData", included_data),
@@ -256,24 +259,21 @@ class CatalogWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
         page_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ItemSearchResults, SearchCatalogItemsErrorBody]:
-        """Search the Walmart Marketplace catalog using keywords, WalmartItemId, GTIN, UPC, or seller SKU. Returns
-        matching catalog items.
+        """Searches the Walmart Marketplace catalog using keywords or item identifiers, including Walmart Item IDs,
+        Global Trade Item Numbers (GTINs), Universal Product Codes (UPCs), and seller SKUs. Returns matching catalog
+        items and requested product information for the specified marketplace.
 
         Args:
-            marketplace_ids: Walmart marketplace identifiers. Use WALMART_US for the US marketplace.
-            keywords: Keyword search terms
-            walmart_item_ids: Comma-separated Walmart Item IDs (14-digit). Max 20.
-            seller_sku: Seller-defined SKU
-            gtin: Global Trade Item Number (14-digit)
-            upc: Universal Product Code (12-digit)
-            included_data: Data sections to include in the response
-            page_size: Number of results per page (1–20). **Known limitation:** The PIQS keyword search backend
-                hard-caps results at 40 items per call regardless of this value.
-            page_token: Token for the next page of results, obtained from ``pagination.nextToken`` in a previous
-                response. **Known limitation:** Cursor-based pagination is not currently supported for keyword search.
-                The PIQS search backend (``/v3/items/walmart/search``) does not return a ``nextCursor`` and does not
-                honour this parameter. Results are capped at 40 items per call. Reserved for future use once PIQS
-                exposes pagination support.
+            marketplace_ids: Walmart Marketplace identifiers that scope the request. Use ``WALMART_US`` for the US
+                marketplace.
+            keywords: Keywords used to search for matching catalog items.
+            walmart_item_ids: Comma-separated Walmart Item IDs to search for, with a maximum of 20 IDs.
+            seller_sku: Seller-defined stock keeping unit (SKU) used to search for catalog items.
+            gtin: Global Trade Item Number (GTIN) used to search for catalog items. Must contain 14 digits.
+            upc: Universal Product Code (UPC) used to search for catalog items. Must contain 12 digits.
+            included_data: Product information sections to include in the response.
+            page_size: Maximum number of results requested per page (1–20). Defaults to 10.
+            page_token: Token for requesting another page, when cursor-based pagination is supported.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -281,7 +281,7 @@ class CatalogWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/catalog/v4/items"),
+            url_template=self._server.default_catalog_items("/v4/catalog/items"),
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[str | None]("keywords", keywords),
@@ -309,12 +309,15 @@ class AsyncCatalogWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
         included_data: list[IncludedDatumOrStr] | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[Item, GetCatalogItemErrorBody]:
-        """Send a ``GET`` request.
+        """Retrieves information about an item in the Walmart Marketplace catalog using its Walmart Item ID. Returns
+        available product information for the specified marketplace. Use ``includedData`` to select specific data
+        sections, such as attributes, identifiers, images, and product types.
 
         Args:
-            walmart_item_id: Walmart Item ID (14-digit numeric identifier)
-            marketplace_ids: Walmart marketplace identifiers. Use WALMART_US for the US marketplace.
-            included_data: Data sections to include in the response
+            walmart_item_id: Specifies the 14-digit Walmart Item ID of the catalog item to retrieve.
+            marketplace_ids: Walmart Marketplace identifiers that scope the request. Use ``WALMART_US`` for the US
+                marketplace.
+            included_data: Product information sections to include in the response.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -322,8 +325,8 @@ class AsyncCatalogWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/catalog/v4/items/{walmartItemId}"),
-            path_params=[param[str]("walmartItemId", walmart_item_id)],
+            url_template=self._server.default_catalog_items("/v4/catalog/items/{walmart-item-id}"),
+            path_params=[param[str]("walmart-item-id", walmart_item_id)],
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[list[IncludedDatumOrStr] | None]("includedData", included_data),
@@ -348,24 +351,21 @@ class AsyncCatalogWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
         page_token: str | None = None,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[ItemSearchResults, SearchCatalogItemsErrorBody]:
-        """Search the Walmart Marketplace catalog using keywords, WalmartItemId, GTIN, UPC, or seller SKU. Returns
-        matching catalog items.
+        """Searches the Walmart Marketplace catalog using keywords or item identifiers, including Walmart Item IDs,
+        Global Trade Item Numbers (GTINs), Universal Product Codes (UPCs), and seller SKUs. Returns matching catalog
+        items and requested product information for the specified marketplace.
 
         Args:
-            marketplace_ids: Walmart marketplace identifiers. Use WALMART_US for the US marketplace.
-            keywords: Keyword search terms
-            walmart_item_ids: Comma-separated Walmart Item IDs (14-digit). Max 20.
-            seller_sku: Seller-defined SKU
-            gtin: Global Trade Item Number (14-digit)
-            upc: Universal Product Code (12-digit)
-            included_data: Data sections to include in the response
-            page_size: Number of results per page (1–20). **Known limitation:** The PIQS keyword search backend
-                hard-caps results at 40 items per call regardless of this value.
-            page_token: Token for the next page of results, obtained from ``pagination.nextToken`` in a previous
-                response. **Known limitation:** Cursor-based pagination is not currently supported for keyword search.
-                The PIQS search backend (``/v3/items/walmart/search``) does not return a ``nextCursor`` and does not
-                honour this parameter. Results are capped at 40 items per call. Reserved for future use once PIQS
-                exposes pagination support.
+            marketplace_ids: Walmart Marketplace identifiers that scope the request. Use ``WALMART_US`` for the US
+                marketplace.
+            keywords: Keywords used to search for matching catalog items.
+            walmart_item_ids: Comma-separated Walmart Item IDs to search for, with a maximum of 20 IDs.
+            seller_sku: Seller-defined stock keeping unit (SKU) used to search for catalog items.
+            gtin: Global Trade Item Number (GTIN) used to search for catalog items. Must contain 14 digits.
+            upc: Universal Product Code (UPC) used to search for catalog items. Must contain 12 digits.
+            included_data: Product information sections to include in the response.
+            page_size: Maximum number of results requested per page (1–20). Defaults to 10.
+            page_token: Token for requesting another page, when cursor-based pagination is supported.
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -373,7 +373,7 @@ class AsyncCatalogWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/catalog/v4/items"),
+            url_template=self._server.default_catalog_items("/v4/catalog/items"),
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[str | None]("keywords", keywords),

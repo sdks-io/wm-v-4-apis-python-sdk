@@ -13,7 +13,7 @@ SearchTransactionsErrorBody: TypeAlias = ErrorList | RawError
 class _SearchTransactionsError:
     def map(self, status_code: int, content: bytes) -> SearchTransactionsErrorBody:
         match status_code:
-            case 400 | 401 | 500:
+            case 400 | 401 | 500 | 501:
                 return decode_json[ErrorList](content)
             case _:
                 return RawError(status_code, content)

@@ -9,16 +9,16 @@ from .http_response_headers import HttpResponseHeaders, HttpResponseHeadersDict
 
 
 class BatchOffersResponse(SdkBaseModel):
-    """Common schema present in ItemOffersResponse and ListingOffersResponse."""
+    """Common response schema for ``ItemOffersResponse`` and ``ListingOffersResponse``."""
 
     headers: Optional[HttpResponseHeaders] = UNSET
-    """A mapping of additional HTTP headers to receive for the individual batch request."""
+    """Additional HTTP headers returned for an individual batch request."""
 
     status: Optional[GetOffersHttpStatusLine] = UNSET
-    """The HTTP status line associated with the response."""
+    """HTTP status information associated with the response."""
 
     body: GetOffersResponse
-    """The response schema for the getListingOffers and getItemOffers operations."""
+    """Response schema for ``getListingOffers`` and ``getItemOffers`` operations."""
 
 
 class BatchOffersResponseDict(TypedDict):

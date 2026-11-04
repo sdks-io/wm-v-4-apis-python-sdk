@@ -3,7 +3,7 @@ from __future__ import annotations
 from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
-from ..core import UNSET, Optional, OptionalNullable, SdkBaseModel
+from ..core import UNSET, Date, Optional, OptionalNullable, RFC3339DateTime, SdkBaseModel
 from .researching_quantity import ResearchingQuantity, ResearchingQuantityDict
 from .reserved_quantity import ReservedQuantity, ReservedQuantityDict
 from .unfulfillable_quantity import UnfulfillableQuantity, UnfulfillableQuantityDict
@@ -11,6 +11,17 @@ from .unfulfillable_quantity import UnfulfillableQuantity, UnfulfillableQuantity
 
 class InventoryDetails(SdkBaseModel):
     """Inventory quantity breakdown for a SKU at a ship node."""
+
+    ship_node: Optional[str] = Field(default=UNSET, alias="shipNode")
+    """Walmart Ship Node ID this entry's quantities apply to."""
+
+    last_updated: OptionalNullable[RFC3339DateTime] = Field(default=UNSET, alias="lastUpdated")
+    """Timestamp of the most recent inventory update for this SKU at this ship node. Null if no update timestamp is
+    available."""
+
+    inventory_available_date: OptionalNullable[Date] = Field(default=UNSET, alias="inventoryAvailableDate")
+    """Date from which this inventory is available to sell at this ship node. Null if no availability date has been
+    set."""
 
     fulfillable_quantity: OptionalNullable[int] = Field(default=UNSET, alias="fulfillableQuantity")
     """Units currently available to sell at this ship node. Null if the upstream quantity is unavailable."""
@@ -42,6 +53,9 @@ class InventoryDetails(SdkBaseModel):
 
 
 class InventoryDetailsDict(TypedDict):
+    ship_node: NotRequired[str]
+    last_updated: NotRequired[RFC3339DateTime | None]
+    inventory_available_date: NotRequired[Date | None]
     fulfillable_quantity: NotRequired[int | None]
     on_hand_quantity: NotRequired[int | None]
     reserved_quantity: NotRequired[ReservedQuantityDict]

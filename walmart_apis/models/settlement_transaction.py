@@ -11,6 +11,8 @@ class SettlementTransaction(SdkBaseModel):
     purchase_order_id: Optional[str] = Field(default=UNSET, alias="purchaseOrderId")
     transaction_type: Optional[str] = Field(default=UNSET, alias="transactionType")
     amount: Optional[Money] = UNSET
+    """Canonical monetary amount (string value + ISO 4217 currency code)."""
+
     posted_date: Optional[RFC3339DateTime] = Field(default=UNSET, alias="postedDate")
 
 

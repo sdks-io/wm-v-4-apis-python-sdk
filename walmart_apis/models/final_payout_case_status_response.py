@@ -4,17 +4,18 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .enums.status21 import Status21OrStr
+from .enums.status2 import Status2OrStr
 from .money import Money, MoneyDict
 
 
 class FinalPayoutCaseStatusResponse(SdkBaseModel):
     case_id: Optional[str] = Field(default=UNSET, alias="caseId")
-    status: Optional[Status21OrStr] = UNSET
+    status: Optional[Status2OrStr] = UNSET
     amount: Optional[Money] = UNSET
+    """Canonical monetary amount (string value + ISO 4217 currency code)."""
 
 
 class FinalPayoutCaseStatusResponseDict(TypedDict):
     case_id: NotRequired[str]
-    status: NotRequired[Status21OrStr]
+    status: NotRequired[Status2OrStr]
     amount: NotRequired[MoneyDict]

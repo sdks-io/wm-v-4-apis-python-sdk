@@ -6,7 +6,7 @@ from ..core import SdkBaseModel
 
 
 class UpdateInboundPlanNameRequest(SdkBaseModel):
-    """The ``updateInboundPlanName`` request."""
+    """Request for updating the name of an inbound plan."""
 
     name: str
     """A human-readable name to update the inbound plan name to."""

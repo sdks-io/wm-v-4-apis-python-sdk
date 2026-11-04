@@ -10,8 +10,8 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /listings/v4/restrictions`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def get_listings_restrictions(asin: str, condition_type: ConditionType1OrStr, seller_id: str, marketplace_ids: list[str], *, reason_locale: str | None = "en_US", request_options: RequestOptionsOrDict | None = None)`
+- **Server**: `default_catalog_items`
+- **Signature**: `def get_listings_restrictions(asin: str, condition_type: ConditionTypeListingsRestrictionsOrStr, seller_id: str, marketplace_ids: list[str], *, reason_locale: str | None = "en_US", request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `asin`, `condition_type`, `seller_id`, `marketplace_ids`
 - **Params**: `asin` — query · `condition_type` — query `conditionType` · `seller_id` — query `sellerId` · `marketplace_ids` — query `marketplaceIds` · `reason_locale` — query `reasonLocale`
 - **Returns (parsed)**: `RestrictionList`
@@ -21,7 +21,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 | Type | Source |
 | --- | --- |
-| `ConditionType1OrStr` | `walmart_apis/models/enums/condition_type1.py` |
+| `ConditionTypeListingsRestrictionsOrStr` | `walmart_apis/models/enums/condition_type_listings_restrictions.py` |
 | `RestrictionList` | `walmart_apis/models/restriction_list.py` |
 | `GetListingsRestrictionsErrorBody` | `walmart_apis/errors/get_listings_restrictions_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |

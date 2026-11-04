@@ -7,13 +7,13 @@ from ..core import SdkBaseModel
 
 
 class OfferListingCountType(SdkBaseModel):
-    """The number of offer listings with the specified condition."""
+    """Number of offer listings for an item condition."""
 
     count: int = Field(alias="Count")
-    """The number of offer listings."""
+    """Number of offer listings for the specified item condition."""
 
     condition: str
-    """The condition of the item."""
+    """Item condition associated with the offer count."""
 
 
 class OfferListingCountTypeDict(TypedDict):

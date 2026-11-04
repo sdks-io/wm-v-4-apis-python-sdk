@@ -7,10 +7,19 @@ from .enums.variant import VariantOrStr
 
 
 class ItemImage(SdkBaseModel):
+    """Image information for a catalog item."""
+
     variant: Optional[VariantOrStr] = UNSET
+    """Image variant type, such as ``MAIN`` for the primary product image or ``SWCH`` for a color swatch image."""
+
     link: Optional[str] = UNSET
+    """URL of the product image."""
+
     height: Optional[int] = UNSET
+    """Height of the product image in pixels."""
+
     width: Optional[int] = UNSET
+    """Width of the product image in pixels."""
 
 
 class ItemImageDict(TypedDict):

@@ -7,7 +7,10 @@ from .order import Order, OrderDict
 
 
 class GetOrderResponse(SdkBaseModel):
+    """Details of the requested order."""
+
     payload: Optional[Order] = UNSET
+    """Identifiers, status, fulfillment, pricing, and line details for a purchase order."""
 
 
 class GetOrderResponseDict(TypedDict):

@@ -9,18 +9,16 @@ from .fees_estimate_request import FeesEstimateRequest, FeesEstimateRequestDict
 
 
 class FeesEstimateByIdRequest(SdkBaseModel):
-    """A single fee estimate request for the batch endpoint. Combines the item identifier (IdType + IdValue) with the
-    fee estimate parameters. Mirrors SP-API FeesEstimateByIdRequest."""
+    """Item identifier, pricing information, and fulfillment information for one fee estimate in a batch request."""
 
     id_type: IdTypeOrStr = Field(alias="IdType")
-    """Type of item identifier."""
+    """Type of item identifier provided in ``IdValue``."""
 
     id_value: str = Field(alias="IdValue")
-    """The item identifier value (Walmart Item ID or Seller SKU)."""
+    """Item identifier corresponding to ``IdType``."""
 
     fees_estimate_request: FeesEstimateRequest = Field(alias="FeesEstimateRequest")
-    """Fee estimate parameters for a single item. Used in both single-item and batch endpoints. Mirrors SP-API
-    FeesEstimateRequest."""
+    """Pricing and fulfillment information used to estimate fees for an item."""
 
 
 class FeesEstimateByIdRequestDict(TypedDict):

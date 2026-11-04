@@ -16,8 +16,8 @@ class CommonSpdTrackingItem(SdkBaseModel):
     """The tracking ID associated with each box in a non-partnered SPD shipment."""
 
     tracking_number_validation_status: Optional[str] = Field(default=UNSET, alias="trackingNumberValidationStatus")
-    """Indicates whether Walmart has validated the tracking number. Possible values: ``VALIDATED``, ``NOT_VALIDATED``,
-    ``NOT_SUPPORTED``."""
+    """Indicates whether Walmart has validated the tracking number. Possible values: ``VALID``, ``INVALID``,
+    ``UNKNOWN``. (aligned with the Inbound Order Workflow upstream vocabulary)"""
 
 
 class CommonSpdTrackingItemDict(TypedDict):

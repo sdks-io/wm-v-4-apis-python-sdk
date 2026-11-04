@@ -8,19 +8,19 @@ from .product import Product, ProductDict
 
 
 class Price(SdkBaseModel):
-    """Schema for price info in getPricing response."""
+    """Schema for pricing information returned by the ``getPricing`` operation."""
 
     status: str
-    """The status of the operation."""
+    """Status of the pricing request for the item."""
 
     seller_sku: Optional[str] = Field(default=UNSET, alias="SellerSKU")
-    """The seller stock keeping unit (SKU) of the item."""
+    """Seller stock keeping unit (SKU) that identifies the item."""
 
     walmart_item_id: Optional[str] = Field(default=UNSET, alias="walmartItemId")
-    """The Walmart Item ID of the item."""
+    """Walmart Item ID that identifies the item."""
 
     product: Optional[Product] = Field(default=UNSET, alias="Product")
-    """An item."""
+    """Pricing, offer, identifier, relationship, and sales information for an item."""
 
 
 class PriceDict(TypedDict):

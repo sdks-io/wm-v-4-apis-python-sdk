@@ -5,8 +5,6 @@ from ...core import open_enum_validator
 
 
 class OfferType(str, Enum):
-    """Indicates whether the offer is a B2B or B2C offer."""
-
     B2_C = "B2C"
     B2_B = "B2B"
 

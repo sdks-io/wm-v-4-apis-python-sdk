@@ -13,7 +13,7 @@ class RequestedValueAddedService(SdkBaseModel):
 
     details: Optional[Any] = UNSET
     """Service-specific input payload. Validated against the schema published in availableValueAddedServices on the
-    corresponding Rate. Compressed shape; see TODO."""
+    corresponding Rate. Compressed shape; full fidelity tracked in a follow-up PR."""
 
 
 class RequestedValueAddedServiceDict(TypedDict):

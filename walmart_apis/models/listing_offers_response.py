@@ -10,19 +10,19 @@ from .listing_offers_request import ListingOffersRequest, ListingOffersRequestDi
 
 
 class ListingOffersResponse(SdkBaseModel):
-    """Schema for an individual ListingOffersResponse."""
+    """Result for one seller SKU offer request in a batch, including the corresponding request information."""
 
     headers: Optional[HttpResponseHeaders] = UNSET
-    """A mapping of additional HTTP headers to receive for the individual batch request."""
+    """Additional HTTP headers returned for an individual batch request."""
 
     status: Optional[GetOffersHttpStatusLine] = UNSET
-    """The HTTP status line associated with the response."""
+    """HTTP status information associated with the response."""
 
     body: GetOffersResponse
-    """The response schema for the getListingOffers and getItemOffers operations."""
+    """Response schema for ``getListingOffers`` and ``getItemOffers`` operations."""
 
     request: Optional[ListingOffersRequest] = UNSET
-    """List of request parameters accepted by the getListingOffers operation."""
+    """Request parameters for one ``getListingOffers`` operation in the batch."""
 
 
 class ListingOffersResponseDict(TypedDict):

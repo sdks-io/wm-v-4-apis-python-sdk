@@ -9,7 +9,7 @@
 > Source: [Authorization](walmart_apis/apis/authorization.py)
 
 <details>
-<summary><code>def authorize(response_type: ResponseType1OrStr, client_id: str, redirect_uri: str, scope: str, state: str, code_challenge: str, code_challenge_method: CodeChallengeMethodOrStr, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[None, AuthorizeErrorBody]</code></summary>
+<summary><code>def create_token(grant_type: GrantTypeOrStr, *, x_o_tenant: str | None = None, client_id: str | None = None, client_secret: str | None = None, code: str | None = None, code_verifier: str | None = None, refresh_token: str | None = None, redirect_uri: str | None = None, scope: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[TokenResponse, CreateTokenErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -19,171 +19,50 @@
 <dl>
 <dd>
 
-Browser endpoint for the authorization-code grant (RFC 6749 §3.1). The
-Solution Provider redirects the seller here; the seller authenticates and
-consents at Walmart IAM, and the response redirects to `redirect_uri` with a
-single-use `code`.
+The Authorization API exchanges an OAuth grant for an access token. It supports the `client_credentials`, `authorization_code`, and `refresh_token` grant types.
 
-- **PKCE required** — `code_challenge` + `code_challenge_method=S256`
-  (RFC 7636). `plain` is not accepted.
-- **Exact** `redirect_uri` match against a value registered for the client.
-- `state` required; echoed back verbatim (CSRF).
-- The success and error redirects (performed by IAM) carry `iss` (RFC 9207);
-  clients MUST validate it.
+| `grant_type` | Authorization flow | Additional requirements |
+|--------------|--------------------|-------------------------|
+| `client_credentials` | Seller-direct | Client authentication |
+| `authorization_code` | Delegated | `code` and PKCE, or confidential-client authentication and `redirect_uri` |
+| `refresh_token` | Delegated | `refresh_token`; public clients also send `client_id` |
 
-**Error handling.** For a valid request, this endpoint `302`-redirects to the
-Walmart IAM consent URL; IAM then drives consent and performs the RFC 6749
-§4.1.2.1 redirect back to the client's `redirect_uri` (success or error),
-because IAM is the party that can verify the `redirect_uri` is registered.
-For request-level errors that `the Authorization API` itself detects
-(missing/invalid `client_id`/`redirect_uri`, `response_type` != `code`,
-`code_challenge_method` != `S256`), it returns a JSON `400` (`AuthorizeError`).
-It deliberately does **not** redirect these errors to the supplied
-`redirect_uri`: the proxy has no client registry, so self-redirecting to an
-unverified URI would be an open redirect.
+**Client authentication:** Confidential clients can authenticate by sending
+`client_id` and `client_secret` in the form body (`client_secret_post`) or
+by using HTTP Basic authentication. Use only one authentication method.
+When using HTTP Basic authentication, omit `client_id` and `client_secret`
+from the request body. A request that combines HTTP Basic authentication
+with body credentials returns `400` with `invalid_request`.
 
-> **Upstream status (, pending):** `iss` emission, exact-redirect
-> enforcement, and server-side rejection of `code_challenge_method=plain` are
-> IAM / app-store responsibilities not yet fully in place. the Authorization API
-> enforces the request-side invariants it can and redirects valid requests to
-> IAM; the full guarantee lands when those upstream changes ship.
+Public clients send no client secret. Public clients using the
+`authorization_code` grant must use PKCE.
 
-</dd>
-</dl>
+**`client_credentials`:** Returns an access token without a refresh token.
+To obtain another access token after expiration, submit another
+`client_credentials` request. The optional `scope` value is accepted but
+does not reduce the access provisioned for the client, and the response
+does not echo `scope`.
 
-### Usage
+**`authorization_code`:** Public clients must send a PKCE `code_verifier`.
+PKCE uses the `S256` challenge method; `plain` is not accepted.
+Confidential clients can omit `code_verifier` when they authenticate at
+the token operation and send `redirect_uri`.
 
-<dl>
-<dd>
+**`refresh_token`:** Submit a previously issued `refresh_token` to request
+another access token. Public clients also send `client_id`. If `scope` is
+provided, it must not exceed the scope originally granted.
 
-**Sync**
+Send the returned access token with Marketplace V4 API requests as
+`Authorization: Bearer <token>`. Do not use `WM_SEC.ACCESS_TOKEN`.
 
-```python
-result = client.authorization.with_raw_response.authorize(
-    ResponseType1.CODE,
-    "some example string",
-    "https://example.com",
-    "some example string",
-    "some example string",
-    "some example string",
-    CodeChallengeMethod.S256,
-)
-match result:
-    case Success():
-        ...  # 2xx, no content
-    case Failure(error=error):
-        ...  # TODO: Handle 'error' of type AuthorizeErrorBody
-```
+`x-o-tenant` selects one market when supplied. A direct client active in multiple
+markets must supply it; a delegated token's IAM market must match it. Without it,
+a direct client with exactly one active market uses that market, and a delegated
+token uses its IAM market. Supported values are `WALMART_US`, `WALMART_CA`,
+`WALMART_MX`, and `WALMART_CL`.
 
-**Async**
-
-```python
-result = await async_client.authorization.with_raw_response.authorize(
-    ResponseType1.CODE,
-    "some example string",
-    "https://example.com",
-    "some example string",
-    "some example string",
-    "some example string",
-    CodeChallengeMethod.S256,
-)
-match result:
-    case Success():
-        ...  # 2xx, no content
-    case Failure(error=error):
-        ...  # TODO: Handle 'error' of type AuthorizeErrorBody
-```
-
-</dd>
-</dl>
-
-### Parameters
-
-<dl>
-<dd>
-
-| Name | Type | Description |
-| --- | --- | --- |
-| <code>response_type</code> | <code>[ResponseType1OrStr](walmart_apis/models/enums/response_type1.py)</code> | Must be `code`. |
-| <code>client_id</code> | <code>str</code> | The registered client identifier. |
-| <code>redirect_uri</code> | <code>str</code> | Callback URI; must exactly match a registered value. |
-| <code>scope</code> | <code>str</code> | Space-delimited scopes. Include `offline_access` to receive a refresh token. |
-| <code>state</code> | <code>str</code> | Opaque CSRF token; echoed back unchanged. |
-| <code>code_challenge</code> | <code>str</code> | PKCE challenge — base64url(SHA-256(code_verifier)). |
-| <code>code_challenge_method</code> | <code>[CodeChallengeMethodOrStr](walmart_apis/models/enums/code_challenge_method.py)</code> | Must be `S256`. |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
-
-</dd>
-</dl>
-
-### Response
-
-<dl>
-<dd>
-
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;None, [AuthorizeErrorBody](walmart_apis/errors/authorize_error.py)&#93;</code>
-
-**On `Success`**: the 2xx carries no content; `payload` is <code>None</code>
-
-**On `Failure`**: `error` is <code>[AuthorizeErrorBody](walmart_apis/errors/authorize_error.py)</code>
-
-Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
-
-| Status | `error` is |
-| --- | --- |
-| 400 | <code>[AuthorizeError](walmart_apis/models/authorize_error.py)</code> |
-| 429, 500 | <code>[OauthErrorModel](walmart_apis/models/oauth_error_model.py)</code> |
-| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
-
-</dd>
-</dl>
-
-</dd>
-</dl>
-
-</details>
-
-<details>
-<summary><code>def create_token(grant_type: GrantTypeOrStr, *, client_id: str | None = None, client_secret: str | None = None, code: str | None = None, code_verifier: str | None = None, refresh_token: str | None = None, redirect_uri: str | None = None, scope: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[TokenResponse, CreateTokenErrorBody]</code></summary>
-
-<dl>
-<dd>
-
-### Description
-
-<dl>
-<dd>
-
-Exchanges a grant for an OAuth access token. Supported `grant_type` values:
-
-| grant_type | Flow | Required (besides grant_type) |
-|----------------------|------------------|---------------------------------|
-| `client_credentials` | seller-direct | client auth (see below) |
-| `authorization_code` | delegated | `code`, `code_verifier` (PKCE) |
-| `refresh_token` | delegated | `refresh_token` |
-
-**Client authentication:** credentials in the form body (`client_secret_post`)
-— `client_id` + `client_secret`. HTTP Basic is also accepted. **Public
-clients** (Solution-Provider apps registered `token_endpoint_auth_method: none`)
-send no secret on the delegated grants; PKCE protects the code.
-
-**`client_credentials`:** issues **no** refresh token (re-mint on expiry).
-**`scope` is decorative here** — accepted for compatibility but **not honored**;
-access is governed by the scopes provisioned per client in IAM ; there
-is no down-scoping and the response does not echo `scope`. (Verified: `/v3/token`
-ignores any `scope=` value.)
-
-**`authorization_code`:** `redirect_uri` is accepted for OAuth 2.0 back-compat
-but not required in 2.1 (PKCE covers injection).
-
-**`refresh_token`:** the response includes a **rotated** `refresh_token` — the
-presented token is invalidated (OAuth 2.1 §4.3.1; IAM rotates today, ~1-year
-TTL). A requested `scope` MUST NOT exceed the originally granted scope.
-
-**Token:** `Bearer` (RFC 6750), sent downstream as `Authorization: Bearer
-<token>` — **not** `WM_SEC.ACCESS_TOKEN`.
-
-**Implemented by `the Authorization API` as a stateless proxy to Walmart IAM .**
+Treat access tokens, refresh tokens, and client secrets as sensitive values
+and do not log them.
 
 </dd>
 </dl>
@@ -225,14 +104,15 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>grant_type</code> | <code>[GrantTypeOrStr](walmart_apis/models/enums/grant_type.py)</code> | The OAuth grant type. |
-| <code>client_id</code> | <code>str \| None</code> | Client identifier (client_secret_post / public clients). Omit if using HTTP Basic.<br>**Default**: <code>None</code> |
-| <code>client_secret</code> | <code>str \| None</code> | Client secret (client_secret_post). Omit for public clients or HTTP Basic.<br>**Default**: <code>None</code> |
-| <code>code</code> | <code>str \| None</code> | Authorization code from `/auth/v4/authorize` (authorization_code grant).<br>**Default**: <code>None</code> |
-| <code>code_verifier</code> | <code>str \| None</code> | PKCE verifier whose S256 hash equals the earlier `code_challenge` (authorization_code grant).<br>**Default**: <code>None</code> |
-| <code>refresh_token</code> | <code>str \| None</code> | A previously issued refresh token (refresh_token grant). Rotated on use.<br>**Default**: <code>None</code> |
-| <code>redirect_uri</code> | <code>str \| None</code> | Accepted for OAuth 2.0 back-compat on authorization_code; not required in 2.1 (PKCE covers injection).<br>**Default**: <code>None</code> |
-| <code>scope</code> | <code>str \| None</code> | **client_credentials:** accepted for compatibility but **not honored**<br> — no down-scoping; not echoed. **refresh_token:** optional;<br>MUST NOT exceed the originally granted scope.<br>**Default**: <code>None</code> |
+| <code>grant_type</code> | <code>[GrantTypeOrStr](walmart_apis/models/enums/grant_type.py)</code> | OAuth grant type used to request the access token. |
+| <code>x_o_tenant</code> | <code>str \| None</code> | One supported market for the issued access token. Comma-separated values are rejected.<br>**Default**: <code>None</code> |
+| <code>client_id</code> | <code>str \| None</code> | Client ID for the application. Provide this property when using client credentials in the request body or when required for a public client. Omit it from the request body when using HTTP Basic authentication.<br>**Default**: <code>None</code> |
+| <code>client_secret</code> | <code>str \| None</code> | Client secret used to authenticate a confidential client with credentials in the request body. Omit for public clients and when using HTTP Basic authentication. Treat as a secret and do not log it.<br>**Default**: <code>None</code> |
+| <code>code</code> | <code>str \| None</code> | Authorization code returned by Walmart Account Login. Used with the `authorization_code` grant.<br>**Default**: <code>None</code> |
+| <code>code_verifier</code> | <code>str \| None</code> | PKCE verifier associated with the `code_challenge` from the authorization<br>request. Required for public clients using the `authorization_code` grant<br>and recommended for all clients. Confidential clients can omit this<br>property only when authenticating at the token operation and providing<br>`redirect_uri`.<br>**Default**: <code>None</code> |
+| <code>refresh_token</code> | <code>str \| None</code> | Previously issued refresh token used with the `refresh_token` grant. Treat as a secret and do not log it.<br>**Default**: <code>None</code> |
+| <code>redirect_uri</code> | <code>str \| None</code> | Redirect URI for the authorization flow. Required when a confidential<br>client uses the `authorization_code` grant without `code_verifier`.<br>**Default**: <code>None</code> |
+| <code>scope</code> | <code>str \| None</code> | Requested OAuth scope. For `client_credentials`, this property is<br>accepted but does not reduce the access provisioned for the client,<br>and the response does not echo the value. For `refresh_token`, the<br>requested scope must not exceed the scope originally granted.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -245,7 +125,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[TokenResponse](walmart_apis/models/token_response.py), [CreateTokenErrorBody](walmart_apis/errors/create_token_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[TokenResponse](walmart_apis/models/token_response.py)</code> -- Access token issued.
+**On `Success`**: `payload` is <code>[TokenResponse](walmart_apis/models/token_response.py)</code> -- Returns the access token and related token information.
 
 **On `Failure`**: `error` is <code>[CreateTokenErrorBody](walmart_apis/errors/create_token_error.py)</code>
 
@@ -253,106 +133,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 401, 429, 500 | <code>[OauthErrorModel](walmart_apis/models/oauth_error_model.py)</code> |
-| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
-
-</dd>
-</dl>
-
-</dd>
-</dl>
-
-</details>
-
-<details>
-<summary><code>def register_client(body: ClientRegistrationRequest | ClientRegistrationRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ClientRegistrationResponse, RegisterClientErrorBody]</code></summary>
-
-<dl>
-<dd>
-
-### Description
-
-<dl>
-<dd>
-
-Registers a Solution Provider client and returns its `client_id` (RFC
-7591). Lets Solution Providers onboard without manual registration.
-
-Public clients set `token_endpoint_auth_method: none` (no secret; PKCE
-required). Confidential clients receive a `client_secret`. `redirect_uris`
-are validated and later enforced by exact match at `/auth/v4/authorize`.
-
-Proxied to Walmart IAM's registration endpoint (/). RFC 7592
-registration management (read/update/delete via a
-`registration_access_token`) is not offered in this version.
-
-</dd>
-</dl>
-
-### Usage
-
-<dl>
-<dd>
-
-**Sync**
-
-```python
-result = client.authorization.with_raw_response.register_client(
-    ClientRegistrationRequest(redirect_uris=["https://example.com"])
-)
-match result:
-    case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ClientRegistrationResponse
-    case Failure(error=error):
-        ...  # TODO: Handle 'error' of type RegisterClientErrorBody
-```
-
-**Async**
-
-```python
-result = await async_client.authorization.with_raw_response.register_client(
-    ClientRegistrationRequest(redirect_uris=["https://example.com"])
-)
-match result:
-    case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ClientRegistrationResponse
-    case Failure(error=error):
-        ...  # TODO: Handle 'error' of type RegisterClientErrorBody
-```
-
-</dd>
-</dl>
-
-### Parameters
-
-<dl>
-<dd>
-
-| Name | Type | Description |
-| --- | --- | --- |
-| <code>body</code> | <code>[ClientRegistrationRequest](walmart_apis/models/client_registration_request.py) \| [ClientRegistrationRequestDict](walmart_apis/models/client_registration_request.py)</code> | The request body. |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
-
-</dd>
-</dl>
-
-### Response
-
-<dl>
-<dd>
-
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ClientRegistrationResponse](walmart_apis/models/client_registration_response.py), [RegisterClientErrorBody](walmart_apis/errors/register_client_error.py)&#93;</code>
-
-**On `Success`**: `payload` is <code>[ClientRegistrationResponse](walmart_apis/models/client_registration_response.py)</code> -- Client registered.
-
-**On `Failure`**: `error` is <code>[RegisterClientErrorBody](walmart_apis/errors/register_client_error.py)</code>
-
-Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
-
-| Status | `error` is |
-| --- | --- |
-| 400, 401 | <code>[RegistrationError](walmart_apis/models/registration_error.py)</code> |
-| 429, 500 | <code>[OauthErrorModel](walmart_apis/models/oauth_error_model.py)</code> |
+| 400, 401, 429, 500, 502 | <code>[OAuthErrorModel](walmart_apis/models/o_auth_error_model.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -378,7 +159,11 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `GET` request.
+Retrieves information about an item in the Walmart Marketplace
+catalog using its Walmart Item ID. Returns available product
+information for the specified marketplace. Use `includedData`
+to select specific data sections, such as attributes, identifiers,
+images, and product types.
 
 </dd>
 </dl>
@@ -420,9 +205,9 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>walmart_item_id</code> | <code>str</code> | Walmart Item ID (14-digit numeric identifier) |
-| <code>marketplace_ids</code> | <code>list&#91;str&#93;</code> | Walmart marketplace identifiers. Use WALMART_US for the US marketplace. |
-| <code>included_data</code> | <code>list&#91;[IncludedDatumOrStr](walmart_apis/models/enums/included_datum.py)&#93; \| None</code> | Data sections to include in the response<br>**Default**: <code>None</code> |
+| <code>walmart_item_id</code> | <code>str</code> | Specifies the 14-digit Walmart Item ID of the catalog item to retrieve. |
+| <code>marketplace_ids</code> | <code>list&#91;str&#93;</code> | Walmart Marketplace identifiers that scope the request. Use `WALMART_US` for the US marketplace. |
+| <code>included_data</code> | <code>list&#91;[IncludedDatumOrStr](walmart_apis/models/enums/included_datum.py)&#93; \| None</code> | Product information sections to include in the response.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -465,8 +250,8 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Search the Walmart Marketplace catalog using keywords, WalmartItemId,
-GTIN, UPC, or seller SKU. Returns matching catalog items.
+Searches the Walmart Marketplace catalog using keywords or item identifiers, including Walmart Item IDs, Global Trade Item Numbers (GTINs),
+Universal Product Codes (UPCs), and seller SKUs. Returns matching catalog items and requested product information for the specified marketplace.
 
 </dd>
 </dl>
@@ -508,15 +293,15 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>marketplace_ids</code> | <code>list&#91;str&#93;</code> | Walmart marketplace identifiers. Use WALMART_US for the US marketplace. |
-| <code>keywords</code> | <code>str \| None</code> | Keyword search terms<br>**Default**: <code>None</code> |
-| <code>walmart_item_ids</code> | <code>str \| None</code> | Comma-separated Walmart Item IDs (14-digit). Max 20.<br>**Default**: <code>None</code> |
-| <code>seller_sku</code> | <code>str \| None</code> | Seller-defined SKU<br>**Default**: <code>None</code> |
-| <code>gtin</code> | <code>str \| None</code> | Global Trade Item Number (14-digit)<br>**Default**: <code>None</code> |
-| <code>upc</code> | <code>str \| None</code> | Universal Product Code (12-digit)<br>**Default**: <code>None</code> |
-| <code>included_data</code> | <code>list&#91;[IncludedDatumOrStr](walmart_apis/models/enums/included_datum.py)&#93; \| None</code> | Data sections to include in the response<br>**Default**: <code>None</code> |
-| <code>page_size</code> | <code>int \| None</code> | Number of results per page (1–20).<br>**Known limitation:** The PIQS keyword search backend hard-caps results at 40 items per call regardless of this value.<br>**Default**: <code>10</code> |
-| <code>page_token</code> | <code>str \| None</code> | Token for the next page of results, obtained from `pagination.nextToken` in a previous response.<br>**Known limitation:** Cursor-based pagination is not currently supported for keyword search. The PIQS search backend (`/v3/items/walmart/search`) does not return a `nextCursor` and does not honour this parameter. Results are capped at 40 items per call. Reserved for future use once PIQS exposes pagination support.<br>**Default**: <code>None</code> |
+| <code>marketplace_ids</code> | <code>list&#91;str&#93;</code> | Walmart Marketplace identifiers that scope the request. Use `WALMART_US` for the US marketplace. |
+| <code>keywords</code> | <code>str \| None</code> | Keywords used to search for matching catalog items.<br>**Default**: <code>None</code> |
+| <code>walmart_item_ids</code> | <code>str \| None</code> | Comma-separated Walmart Item IDs to search for, with a maximum of 20 IDs.<br>**Default**: <code>None</code> |
+| <code>seller_sku</code> | <code>str \| None</code> | Seller-defined stock keeping unit (SKU) used to search for catalog items.<br>**Default**: <code>None</code> |
+| <code>gtin</code> | <code>str \| None</code> | Global Trade Item Number (GTIN) used to search for catalog items. Must contain 14 digits.<br>**Default**: <code>None</code> |
+| <code>upc</code> | <code>str \| None</code> | Universal Product Code (UPC) used to search for catalog items. Must contain 12 digits.<br>**Default**: <code>None</code> |
+| <code>included_data</code> | <code>list&#91;[IncludedDatumOrStr](walmart_apis/models/enums/included_datum.py)&#93; \| None</code> | Product information sections to include in the response.<br>**Default**: <code>None</code> |
+| <code>page_size</code> | <code>int \| None</code> | Maximum number of results requested per page (1–20). Defaults to 10.<br>**Default**: <code>10</code> |
+| <code>page_token</code> | <code>str \| None</code> | Token for requesting another page, when cursor-based pagination is supported.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -649,7 +434,8 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dd>
 
 Submits a structured query for async processing.
-Query language TBD pending ADR (GraphQL vs REST hybrid — Pod 4).
+Query language is not yet finalized pending ADR (GraphQL vs
+REST hybrid — Pod 4).
 
 </dd>
 </dl>
@@ -1002,8 +788,11 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dd>
 
 Returns whether the authenticated seller is eligible to raise a payment
-dispute and, if not, the reason for ineligibility. Delegates to
-GMPPaymentsPlatform (Phase 5).
+dispute and, if not, the reason for ineligibility.
+
+**Status: not supported** — no GMPPaymentsPlatform endpoint exists for
+dispute eligibility checks. Kept in the spec for SDK/client parity and
+contract completeness ; always returns 501..
 
 </dd>
 </dl>
@@ -1065,7 +854,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 401, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 500, 501 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1091,11 +880,11 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-**Placeholder — not yet implemented.** Cancels the feed identified by
-feedId if it is still queued or in progress. Mirrors Amazon SP-API
-`cancelFeed` (DELETE /feeds/2021-06-30/feeds/{feedId}) so partners can
-generate a client against the final contract now. A feed that has
-already reached DONE or ERROR cannot be cancelled.
+Cancels the feed identified by feedId if it is still queued or in
+progress. Mirrors Amazon SP-API `cancelFeed`
+(DELETE /feeds/2021-06-30/feeds/{feedId}) for contract-shape parity
+above). A feed that has already reached DONE or ERROR cannot be
+cancelled.
 
 </dd>
 </dl>
@@ -1158,7 +947,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList1](walmart_apis/models/error_list1.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1170,7 +959,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def create_feed(feed_type: FeedTypeOrStr, file: FileInput, *, marketplace_id: str | None = None, content_type: ContentTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CreateFeedResponse, CreateFeedErrorBody]</code></summary>
+<summary><code>def create_feed(feed_type: FeedType1OrStr, file: FileInput, *, content_type: ContentTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CreateFeedResponse, CreateFeedErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -1182,7 +971,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 Upload a feed file and submit it for asynchronous processing in a single call.
 The server handles document storage internally. Use the returned feedId to poll
-processing status via GET /feeds/v4/feeds/{feedId}.
+processing status via GET /v4/feeds/{feed-id}.
 
 </dd>
 </dl>
@@ -1195,7 +984,7 @@ processing status via GET /feeds/v4/feeds/{feedId}.
 **Sync**
 
 ```python
-result = client.feeds.with_raw_response.create_feed(FeedType.LISTINGS_FEED, Path("path/to/file.bin"))
+result = client.feeds.with_raw_response.create_feed(FeedType1.LISTINGS_FEED, Path("path/to/file.bin"))
 match result:
     case Success(payload=payload):
         ...  # TODO: Handle 'payload' of type CreateFeedResponse
@@ -1206,7 +995,7 @@ match result:
 **Async**
 
 ```python
-result = await async_client.feeds.with_raw_response.create_feed(FeedType.LISTINGS_FEED, Path("path/to/file.bin"))
+result = await async_client.feeds.with_raw_response.create_feed(FeedType1.LISTINGS_FEED, Path("path/to/file.bin"))
 match result:
     case Success(payload=payload):
         ...  # TODO: Handle 'payload' of type CreateFeedResponse
@@ -1224,9 +1013,8 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>feed_type</code> | <code>[FeedTypeOrStr](walmart_apis/models/enums/feed_type.py)</code> | The type of feed being submitted |
+| <code>feed_type</code> | <code>[FeedType1OrStr](walmart_apis/models/enums/feed_type1.py)</code> | The type of feed being submitted |
 | <code>file</code> | <code>FileInput</code> | The feed content file to upload and process |
-| <code>marketplace_id</code> | <code>str \| None</code> | Marketplace identifier (opaque token). If omitted, the service applies WALMART_US.<br>**Default**: <code>None</code> |
 | <code>content_type</code> | <code>[ContentTypeOrStr](walmart_apis/models/enums/content_type.py) \| None</code> | MIME type of the uploaded feed content.<br>If omitted, the server infers from the file's Content-Type in the multipart header.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -1248,7 +1036,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 429, 500 | <code>[ErrorList1](walmart_apis/models/error_list1.py)</code> |
+| 400, 403, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1333,7 +1121,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList1](walmart_apis/models/error_list1.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1424,7 +1212,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList1](walmart_apis/models/error_list1.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1514,7 +1302,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 429, 500 | <code>[ErrorList1](walmart_apis/models/error_list1.py)</code> |
+| 400, 403, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1542,7 +1330,10 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 Returns the current state, case ID, and payable amount for the authenticated
 seller's final payout case (used when a seller account is being offboarded).
-Delegates to GMPPaymentsPlatform (Phase 5).
+
+**Status: not supported** — no GMPPaymentsPlatform endpoint exists for final
+payout case tracking. Kept in the spec for SDK/client parity and contract
+completeness ; always returns 501..
 
 </dd>
 </dl>
@@ -1604,7 +1395,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 401, 404, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 404, 500, 501 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1616,7 +1407,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def update_final_payout_case_status(body: DisbursementsV4FinalPayoutCaseUpdateStatusRequest | DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[FinalPayoutCaseStatusResponse, UpdateFinalPayoutCaseStatusErrorBody]</code></summary>
+<summary><code>def update_final_payout_case_status(body: UpdateFinalPayoutCaseStatusRequest | UpdateFinalPayoutCaseStatusRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[FinalPayoutCaseStatusResponse, UpdateFinalPayoutCaseStatusErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -1628,7 +1419,11 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 Transitions the authenticated seller's final payout case to Resolved or
 Closed, optionally including resolution notes. Requires disbursements:write
-scope. Delegates to GMPPaymentsPlatform (Phase 5).
+scope.
+
+**Status: not supported** — no GMPPaymentsPlatform endpoint exists for final
+payout case status writes. Kept in the spec for SDK/client parity and
+contract completeness ; always returns 501..
 
 </dd>
 </dl>
@@ -1642,7 +1437,7 @@ scope. Delegates to GMPPaymentsPlatform (Phase 5).
 
 ```python
 result = client.final_payout.with_raw_response.update_final_payout_case_status(
-    DisbursementsV4FinalPayoutCaseUpdateStatusRequest(status=Status3.RESOLVED)
+    UpdateFinalPayoutCaseStatusRequest(status=Status3.RESOLVED)
 )
 match result:
     case Success(payload=payload):
@@ -1655,7 +1450,7 @@ match result:
 
 ```python
 result = await async_client.final_payout.with_raw_response.update_final_payout_case_status(
-    DisbursementsV4FinalPayoutCaseUpdateStatusRequest(status=Status3.RESOLVED)
+    UpdateFinalPayoutCaseStatusRequest(status=Status3.RESOLVED)
 )
 match result:
     case Success(payload=payload):
@@ -1674,7 +1469,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>body</code> | <code>[DisbursementsV4FinalPayoutCaseUpdateStatusRequest](walmart_apis/models/disbursements_v4_final_payout_case_update_status_request.py) \| [DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict](walmart_apis/models/disbursements_v4_final_payout_case_update_status_request.py)</code> | The request body. |
+| <code>body</code> | <code>[UpdateFinalPayoutCaseStatusRequest](walmart_apis/models/update_final_payout_case_status_request.py) \| [UpdateFinalPayoutCaseStatusRequestDict](walmart_apis/models/update_final_payout_case_status_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -1695,7 +1490,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 404, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 404, 500, 501 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1723,9 +1518,10 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 Returns financial event groups for the seller.
 
-**Status: stub** — no upstream endpoint found that models the SP-API
-FinancialEventGroup (requires eventGroupId keying, date-range filter,
-and cursor pagination). Returns empty response pending Phase 5.
+**Status: not supported** — no upstream endpoint found that models the SP-API
+FinancialEventGroup (requires eventGroupId keying, date-range filter, and
+cursor pagination). Kept in the spec for SDK/client parity and contract
+completeness ; always returns 501..
 
 </dd>
 </dl>
@@ -1791,7 +1587,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500, 501 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1885,7 +1681,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -1909,8 +1705,9 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 Returns financial events for a specific financial event group.
 
-**Status: stub** — no upstream maps eventGroupId to a financial event
-set. Returns empty response pending Phase 5.
+**Status: not supported** — no upstream maps eventGroupId to a financial
+event set. Kept in the spec for SDK/client parity and contract completeness
+; always returns 501..
 
 </dd>
 </dl>
@@ -1977,7 +1774,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500, 501 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -2067,7 +1864,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -2197,7 +1994,7 @@ result = client.fulfillment_outbound.with_raw_response.create_fulfillment_order(
         displayable_order_id="some example string",
         displayable_order_date=datetime(2024, 1, 15, 9, 30, 0, tzinfo=timezone.utc),
         shipping_speed_category=ShippingSpeedCategory.STANDARD,
-        destination_address=Address(
+        destination_address=AddressFulfillmentOutboundWfs(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -2228,7 +2025,7 @@ result = await async_client.fulfillment_outbound.with_raw_response.create_fulfil
         displayable_order_id="some example string",
         displayable_order_date=datetime(2024, 1, 15, 9, 30, 0, tzinfo=timezone.utc),
         shipping_speed_category=ShippingSpeedCategory.STANDARD,
-        destination_address=Address(
+        destination_address=AddressFulfillmentOutboundWfs(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -2491,7 +2288,7 @@ for a prospective fulfillment order. Use before creating the order.
 ```python
 result = client.fulfillment_outbound.with_raw_response.get_fulfillment_preview(
     GetFulfillmentPreviewRequest(
-        address=Address(
+        address=AddressFulfillmentOutboundWfs(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -2518,7 +2315,7 @@ match result:
 ```python
 result = await async_client.fulfillment_outbound.with_raw_response.get_fulfillment_preview(
     GetFulfillmentPreviewRequest(
-        address=Address(
+        address=AddressFulfillmentOutboundWfs(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -2773,7 +2570,8 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Bulk inventory update. Max 500 items per request.
+Bulk inventory update. Max 10 items per request. Exceeding 10 items
+returns 400 before this service would otherwise forward the request upstream.
 
 </dd>
 </dl>
@@ -2990,7 +2788,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>skus</code> | <code>str \| None</code> | Comma-separated seller SKUs (max 50)<br>**Default**: <code>None</code> |
+| <code>skus</code> | <code>str \| None</code> | Comma-separated seller SKUs (max 10). Exceeding it returns 400 INVALID_REQUEST.<br>**Default**: <code>None</code> |
 | <code>ship_node</code> | <code>str \| None</code> | Walmart Ship Node ID (for multi-node sellers)<br>**Default**: <code>None</code> |
 | <code>page_size</code> | <code>int \| None</code> | Value sent with the request.<br>**Default**: <code>100</code> |
 | <code>next_token</code> | <code>str \| None</code> | Value sent with the request.<br>**Default**: <code>None</code> |
@@ -3212,7 +3010,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_listings_item(seller_id: str, sku: str, marketplace_ids: list[str], *, issue_locale: str | None = "en_US", included_data: list[IncludedDatum1OrStr] | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[Item1, GetListingsItemErrorBody]</code></summary>
+<summary><code>def get_listings_item(seller_id: str, sku: str, marketplace_ids: list[str], *, issue_locale: str | None = "en_US", included_data: list[IncludedDatumListingsItemsOrStr] | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ItemListingsItems, GetListingsItemErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -3240,7 +3038,7 @@ result = client.listings_items.with_raw_response.get_listings_item(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type Item1
+        ...  # TODO: Handle 'payload' of type ItemListingsItems
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GetListingsItemErrorBody
 ```
@@ -3253,7 +3051,7 @@ result = await async_client.listings_items.with_raw_response.get_listings_item(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type Item1
+        ...  # TODO: Handle 'payload' of type ItemListingsItems
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GetListingsItemErrorBody
 ```
@@ -3272,7 +3070,7 @@ match result:
 | <code>sku</code> | <code>str</code> | Seller SKU identifying the listing |
 | <code>marketplace_ids</code> | <code>list&#91;str&#93;</code> | Value sent with the request. |
 | <code>issue_locale</code> | <code>str \| None</code> | Locale for issue messages (e.g. en_US)<br>**Default**: <code>"en_US"</code> |
-| <code>included_data</code> | <code>list&#91;[IncludedDatum1OrStr](walmart_apis/models/enums/included_datum1.py)&#93; \| None</code> | Value sent with the request.<br>**Default**: <code>None</code> |
+| <code>included_data</code> | <code>list&#91;[IncludedDatumListingsItemsOrStr](walmart_apis/models/enums/included_datum_listings_items.py)&#93; \| None</code> | Value sent with the request.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -3283,9 +3081,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[Item1](walmart_apis/models/item1.py), [GetListingsItemErrorBody](walmart_apis/errors/get_listings_item_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ItemListingsItems](walmart_apis/models/item_listings_items.py), [GetListingsItemErrorBody](walmart_apis/errors/get_listings_item_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[Item1](walmart_apis/models/item1.py)</code> -- Success
+**On `Success`**: `payload` is <code>[ItemListingsItems](walmart_apis/models/item_listings_items.py)</code> -- Success
 
 **On `Failure`**: `error` is <code>[GetListingsItemErrorBody](walmart_apis/errors/get_listings_item_error.py)</code>
 
@@ -3507,7 +3305,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def search_listings_items(seller_id: str, marketplace_ids: list[str], *, included_data: list[IncludedDatum1OrStr] | None = None, page_size: int | None = 10, page_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ItemSearchResults1, SearchListingsItemsErrorBody]</code></summary>
+<summary><code>def search_listings_items(seller_id: str, marketplace_ids: list[str], *, included_data: list[IncludedDatumListingsItemsOrStr] | None = None, identifier_type: IdentifierTypeListingsItemsOrStr | None = None, identifier_value: str | None = None, lifecycle_status: list[str] | None = None, published_status: list[str] | None = None, unpublished_reasons: list[str] | None = None, inventory_status: list[str] | None = None, fulfillment_type: list[str] | None = None, min_customer_rating: float | None = None, max_customer_rating: float | None = None, min_price: float | None = None, max_price: float | None = None, sort_by: SortByOrStr | None = None, sort_order: SortOrderOrStr | None = SortOrder.ASC, page_size: int | None = 10, page_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ItemSearchResultsListingsItems, SearchListingsItemsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -3520,6 +3318,11 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 Returns a paginated list of the seller's listings items. Mirrors Amazon
 SP-API `searchListingsItems` so an existing SP-API client can call the
 seller-level collection endpoint (no SKU in the path) against v4.
+
+Filtering and sorting are pushed down to PIQS (Partner Item Query
+Service) `POST /v3/items/catalog/search` — the server does the
+filtering; callers no longer need to page through the full seller
+catalog and filter client-side.
 
 </dd>
 </dl>
@@ -3535,7 +3338,7 @@ seller-level collection endpoint (no SKU in the path) against v4.
 result = client.listings_items.with_raw_response.search_listings_items("some example string", ["some example string"])
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ItemSearchResults1
+        ...  # TODO: Handle 'payload' of type ItemSearchResultsListingsItems
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type SearchListingsItemsErrorBody
 ```
@@ -3548,7 +3351,7 @@ result = await async_client.listings_items.with_raw_response.search_listings_ite
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ItemSearchResults1
+        ...  # TODO: Handle 'payload' of type ItemSearchResultsListingsItems
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type SearchListingsItemsErrorBody
 ```
@@ -3565,7 +3368,20 @@ match result:
 | --- | --- | --- |
 | <code>seller_id</code> | <code>str</code> | Seller identifier |
 | <code>marketplace_ids</code> | <code>list&#91;str&#93;</code> | Value sent with the request. |
-| <code>included_data</code> | <code>list&#91;[IncludedDatum1OrStr](walmart_apis/models/enums/included_datum1.py)&#93; \| None</code> | Value sent with the request.<br>**Default**: <code>None</code> |
+| <code>included_data</code> | <code>list&#91;[IncludedDatumListingsItemsOrStr](walmart_apis/models/enums/included_datum_listings_items.py)&#93; \| None</code> | Value sent with the request.<br>**Default**: <code>None</code> |
+| <code>identifier_type</code> | <code>[IdentifierTypeListingsItemsOrStr](walmart_apis/models/enums/identifier_type_listings_items.py) \| None</code> | Identifier field to search by (PIQS `query.field`). Requires<br>`identifierValue`. PIQS accepts a single field/value pair per<br>call — not a list.<br>**Default**: <code>None</code> |
+| <code>identifier_value</code> | <code>str \| None</code> | Value to match for `identifierType`. Ignored if `identifierType` is absent.<br>**Default**: <code>None</code> |
+| <code>lifecycle_status</code> | <code>list&#91;str&#93; \| None</code> | Filter to items with any of these lifecycle statuses (PIQS `filters[].field=lifecycleStatus`, op `equals`).<br>**Default**: <code>None</code> |
+| <code>published_status</code> | <code>list&#91;str&#93; \| None</code> | Filter to items with any of these publication statuses (e.g. PUBLISHED, UNPUBLISHED, SYSTEM_PROBLEM).<br>**Default**: <code>None</code> |
+| <code>unpublished_reasons</code> | <code>list&#91;str&#93; \| None</code> | Filter to items carrying any of these unpublished reasons.<br>**Default**: <code>None</code> |
+| <code>inventory_status</code> | <code>list&#91;str&#93; \| None</code> | Filter to items with any of these inventory statuses.<br>**Default**: <code>None</code> |
+| <code>fulfillment_type</code> | <code>list&#91;str&#93; \| None</code> | Filter to items with any of these fulfillment types.<br>**Default**: <code>None</code> |
+| <code>min_customer_rating</code> | <code>float \| None</code> | Minimum customer rating, inclusive (PIQS `filters[].field=customerRating`, op `between`/`greater_than`).<br>**Default**: <code>None</code> |
+| <code>max_customer_rating</code> | <code>float \| None</code> | Maximum customer rating, inclusive.<br>**Default**: <code>None</code> |
+| <code>min_price</code> | <code>float \| None</code> | Minimum price, inclusive (PIQS `filters[].field=price`, op `between`/`greater_than`).<br>**Default**: <code>None</code> |
+| <code>max_price</code> | <code>float \| None</code> | Maximum price, inclusive.<br>**Default**: <code>None</code> |
+| <code>sort_by</code> | <code>[SortByOrStr](walmart_apis/models/enums/sort_by.py) \| None</code> | Field to sort results by (PIQS `sort.field`).<br>**Default**: <code>None</code> |
+| <code>sort_order</code> | <code>[SortOrderOrStr](walmart_apis/models/enums/sort_order.py) \| None</code> | Sort direction. Ignored if `sortBy` is absent.<br>**Default**: <code>SortOrder.ASC</code> |
 | <code>page_size</code> | <code>int \| None</code> | Maximum number of results per page<br>**Default**: <code>10</code> |
 | <code>page_token</code> | <code>str \| None</code> | Opaque cursor returned by a previous call for the next page<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -3578,9 +3394,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ItemSearchResults1](walmart_apis/models/item_search_results1.py), [SearchListingsItemsErrorBody](walmart_apis/errors/search_listings_items_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ItemSearchResultsListingsItems](walmart_apis/models/item_search_results_listings_items.py), [SearchListingsItemsErrorBody](walmart_apis/errors/search_listings_items_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[ItemSearchResults1](walmart_apis/models/item_search_results1.py)</code> -- Success
+**On `Success`**: `payload` is <code>[ItemSearchResultsListingsItems](walmart_apis/models/item_search_results_listings_items.py)</code> -- Success
 
 **On `Failure`**: `error` is <code>[SearchListingsItemsErrorBody](walmart_apis/errors/search_listings_items_error.py)</code>
 
@@ -3604,7 +3420,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [ListingsRestrictions](walmart_apis/apis/listings_restrictions.py)
 
 <details>
-<summary><code>def get_listings_restrictions(asin: str, condition_type: ConditionType1OrStr, seller_id: str, marketplace_ids: list[str], *, reason_locale: str | None = "en_US", request_options: RequestOptionsOrDict | None = None) -> ApiResult[RestrictionList, GetListingsRestrictionsErrorBody]</code></summary>
+<summary><code>def get_listings_restrictions(asin: str, condition_type: ConditionTypeListingsRestrictionsOrStr, seller_id: str, marketplace_ids: list[str], *, reason_locale: str | None = "en_US", request_options: RequestOptionsOrDict | None = None) -> ApiResult[RestrictionList, GetListingsRestrictionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -3630,7 +3446,7 @@ the restrictions array.
 
 ```python
 result = client.listings_restrictions.with_raw_response.get_listings_restrictions(
-    "some example string", ConditionType1.NEW_NEW, "some example string", ["some example string"]
+    "some example string", ConditionTypeListingsRestrictions.NEW_NEW, "some example string", ["some example string"]
 )
 match result:
     case Success(payload=payload):
@@ -3643,7 +3459,7 @@ match result:
 
 ```python
 result = await async_client.listings_restrictions.with_raw_response.get_listings_restrictions(
-    "some example string", ConditionType1.NEW_NEW, "some example string", ["some example string"]
+    "some example string", ConditionTypeListingsRestrictions.NEW_NEW, "some example string", ["some example string"]
 )
 match result:
     case Success(payload=payload):
@@ -3663,7 +3479,7 @@ match result:
 | Name | Type | Description |
 | --- | --- | --- |
 | <code>asin</code> | <code>str</code> | Walmart Item ID (maps to ASIN in Walmart Seller API) |
-| <code>condition_type</code> | <code>[ConditionType1OrStr](walmart_apis/models/enums/condition_type1.py)</code> | Value sent with the request. |
+| <code>condition_type</code> | <code>[ConditionTypeListingsRestrictionsOrStr](walmart_apis/models/enums/condition_type_listings_restrictions.py)</code> | Value sent with the request. |
 | <code>seller_id</code> | <code>str</code> | Value sent with the request. |
 | <code>marketplace_ids</code> | <code>list&#91;str&#93;</code> | Value sent with the request. |
 | <code>reason_locale</code> | <code>str \| None</code> | Locale for localized restriction reason messages<br>**Default**: <code>"en_US"</code> |
@@ -3816,7 +3632,7 @@ result = client.merchant_fulfillment.with_raw_response.create_shipment(
     CreateShipmentRequest(
         shipment_request_details=ShipmentRequestDetails(
             purchase_order_id="some example string",
-            ship_from_address=Address1(
+            ship_from_address=AddressMerchantFulfillmentSellerFulfilledLabels(
                 name="some example string",
                 address_line1="some example string",
                 city="some example string",
@@ -3824,7 +3640,7 @@ result = client.merchant_fulfillment.with_raw_response.create_shipment(
                 postal_code="some example string",
                 country_code="some example string",
             ),
-            ship_to_address=Address1(
+            ship_to_address=AddressMerchantFulfillmentSellerFulfilledLabels(
                 name="some example string",
                 address_line1="some example string",
                 city="some example string",
@@ -3854,7 +3670,7 @@ result = await async_client.merchant_fulfillment.with_raw_response.create_shipme
     CreateShipmentRequest(
         shipment_request_details=ShipmentRequestDetails(
             purchase_order_id="some example string",
-            ship_from_address=Address1(
+            ship_from_address=AddressMerchantFulfillmentSellerFulfilledLabels(
                 name="some example string",
                 address_line1="some example string",
                 city="some example string",
@@ -3862,7 +3678,7 @@ result = await async_client.merchant_fulfillment.with_raw_response.create_shipme
                 postal_code="some example string",
                 country_code="some example string",
             ),
-            ship_to_address=Address1(
+            ship_to_address=AddressMerchantFulfillmentSellerFulfilledLabels(
                 name="some example string",
                 address_line1="some example string",
                 city="some example string",
@@ -3956,7 +3772,7 @@ result = client.merchant_fulfillment.with_raw_response.get_eligible_shipping_ser
     GetEligibleShippingServicesRequest(
         shipment_request_details=ShipmentRequestDetails(
             purchase_order_id="some example string",
-            ship_from_address=Address1(
+            ship_from_address=AddressMerchantFulfillmentSellerFulfilledLabels(
                 name="some example string",
                 address_line1="some example string",
                 city="some example string",
@@ -3964,7 +3780,7 @@ result = client.merchant_fulfillment.with_raw_response.get_eligible_shipping_ser
                 postal_code="some example string",
                 country_code="some example string",
             ),
-            ship_to_address=Address1(
+            ship_to_address=AddressMerchantFulfillmentSellerFulfilledLabels(
                 name="some example string",
                 address_line1="some example string",
                 city="some example string",
@@ -3993,7 +3809,7 @@ result = await async_client.merchant_fulfillment.with_raw_response.get_eligible_
     GetEligibleShippingServicesRequest(
         shipment_request_details=ShipmentRequestDetails(
             purchase_order_id="some example string",
-            ship_from_address=Address1(
+            ship_from_address=AddressMerchantFulfillmentSellerFulfilledLabels(
                 name="some example string",
                 address_line1="some example string",
                 city="some example string",
@@ -4001,7 +3817,7 @@ result = await async_client.merchant_fulfillment.with_raw_response.get_eligible_
                 postal_code="some example string",
                 country_code="some example string",
             ),
-            ship_to_address=Address1(
+            ship_to_address=AddressMerchantFulfillmentSellerFulfilledLabels(
                 name="some example string",
                 address_line1="some example string",
                 city="some example string",
@@ -4252,7 +4068,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `POST` request.
+Acknowledges receipt of the specified order lines in a Walmart Marketplace order. Returns the purchase order ID and the timestamp when the acknowledgment was recorded.
 
 </dd>
 </dl>
@@ -4300,7 +4116,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>body</code> | <code>[AcknowledgeOrderRequest](walmart_apis/models/acknowledge_order_request.py) \| [AcknowledgeOrderRequestDict](walmart_apis/models/acknowledge_order_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -4344,7 +4160,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `POST` request.
+Cancels the specified order lines in a Walmart Marketplace order and records the cancellation reason for each line. You can specify the quantity to cancel for each order line. Returns the purchase order ID and the cancellation timestamp.
 
 </dd>
 </dl>
@@ -4404,7 +4220,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>body</code> | <code>[CancelOrderLinesRequest](walmart_apis/models/cancel_order_lines_request.py) \| [CancelOrderLinesRequestDict](walmart_apis/models/cancel_order_lines_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -4448,14 +4264,9 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Records the terminal `Delivered` event for one or more order
-lines, optionally with package-level proof-of-delivery
-(tracking number, package number, delivery timestamp). This is
-separated from `/shipment-status` because delivery is a
-terminal state and carries different downstream semantics
-(invoicing windows open, return windows start).
-
-Walmart parity from gmp-orders-mono `deliverOrder`.
+Records delivery of the specified order lines. For each line, you can provide the delivered quantity,
+tracking number, package number, and delivery timestamp. Recording delivery begins the associated invoicing
+and return windows.
 
 </dd>
 </dl>
@@ -4501,7 +4312,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>body</code> | <code>[DeliverOrderLinesRequest](walmart_apis/models/deliver_order_lines_request.py) \| [DeliverOrderLinesRequestDict](walmart_apis/models/deliver_order_lines_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -4545,7 +4356,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `GET` request.
+Retrieves a Walmart Marketplace order, including order status, fulfillment information, and order line details.
 
 </dd>
 </dl>
@@ -4587,7 +4398,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Walmart Purchase Order ID |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -4630,10 +4441,8 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns the ship-to postal address for a single purchase order.
-Mirrors Amazon SP-API `getOrderAddress`. PII-restricted endpoint:
-handlers are marked `@RestrictedData` server-side and the
-response body must NOT be logged.
+Retrieves the shipping address associated with a Walmart Marketplace order,
+including the recipient's name and postal address.
 
 </dd>
 </dl>
@@ -4675,7 +4484,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -4718,11 +4527,9 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns the buyer's display name, email address, and an
-anonymized phone (last 4 digits only). Mirrors Amazon SP-API
-`getOrderBuyerInfo`. PII-restricted endpoint: handlers are
-marked `@RestrictedData` server-side and request/response
-bodies must NOT be logged.
+Retrieves buyer contact information for a Walmart Marketplace order,
+including the buyer's name, email address, and a masked phone number
+showing only the last four digits.
 
 </dd>
 </dl>
@@ -4764,7 +4571,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -4797,7 +4604,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_order_items(purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetFulfillmentOrderShipmentsResponse, GetOrderItemsErrorBody]</code></summary>
+<summary><code>def get_order_items(purchase_order_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetOrderItemsResponse, GetOrderItemsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -4807,9 +4614,9 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns the SKU / quantity / item-price projection of a single
-purchase order. Mirrors Amazon SP-API `getOrderItems`. Not
-PII-restricted: only product, quantity, and price are returned.
+Retrieves the order lines for a Walmart Marketplace order, including
+item identifiers, quantities, prices, order line statuses, and
+fulfillment information.
 
 </dd>
 </dl>
@@ -4825,7 +4632,7 @@ PII-restricted: only product, quantity, and price are returned.
 result = client.orders.with_raw_response.get_order_items("some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderShipmentsResponse
+        ...  # TODO: Handle 'payload' of type GetOrderItemsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GetOrderItemsErrorBody
 ```
@@ -4836,7 +4643,7 @@ match result:
 result = await async_client.orders.with_raw_response.get_order_items("some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderShipmentsResponse
+        ...  # TODO: Handle 'payload' of type GetOrderItemsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GetOrderItemsErrorBody
 ```
@@ -4851,7 +4658,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -4862,9 +4669,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetFulfillmentOrderShipmentsResponse](walmart_apis/models/get_fulfillment_order_shipments_response.py), [GetOrderItemsErrorBody](walmart_apis/errors/get_order_items_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetOrderItemsResponse](walmart_apis/models/get_order_items_response.py), [GetOrderItemsErrorBody](walmart_apis/errors/get_order_items_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetFulfillmentOrderShipmentsResponse](walmart_apis/models/get_fulfillment_order_shipments_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetOrderItemsResponse](walmart_apis/models/get_order_items_response.py)</code> -- Success
 
 **On `Failure`**: `error` is <code>[GetOrderItemsErrorBody](walmart_apis/errors/get_order_items_error.py)</code>
 
@@ -4894,20 +4701,8 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Parity with Amazon SP-API Orders v0 `getOrderRegulatedInfo`. Returns
-the verification requirements that apply to an order containing
-regulated items (alcohol, tobacco, age-restricted goods): the
-required ID-verification method, the minimum buyer age, the
-regulated category, and any value-added services the order ships
-with.
-
-**Walmart OMS coverage gap .** The the underlying service Order
-Lookup response does not currently surface regulated-item
-metadata. Until upstream support lands (tracked separately as a
-follow-up to this PR), every order returns the safe default
-`regulatedCategory=NOT_REGULATED` with `requiredVerificationMethod=NONE`.
-The endpoint shape and contract are stable; only the projected
-values will become richer once OMS exposes the fields.
+Retrieves regulated-item verification information for a Walmart Marketplace order,
+including applicable age and identity verification requirements.
 
 </dd>
 </dl>
@@ -4949,7 +4744,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Walmart Purchase Order ID |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -4982,7 +4777,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_orders(*, created_after: RFC3339DateTime | None = None, created_before: RFC3339DateTime | None = None, last_updated_after: RFC3339DateTime | None = None, order_statuses: list[OrderStatusOrStr] | None = None, fulfillment_types: list[FulfillmentTypeOrStr] | None = None, page_size: int | None = 100, next_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetFulfillmentOrderResponse, GetOrdersErrorBody]</code></summary>
+<summary><code>def get_orders(*, created_after: RFC3339DateTime | None = None, created_before: RFC3339DateTime | None = None, last_updated_after: RFC3339DateTime | None = None, order_statuses: list[OrderStatus1OrStr] | None = None, fulfillment_types: list[FulfillmentType1OrStr] | None = None, page_size: int | None = 100, next_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetOrdersResponse, GetOrdersErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -4992,31 +4787,18 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns orders matching the given filters. Orders are fulfilled by
-sellers (WFS or seller-fulfilled). Maps to Walmart OMS order queries.
+Retrieves Walmart Marketplace orders, including order status,
+fulfillment information, and order line details. You can filter
+results by a single order status and use pagination to retrieve
+additional orders. Use `pageSize` to control the number of orders
+returned per page and `nextToken` to retrieve subsequent pages.
 
-### Current limitations (roadmap)
-
-The underlying the Orders service backend does not yet support
-every filter declared below. Calls using any of the following will
-return `400 Bad Request` with `code=FILTER_NOT_SUPPORTED` and a
-human-readable `message` explaining the specific rejection. Phase
-2
-will lift these one-by-one as the underlying service adds capability.
-
-| Filter | Status today | Reason |
-|---|---|---|
-| `createdAfter`, `createdBefore` | Rejected (400) | the Orders service does not accept date-range filters at the order level. |
-| `lastUpdatedAfter` | Rejected (400) | the underlying service has no order-level update-date index. |
-| `orderStatuses` with >1 value | Rejected (400) | the underlying service accepts one status per call; pass a single value or omit to match all. |
-| `fulfillmentTypes` | Rejected (400) | the underlying service accepts one shipNodeType per call; multi-type fan-out is Phase 2. |
-
-These parameters remain in the contract (rather than being removed)
-so that SDKs generated today stay forward-compatible with the
-the roadmap surface — your code keeps compiling, only the runtime
-behaviour changes when Phase 2 ships. Until then, omit them or
-handle the documented 400 gracefully. The `tools/loadgen-orders.sh --contract`
-smoke sweep exercises the rejection contract on every run.
+## Current limitations (roadmap)
+## The underlying the Orders service backend does not yet support
+## every filter declared below. Calls using any of the following will
+## return `400 Bad Request` with `code=FILTER_NOT_SUPPORTED` and a
+## human-readable `message` explaining the specific rejection. Phase
+## 2 will lift these one-by-one as the underlying service adds capability.
 
 </dd>
 </dl>
@@ -5032,7 +4814,7 @@ smoke sweep exercises the rejection contract on every run.
 result = client.orders.with_raw_response.get_orders()
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderResponse
+        ...  # TODO: Handle 'payload' of type GetOrdersResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GetOrdersErrorBody
 ```
@@ -5043,7 +4825,7 @@ match result:
 result = await async_client.orders.with_raw_response.get_orders()
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderResponse
+        ...  # TODO: Handle 'payload' of type GetOrdersResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GetOrdersErrorBody
 ```
@@ -5058,13 +4840,13 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>created_after</code> | <code>RFC3339DateTime \| None</code> | Filter orders created after this date-time (ISO 8601).<br><br>**the roadmap — not yet supported.** Sending this parameter today<br>returns `400 FILTER_NOT_SUPPORTED`; the Orders service does not<br>accept date-range filters at the order level. Tracked by<br>.<br>Retained in the contract so SDKs generated today stay<br>forward-compatible.<br>**Default**: <code>None</code> |
-| <code>created_before</code> | <code>RFC3339DateTime \| None</code> | Filter orders created before this date-time (ISO 8601).<br><br>**the roadmap — not yet supported.** See `createdAfter` for the<br>rationale and the tracking ticket.<br>**Default**: <code>None</code> |
-| <code>last_updated_after</code> | <code>RFC3339DateTime \| None</code> | Filter orders updated after this date-time (ISO 8601).<br><br>**the roadmap — not yet supported.** Sending this parameter today<br>returns `400 FILTER_NOT_SUPPORTED`; the Orders service has no<br>order-level update-date index. Tracked by<br>.<br>**Default**: <code>None</code> |
-| <code>order_statuses</code> | <code>list&#91;[OrderStatusOrStr](walmart_apis/models/enums/order_status.py)&#93; \| None</code> | Filter by order status.<br><br>**the roadmap limitation:** the Orders service accepts AT MOST ONE<br>status per call. Passing multiple values today returns `400<br>FILTER_NOT_SUPPORTED`; pass a single value or omit to match all.<br>Multi-status fan-out tracked by<br>.<br>**Default**: <code>None</code> |
-| <code>fulfillment_types</code> | <code>list&#91;[FulfillmentTypeOrStr](walmart_apis/models/enums/fulfillment_type.py)&#93; \| None</code> | Filter by fulfillment type.<br><br>**the roadmap — not yet supported.** Sending this parameter today<br>returns `400 FILTER_NOT_SUPPORTED`; the underlying service accepts one<br>shipNodeType per call and multi-type fan-out is Phase 2. Tracked<br>by .<br>**Default**: <code>None</code> |
-| <code>page_size</code> | <code>int \| None</code> | Value sent with the request.<br>**Default**: <code>100</code> |
-| <code>next_token</code> | <code>str \| None</code> | Value sent with the request.<br>**Default**: <code>None</code> |
+| <code>created_after</code> | <code>RFC3339DateTime \| None</code> | Filters orders created after the specified date and time (ISO 8601).<br>This parameter is not currently supported. If provided, the API<br>returns `400` with `FILTER_NOT_SUPPORTED`.<br>**Default**: <code>None</code> |
+| <code>created_before</code> | <code>RFC3339DateTime \| None</code> | Filters orders created before the specified date and time (ISO 8601).<br>This parameter is not currently supported. If provided, the API<br>returns `400` with `FILTER_NOT_SUPPORTED`.<br>**Default**: <code>None</code> |
+| <code>last_updated_after</code> | <code>RFC3339DateTime \| None</code> | Filters orders updated after the specified date and time (ISO 8601).<br>This parameter is not currently supported. If provided, the API<br>returns `400` with `FILTER_NOT_SUPPORTED`.<br>**Default**: <code>None</code> |
+| <code>order_statuses</code> | <code>list&#91;[OrderStatus1OrStr](walmart_apis/models/enums/order_status1.py)&#93; \| None</code> | Filters orders by status. Only one status is supported per request.<br>Providing multiple statuses returns `400` with `FILTER_NOT_SUPPORTED`.<br>**Default**: <code>None</code> |
+| <code>fulfillment_types</code> | <code>list&#91;[FulfillmentType1OrStr](walmart_apis/models/enums/fulfillment_type1.py)&#93; \| None</code> | Filters orders by fulfillment type.<br>Not currently supported: Providing this parameter returns `400` with `FILTER_NOT_SUPPORTED`<br>**Default**: <code>None</code> |
+| <code>page_size</code> | <code>int \| None</code> | Maximum number of orders to return per page.<br>**Default**: <code>100</code> |
+| <code>next_token</code> | <code>str \| None</code> | Pagination token returned in `payload.nextToken` from the previous response. Use this token to retrieve the next page of orders.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -5075,9 +4857,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetFulfillmentOrderResponse](walmart_apis/models/get_fulfillment_order_response.py), [GetOrdersErrorBody](walmart_apis/errors/get_orders_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetOrdersResponse](walmart_apis/models/get_orders_response.py), [GetOrdersErrorBody](walmart_apis/errors/get_orders_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetFulfillmentOrderResponse](walmart_apis/models/get_fulfillment_order_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetOrdersResponse](walmart_apis/models/get_orders_response.py)</code> -- Success
 
 **On `Failure`**: `error` is <code>[GetOrdersErrorBody](walmart_apis/errors/get_orders_error.py)</code>
 
@@ -5107,12 +4889,8 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Walmart-specific write — no Amazon SP-API Orders v0 equivalent
-(Amazon refunds live in the Finance API). Mirrors
-gmp-orders-mono's legacy `/partner-api/{market}/v3/orders/{po}/refund`
-contract, simplified for the v4 surface: a flat `orderLines[]` with
-per-line refund amount + reason instead of the legacy three-level
-nesting (`orderLines → refunds → refundCharges`).
+Issues a seller-initiated refund for one or more order lines. Provide `refundAmount` and `refundType`
+for each line, and optionally include `reason`.
 
 </dd>
 </dl>
@@ -5168,7 +4946,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>body</code> | <code>[RefundOrderLinesRequest](walmart_apis/models/refund_order_lines_request.py) \| [RefundOrderLinesRequestDict](walmart_apis/models/refund_order_lines_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -5212,7 +4990,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `POST` request.
+Confirms shipment of the specified order lines in a Walmart Marketplace order, including carrier, tracking number, and shipment date. Returns the purchase order ID and the timestamp when the shipment was recorded.
 
 </dd>
 </dl>
@@ -5232,7 +5010,7 @@ result = client.orders.with_raw_response.ship_order_lines(
             ShipOrderLine(
                 line_number="some example string",
                 tracking_info=TrackingInfo(
-                    carrier=CarrierName.UPS,
+                    carrier=Carrier.UPS,
                     tracking_number="some example string",
                     shipped_date=datetime(2024, 1, 15, 9, 30, 0, tzinfo=timezone.utc),
                 ),
@@ -5257,7 +5035,7 @@ result = await async_client.orders.with_raw_response.ship_order_lines(
             ShipOrderLine(
                 line_number="some example string",
                 tracking_info=TrackingInfo(
-                    carrier=CarrierName.UPS,
+                    carrier=Carrier.UPS,
                     tracking_number="some example string",
                     shipped_date=datetime(2024, 1, 15, 9, 30, 0, tzinfo=timezone.utc),
                 ),
@@ -5282,7 +5060,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>body</code> | <code>[ShipOrderLinesRequest](walmart_apis/models/ship_order_lines_request.py) \| [ShipOrderLinesRequestDict](walmart_apis/models/ship_order_lines_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -5326,13 +5104,9 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Walmart-specific extension of `/shipping`. Each package carries
-its own tracking number, carrier, dimensions, and the order
-lines it covers. Maps onto FMS's existing `shipments[]` envelope
-(one FMS shipment per v4 package). Inspired by gmp-orders-mono's
-`shipOrderV2` (multiPackageShipping) operation; we hoist
-`packages[]` to the top level rather than nesting it under each
-line so the request stays self-evidently package-oriented.
+Confirms shipment of a Walmart Marketplace order across multiple
+packages and returns the shipment confirmation, including the
+number of packages accepted.
 
 </dd>
 </dl>
@@ -5351,7 +5125,7 @@ result = client.orders.with_raw_response.ship_order_multi_package(
         packages=[
             ShipPackage(
                 tracking_info=TrackingInfo(
-                    carrier=CarrierName.UPS,
+                    carrier=Carrier.UPS,
                     tracking_number="some example string",
                     shipped_date=datetime(2024, 1, 15, 9, 30, 0, tzinfo=timezone.utc),
                 ),
@@ -5376,7 +5150,7 @@ result = await async_client.orders.with_raw_response.ship_order_multi_package(
         packages=[
             ShipPackage(
                 tracking_info=TrackingInfo(
-                    carrier=CarrierName.UPS,
+                    carrier=Carrier.UPS,
                     tracking_number="some example string",
                     shipped_date=datetime(2024, 1, 15, 9, 30, 0, tzinfo=timezone.utc),
                 ),
@@ -5402,7 +5176,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>body</code> | <code>[MultiPackageShipRequest](walmart_apis/models/multi_package_ship_request.py) \| [MultiPackageShipRequestDict](walmart_apis/models/multi_package_ship_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -5446,12 +5220,9 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Records a non-terminal shipment-lifecycle event for an order
-(ready for pickup, picked up, in transit, out for delivery).
-Use the dedicated `/deliver` endpoint for terminal delivery —
-it carries proof-of-delivery semantics this endpoint does not.
-
-Amazon SP-API Orders v0 `updateShipmentStatus` parity.
+Updates the shipment status of specified order lines in a Walmart
+  Marketplace order, including pickup and in-transit milestones.
+  Use the delivery operation to record completed deliveries.
 
 </dd>
 </dl>
@@ -5467,7 +5238,7 @@ Amazon SP-API Orders v0 `updateShipmentStatus` parity.
 result = client.orders.with_raw_response.update_shipment_status(
     "some example string",
     UpdateShipmentStatusRequest(
-        shipment_status=ShipmentStatus1.READY_FOR_PICKUP,
+        shipment_status=ShipmentStatusOrders.READY_FOR_PICKUP,
         order_lines=[UpdateShipmentStatusLine(line_number="some example string")],
     ),
 )
@@ -5484,7 +5255,7 @@ match result:
 result = await async_client.orders.with_raw_response.update_shipment_status(
     "some example string",
     UpdateShipmentStatusRequest(
-        shipment_status=ShipmentStatus1.READY_FOR_PICKUP,
+        shipment_status=ShipmentStatusOrders.READY_FOR_PICKUP,
         order_lines=[UpdateShipmentStatusLine(line_number="some example string")],
     ),
 )
@@ -5505,7 +5276,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Value sent with the request. |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>body</code> | <code>[UpdateShipmentStatusRequest](walmart_apis/models/update_shipment_status_request.py) \| [UpdateShipmentStatusRequestDict](walmart_apis/models/update_shipment_status_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -5549,15 +5320,9 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Parity with Amazon SP-API Orders v0 `updateVerificationStatus`. The
-seller calls this after delivering a regulated-item order to
-record whether the buyer's identity / age was verified at the
-doorstep. An APPROVED status releases the order for settlement;
-REJECTED requires a `rejectionReason` and triggers downstream
-return-processing.
-
-Gated by the CCM-managed `orders.features.regulatedInfoEnabled`
-kill-switch (live-refreshable, parity with the cancel kill-switch).
+Records the outcome of buyer identity or age verification at delivery
+for a regulated Walmart Marketplace order. The verification status
+indicates whether the buyer's identity was successfully verified or rejected.
 
 </dd>
 </dl>
@@ -5603,7 +5368,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>purchase_order_id</code> | <code>str</code> | Walmart Purchase Order ID |
+| <code>purchase_order_id</code> | <code>str</code> | Purchase order identifier assigned by Walmart. |
 | <code>body</code> | <code>[UpdateVerificationStatusRequest](walmart_apis/models/update_verification_status_request.py) \| [UpdateVerificationStatusRequestDict](walmart_apis/models/update_verification_status_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -5641,7 +5406,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [Payouts](walmart_apis/apis/payouts.py)
 
 <details>
-<summary><code>def configure_auto_payout(body: DisbursementsV4PaymentAutoPayoutRequest | DisbursementsV4PaymentAutoPayoutRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[PayoutStatusResponse, ConfigureAutoPayoutErrorBody]</code></summary>
+<summary><code>def configure_auto_payout(body: ConfigureAutoPayoutRequest | ConfigureAutoPayoutRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[PayoutStatusResponse, ConfigureAutoPayoutErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -5654,7 +5419,10 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 Enables or disables automatic scheduled payouts for the authenticated seller.
 When enabled, payouts are triggered automatically on the standard settlement
 cadence. Returns updated payout status. Requires disbursements:write scope.
-Delegates to GMPPaymentsPlatform (Phase 5).
+
+**Status: not supported** — no GMPPaymentsPlatform endpoint exists for
+writing auto-payout configuration. Kept in the spec for SDK/client parity
+and contract completeness ; always returns 501..
 
 </dd>
 </dl>
@@ -5667,7 +5435,7 @@ Delegates to GMPPaymentsPlatform (Phase 5).
 **Sync**
 
 ```python
-result = client.payouts.with_raw_response.configure_auto_payout(DisbursementsV4PaymentAutoPayoutRequest(enabled=True))
+result = client.payouts.with_raw_response.configure_auto_payout(ConfigureAutoPayoutRequest(enabled=True))
 match result:
     case Success(payload=payload):
         ...  # TODO: Handle 'payload' of type PayoutStatusResponse
@@ -5678,9 +5446,7 @@ match result:
 **Async**
 
 ```python
-result = await async_client.payouts.with_raw_response.configure_auto_payout(
-    DisbursementsV4PaymentAutoPayoutRequest(enabled=True)
-)
+result = await async_client.payouts.with_raw_response.configure_auto_payout(ConfigureAutoPayoutRequest(enabled=True))
 match result:
     case Success(payload=payload):
         ...  # TODO: Handle 'payload' of type PayoutStatusResponse
@@ -5698,7 +5464,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>body</code> | <code>[DisbursementsV4PaymentAutoPayoutRequest](walmart_apis/models/disbursements_v4_payment_auto_payout_request.py) \| [DisbursementsV4PaymentAutoPayoutRequestDict](walmart_apis/models/disbursements_v4_payment_auto_payout_request.py)</code> | The request body. |
+| <code>body</code> | <code>[ConfigureAutoPayoutRequest](walmart_apis/models/configure_auto_payout_request.py) \| [ConfigureAutoPayoutRequestDict](walmart_apis/models/configure_auto_payout_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -5719,7 +5485,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 401, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 500, 501 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -5915,7 +5681,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 Returns the current payout status for the authenticated seller, including
 scheduled payout date, amount, and lifecycle state (Pending, Processing,
-Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform (Phase 5).
+Completed, Failed, OnHold). Delegates to GMPPaymentsPlatform.
 
 </dd>
 </dl>
@@ -6002,7 +5768,10 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 Triggers an immediate on-demand payout for the authenticated seller,
 bypassing the standard settlement schedule. Returns the payout ID and
 initial status. Requires disbursements:write scope.
-Delegates to GMPPaymentsPlatform (Phase 5).
+
+**Status: not supported** — no GMPPaymentsPlatform endpoint exists for
+initiating a payout on demand. Kept in the spec for SDK/client parity
+and contract completeness ; always returns 501..
 
 </dd>
 </dl>
@@ -6064,7 +5833,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 401, 409, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 409, 500, 501 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -6090,7 +5859,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-**Placeholder — not yet implemented.**
+Returns the attribute JSON Schema for one product type. Validates the product type exists against the live taxonomy (404 otherwise).
 
 </dd>
 </dl>
@@ -6169,6 +5938,94 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
+<summary><code>def get_taxonomy(*, category: str | None = None, locale: str | None = "en_US", request_options: RequestOptionsOrDict | None = None) -> ApiResult[Taxonomy, GetTaxonomyErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Returns the category -> product-type-group -> product-type hierarchy, or the subset under one category when `category` is supplied.
+
+** D1 consolidation.** Replaces four V3 operations with one V4 endpoint: `items.getTaxonomyResponse`, `utilities.getTaxonomyResponse` (duplicate full-tree reads), `utilities.getDepartmentList` (call this with no `category`), and `utilities.getCategories` (call this with `category` set to the department/category name — the taxonomy has no separate numeric department id, so the name is the identifier).
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.product_type_definitions.with_raw_response.get_taxonomy()
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type Taxonomy
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetTaxonomyErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.product_type_definitions.with_raw_response.get_taxonomy()
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type Taxonomy
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetTaxonomyErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>category</code> | <code>str \| None</code> | Scope the response to one category (matches `TaxonomyCategory.category`).<br>**Default**: <code>None</code> |
+| <code>locale</code> | <code>str \| None</code> | Value sent with the request.<br>**Default**: <code>"en_US"</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[Taxonomy](walmart_apis/models/taxonomy.py), [GetTaxonomyErrorBody](walmart_apis/errors/get_taxonomy_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[Taxonomy](walmart_apis/models/taxonomy.py)</code> -- Taxonomy tree
+
+**On `Failure`**: `error` is <code>[GetTaxonomyErrorBody](walmart_apis/errors/get_taxonomy_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
 <summary><code>def search_definitions_product_types(*, keywords: str | None = None, item_name: str | None = None, locale: str | None = "en_US", request_options: RequestOptionsOrDict | None = None) -> ApiResult[ProductTypeList, SearchDefinitionsProductTypesErrorBody]</code></summary>
 
 <dl>
@@ -6179,7 +6036,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-**Placeholder — not yet implemented.**
+Lists product types from the Walmart Item Classification taxonomy, optionally narrowed by `keywords` (substring search) or `itemName` (model-backed product-type recommendation for a free-text title).
 
 </dd>
 </dl>
@@ -6353,7 +6210,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def download_reconciliation_report(partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[FileResponse, DownloadReconciliationReportErrorBody]</code></summary>
+<summary><code>def download_reconciliation_report(reconciliation_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[FileResponse, DownloadReconciliationReportErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -6410,8 +6267,8 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
+| <code>reconciliation_report_id</code> | <code>str</code> | Reconciliation report identifier — the report date in MMddyyyy format (e.g. 06172026) |
 | <code>partner_id</code> | <code>str</code> | Numeric partner/seller ID |
-| <code>report_date</code> | <code>str</code> | Report date in MMddyyyy format (e.g. 06172026) |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -6534,7 +6391,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [ReportSchedules](walmart_apis/apis/report_schedules.py)
 
 <details>
-<summary><code>def cancel_report_schedule(report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelReportScheduleResponse, CancelReportScheduleErrorBody]</code></summary>
+<summary><code>def cancel_report_schedule(schedule_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelReportScheduleResponse, CancelReportScheduleErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -6586,7 +6443,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>report_schedule_id</code> | <code>str</code> | Value sent with the request. |
+| <code>schedule_id</code> | <code>str</code> | Value sent with the request. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -6708,7 +6565,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_report_schedule(report_schedule_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ReportSchedule, GetReportScheduleErrorBody]</code></summary>
+<summary><code>def get_report_schedule(schedule_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ReportSchedule, GetReportScheduleErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -6760,7 +6617,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>report_schedule_id</code> | <code>str</code> | Value sent with the request. |
+| <code>schedule_id</code> | <code>str</code> | Value sent with the request. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -6977,8 +6834,8 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Submits a report request. Poll `GET /reports/{reportId}` for status.
-Report type taxonomy TBD — coordinate with Pod 5 for financial reports.
+Submits a report request. Poll `GET /v4/reports/{report-id}` for status.
+The report type taxonomy for financial reports is not yet finalized.
 
 </dd>
 </dl>
@@ -7055,7 +6912,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def download_new_report(partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[FileResponse, DownloadNewReportErrorBody]</code></summary>
+<summary><code>def download_new_report(summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[FileResponse, DownloadNewReportErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -7108,8 +6965,8 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
+| <code>summary_report_id</code> | <code>str</code> | Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026) |
 | <code>partner_id</code> | <code>str</code> | Numeric partner/seller ID |
-| <code>report_date</code> | <code>str</code> | Report date in MMddyyyy format (e.g. 06172026) |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -7130,7 +6987,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 404, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 404, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -7142,7 +6999,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def download_old_report(partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[FileResponse, DownloadOldReportErrorBody]</code></summary>
+<summary><code>def download_old_report(summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[FileResponse, DownloadOldReportErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -7195,8 +7052,8 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
+| <code>summary_report_id</code> | <code>str</code> | Settlement summary report identifier — the report date in MMddyyyy format (e.g. 06172026) |
 | <code>partner_id</code> | <code>str</code> | Numeric partner/seller ID |
-| <code>report_date</code> | <code>str</code> | Report date in MMddyyyy format (e.g. 06172026) |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -7217,7 +7074,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 404, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 404, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -7314,7 +7171,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_report_document(report_document_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ReportDocument, GetReportDocumentErrorBody]</code></summary>
+<summary><code>def get_report_document(document_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ReportDocument, GetReportDocumentErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -7367,7 +7224,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>report_document_id</code> | <code>str</code> | Value sent with the request. |
+| <code>document_id</code> | <code>str</code> | Value sent with the request. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -7567,7 +7424,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -7652,7 +7509,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -7727,7 +7584,7 @@ match result:
 | --- | --- | --- |
 | <code>partner_id</code> | <code>str</code> | Numeric partner/seller ID |
 | <code>report_date</code> | <code>str</code> | Report date in MMddyyyy format (e.g. 06172026) |
-| <code>page_size</code> | <code>int \| None</code> | Value sent with the request.<br>**Default**: <code>10</code> |
+| <code>page_size</code> | <code>int \| None</code> | Maximum number of results to return per page.<br>**Default**: <code>10</code> |
 | <code>next_token</code> | <code>str \| None</code> | Opaque cursor from a prior response; omit for first page<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -7814,7 +7671,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>page_size</code> | <code>int \| None</code> | Value sent with the request.<br>**Default**: <code>10</code> |
+| <code>page_size</code> | <code>int \| None</code> | Maximum number of results to return per page.<br>**Default**: <code>10</code> |
 | <code>next_token</code> | <code>str \| None</code> | Opaque cursor from a prior response; omit for first page<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -7860,7 +7717,12 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 Returns a paginated list of payment transactions for the authenticated seller
 filtered by optional date range. Contains PII (purchase order IDs).
-Delegates to GMPPaymentsPlatform (Phase 5).
+
+**Status: not supported** — no GMPPaymentsPlatform endpoint exists for a
+general date-ranged transaction search across all transaction types.
+Kept in the spec for SDK/client parity and contract completeness
+, including the SP-API `listTransactions` alias above; always
+returns 501..
 
 </dd>
 </dl>
@@ -7902,10 +7764,10 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>page_size</code> | <code>int \| None</code> | Value sent with the request.<br>**Default**: <code>10</code> |
+| <code>page_size</code> | <code>int \| None</code> | Maximum number of results to return per page.<br>**Default**: <code>10</code> |
 | <code>next_token</code> | <code>str \| None</code> | Opaque cursor from a prior response; omit for first page<br>**Default**: <code>None</code> |
-| <code>posted_after</code> | <code>RFC3339DateTime \| None</code> | Value sent with the request.<br>**Default**: <code>None</code> |
-| <code>posted_before</code> | <code>RFC3339DateTime \| None</code> | Value sent with the request.<br>**Default**: <code>None</code> |
+| <code>posted_after</code> | <code>RFC3339DateTime \| None</code> | Only return transactions posted after (or on) this date/time (ISO 8601).<br>**Default**: <code>None</code> |
+| <code>posted_before</code> | <code>RFC3339DateTime \| None</code> | Only return transactions posted before (but not on) this date/time (ISO 8601).<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -7926,7 +7788,370 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 401, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 500, 501 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+## SupplySourceApi
+
+> Source: [SupplySourceApi](walmart_apis/apis/supply_source_api.py)
+
+<details>
+<summary><code>def create_supply_source(body: CreateSupplySourceRequest | CreateSupplySourceRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CreateSupplySourceResponse, CreateSupplySourceErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Creates a new supply source (fulfillment center). Returns only the
+`supplySourceId` and `supplySourceCode` of the newly created resource.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.supply_source_api.with_raw_response.create_supply_source(
+    CreateSupplySourceRequest(supply_source_code="some example string", address=AddressShippingManagement())
+)
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type CreateSupplySourceResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type CreateSupplySourceErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.supply_source_api.with_raw_response.create_supply_source(
+    CreateSupplySourceRequest(supply_source_code="some example string", address=AddressShippingManagement())
+)
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type CreateSupplySourceResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type CreateSupplySourceErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>body</code> | <code>[CreateSupplySourceRequest](walmart_apis/models/create_supply_source_request.py) \| [CreateSupplySourceRequestDict](walmart_apis/models/create_supply_source_request.py)</code> | The request body. |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CreateSupplySourceResponse](walmart_apis/models/create_supply_source_response.py), [CreateSupplySourceErrorBody](walmart_apis/errors/create_supply_source_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[CreateSupplySourceResponse](walmart_apis/models/create_supply_source_response.py)</code> -- Supply source created successfully
+
+**On `Failure`**: `error` is <code>[CreateSupplySourceErrorBody](walmart_apis/errors/create_supply_source_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 401, 403, 429, 500 | <code>[ErrorListShippingManagement](walmart_apis/models/error_list_shipping_management.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def get_supply_source(supply_source_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[SupplySource, GetSupplySourceErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Returns the supply source (fulfillment center) identified by
+`supplySourceId`.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.supply_source_api.with_raw_response.get_supply_source("some example string")
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type SupplySource
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetSupplySourceErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.supply_source_api.with_raw_response.get_supply_source("some example string")
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type SupplySource
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetSupplySourceErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>supply_source_id</code> | <code>str</code> | The unique identifier of the supply source. |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[SupplySource](walmart_apis/models/supply_source.py), [GetSupplySourceErrorBody](walmart_apis/errors/get_supply_source_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[SupplySource](walmart_apis/models/supply_source.py)</code> -- Supply source returned successfully
+
+**On `Failure`**: `error` is <code>[GetSupplySourceErrorBody](walmart_apis/errors/get_supply_source_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorListShippingManagement](walmart_apis/models/error_list_shipping_management.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def list_supply_sources(*, request_options: RequestOptionsOrDict | None = None) -> ApiResult[list[SupplySource], ListSupplySourcesErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Returns every supply source (fulfillment center) registered to the
+seller ( Phase 2 parity gap: V3's `getAllFulfillmentCenters`
+had no V4 equivalent before this).
+
+No pagination today. Planned enhancements for this operation,
+including pagination, are tracked and documented in the
+[Shipping Settings APIs - V4 Integration](https://confluence.walmart.com/spaces/MTMKTP/pages/3700253502/Shipping+Settings+APIs+-+V4+Integration)
+reference doc.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.supply_source_api.with_raw_response.list_supply_sources()
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type list[SupplySource]
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type ListSupplySourcesErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.supply_source_api.with_raw_response.list_supply_sources()
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type list[SupplySource]
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type ListSupplySourcesErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;list&#91;[SupplySource](walmart_apis/models/supply_source.py)&#93;, [ListSupplySourcesErrorBody](walmart_apis/errors/list_supply_sources_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>list&#91;[SupplySource](walmart_apis/models/supply_source.py)&#93;</code> -- Supply sources returned successfully
+
+**On `Failure`**: `error` is <code>[ListSupplySourcesErrorBody](walmart_apis/errors/list_supply_sources_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 401, 403, 429, 500 | <code>[ErrorListShippingManagement](walmart_apis/models/error_list_shipping_management.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def update_supply_source(supply_source_id: str, body: UpdateSupplySourceRequest | UpdateSupplySourceRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[None, UpdateSupplySourceErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Updates the supply source (fulfillment center) identified by
+`supplySourceId`. Returns 204 on success with no body. On error,
+returns the standard error envelope.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.supply_source_api.with_raw_response.update_supply_source(
+    "some example string", UpdateSupplySourceRequest()
+)
+match result:
+    case Success():
+        ...  # 2xx, no content
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type UpdateSupplySourceErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.supply_source_api.with_raw_response.update_supply_source(
+    "some example string", UpdateSupplySourceRequest()
+)
+match result:
+    case Success():
+        ...  # 2xx, no content
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type UpdateSupplySourceErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>supply_source_id</code> | <code>str</code> | The unique identifier of the supply source to update. |
+| <code>body</code> | <code>[UpdateSupplySourceRequest](walmart_apis/models/update_supply_source_request.py) \| [UpdateSupplySourceRequestDict](walmart_apis/models/update_supply_source_request.py)</code> | The request body. |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;None, [UpdateSupplySourceErrorBody](walmart_apis/errors/update_supply_source_error.py)&#93;</code>
+
+**On `Success`**: the 2xx carries no content; `payload` is <code>None</code>
+
+**On `Failure`**: `error` is <code>[UpdateSupplySourceErrorBody](walmart_apis/errors/update_supply_source_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorListShippingManagement](walmart_apis/models/error_list_shipping_management.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -7942,7 +8167,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [Uploads](walmart_apis/apis/uploads.py)
 
 <details>
-<summary><code>def create_upload_destination_for_resource(resource: ResourceOrStr, content_type: ContentType1OrStr, marketplace_ids: list[str], content_md5: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CreateUploadDestinationResponse, CreateUploadDestinationForResourceErrorBody]</code></summary>
+<summary><code>def create_upload_destination_for_resource(resource: ResourceOrStr, content_type: ContentTypeUploadsFeedDocumentsOrStr, marketplace_ids: list[str], content_md5: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CreateUploadDestinationResponse, CreateUploadDestinationForResourceErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -7968,7 +8193,10 @@ a document for the given resource (e.g. feeds, reports).
 
 ```python
 result = client.uploads.with_raw_response.create_upload_destination_for_resource(
-    Resource.FEEDS, ContentType1.TEXT_XML_CHARSET_UTF_8, ["some example string"], "some example string"
+    Resource.FEEDS,
+    ContentTypeUploadsFeedDocuments.TEXT_XML_CHARSET_UTF_8,
+    ["some example string"],
+    "some example string",
 )
 match result:
     case Success(payload=payload):
@@ -7981,7 +8209,10 @@ match result:
 
 ```python
 result = await async_client.uploads.with_raw_response.create_upload_destination_for_resource(
-    Resource.FEEDS, ContentType1.TEXT_XML_CHARSET_UTF_8, ["some example string"], "some example string"
+    Resource.FEEDS,
+    ContentTypeUploadsFeedDocuments.TEXT_XML_CHARSET_UTF_8,
+    ["some example string"],
+    "some example string",
 )
 match result:
     case Success(payload=payload):
@@ -8001,7 +8232,7 @@ match result:
 | Name | Type | Description |
 | --- | --- | --- |
 | <code>resource</code> | <code>[ResourceOrStr](walmart_apis/models/enums/resource.py)</code> | The resource type for the upload destination (e.g. feeds) |
-| <code>content_type</code> | <code>[ContentType1OrStr](walmart_apis/models/enums/content_type1.py)</code> | MIME type of the content to be uploaded |
+| <code>content_type</code> | <code>[ContentTypeUploadsFeedDocumentsOrStr](walmart_apis/models/enums/content_type_uploads_feed_documents.py)</code> | MIME type of the content to be uploaded |
 | <code>marketplace_ids</code> | <code>list&#91;str&#93;</code> | Value sent with the request. |
 | <code>content_md5</code> | <code>str</code> | MD5 hash of the content to be uploaded, encoded as base64 |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -8214,7 +8445,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -8300,7 +8531,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -8391,7 +8622,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -8482,7 +8713,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -8573,7 +8804,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -8664,7 +8895,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -8755,7 +8986,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -8844,7 +9075,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -8935,7 +9166,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9025,7 +9256,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9112,7 +9343,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9201,7 +9432,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9287,7 +9518,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9372,7 +9603,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9460,7 +9691,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9545,7 +9776,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9629,7 +9860,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9715,7 +9946,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9803,7 +10034,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9889,7 +10120,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[RawError](walmart_apis/core/results.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -9915,11 +10146,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns an estimated fee for a single item identified by Walmart Item ID.
-Walmart Item ID replaces the SP-API ASIN path parameter.
-
-SP-API equivalent: `getMyFeesEstimateForASIN` (identifier changed from
-ASIN to Walmart Item ID; request/response shape is otherwise 1:1).
+Returns the estimated fees for an item identified by Walmart Item ID, based on the pricing and fulfillment information provided in the request.
 
 </dd>
 </dl>
@@ -9965,8 +10192,8 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>walmart_item_id</code> | <code>str</code> | The Walmart Item ID of the item. Replaces SP-API ASIN. |
-| <code>body</code> | <code>[GetMyFeesEstimateRequest](walmart_apis/models/get_my_fees_estimate_request.py) \| [GetMyFeesEstimateRequestDict](walmart_apis/models/get_my_fees_estimate_request.py)</code> | The request body. |
+| <code>walmart_item_id</code> | <code>str</code> | Walmart Item ID of the item. |
+| <code>body</code> | <code>[GetMyFeesEstimateRequest](walmart_apis/models/get_my_fees_estimate_request.py) \| [GetMyFeesEstimateRequestDict](walmart_apis/models/get_my_fees_estimate_request.py)</code> | Pricing and fulfillment information used to estimate fees for the item. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -9979,7 +10206,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetMyFeesEstimateResponse](walmart_apis/models/get_my_fees_estimate_response.py), [GetMyFeesEstimateForItemErrorBody](walmart_apis/errors/get_my_fees_estimate_for_item_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetMyFeesEstimateResponse](walmart_apis/models/get_my_fees_estimate_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetMyFeesEstimateResponse](walmart_apis/models/get_my_fees_estimate_response.py)</code> -- Returns the fee estimate result for the requested item.
 
 **On `Failure`**: `error` is <code>[GetMyFeesEstimateForItemErrorBody](walmart_apis/errors/get_my_fees_estimate_for_item_error.py)</code>
 
@@ -10009,7 +10236,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns an estimated fee for a seller listing identified by Seller SKU.
+Returns the estimated fees for a seller listing identified by seller SKU using the pricing and fulfillment information provided in the request.
 
 </dd>
 </dl>
@@ -10055,9 +10282,9 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>seller_sku</code> | <code>str</code> | The seller's SKU for the listing. Scoped to the authenticated seller. |
+| <code>seller_sku</code> | <code>str</code> | Seller SKU for the listing. Scoped to the authenticated seller. |
 | <code>marketplace_id</code> | <code>str</code> | Marketplace identifier. |
-| <code>body</code> | <code>[GetMyFeesEstimateRequest](walmart_apis/models/get_my_fees_estimate_request.py) \| [GetMyFeesEstimateRequestDict](walmart_apis/models/get_my_fees_estimate_request.py)</code> | The request body. |
+| <code>body</code> | <code>[GetMyFeesEstimateRequest](walmart_apis/models/get_my_fees_estimate_request.py) \| [GetMyFeesEstimateRequestDict](walmart_apis/models/get_my_fees_estimate_request.py)</code> | Pricing and fulfillment information used to estimate fees for the listing. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -10070,7 +10297,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetMyFeesEstimateResponse](walmart_apis/models/get_my_fees_estimate_response.py), [GetMyFeesEstimateForSkuErrorBody](walmart_apis/errors/get_my_fees_estimate_for_sku_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetMyFeesEstimateResponse](walmart_apis/models/get_my_fees_estimate_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetMyFeesEstimateResponse](walmart_apis/models/get_my_fees_estimate_response.py)</code> -- Returns the fee estimate result for the specified listing.
 
 **On `Failure`**: `error` is <code>[GetMyFeesEstimateForSkuErrorBody](walmart_apis/errors/get_my_fees_estimate_for_sku_error.py)</code>
 
@@ -10100,8 +10327,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns estimated Walmart fees for a list of items identified by
-Walmart Item ID or Seller SKU.
+Returns estimated Walmart fees for multiple items identified by Walmart Item ID or seller SKU.
 
 </dd>
 </dl>
@@ -10122,7 +10348,7 @@ result = client.product_fees.with_raw_response.get_my_fees_estimates(
             fees_estimate_request=FeesEstimateRequest(
                 marketplace_id="some example string",
                 is_walmart_fulfilled=True,
-                price_to_estimate_fees=PriceToEstimateFees(listing_price=MoneyType1()),
+                price_to_estimate_fees=PriceToEstimateFees(listing_price=MoneyTypeProductFees()),
             ),
         ),
     ],
@@ -10145,7 +10371,7 @@ result = await async_client.product_fees.with_raw_response.get_my_fees_estimates
             fees_estimate_request=FeesEstimateRequest(
                 marketplace_id="some example string",
                 is_walmart_fulfilled=True,
-                price_to_estimate_fees=PriceToEstimateFees(listing_price=MoneyType1()),
+                price_to_estimate_fees=PriceToEstimateFees(listing_price=MoneyTypeProductFees()),
             ),
         ),
     ],
@@ -10167,7 +10393,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>body</code> | <code>list&#91;[FeesEstimateByIdRequest](walmart_apis/models/fees_estimate_by_id_request.py) \| [FeesEstimateByIdRequestDict](walmart_apis/models/fees_estimate_by_id_request.py)&#93;</code> | The request body. |
+| <code>body</code> | <code>list&#91;[FeesEstimateByIdRequest](walmart_apis/models/fees_estimate_by_id_request.py) \| [FeesEstimateByIdRequestDict](walmart_apis/models/fees_estimate_by_id_request.py)&#93;</code> | Fee estimate requests for items identified by Walmart Item ID or seller SKU, including pricing and fulfillment information. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -10180,7 +10406,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;list&#91;[FeesEstimateResult](walmart_apis/models/fees_estimate_result.py)&#93;, [GetMyFeesEstimatesErrorBody](walmart_apis/errors/get_my_fees_estimates_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>list&#91;[FeesEstimateResult](walmart_apis/models/fees_estimate_result.py)&#93;</code> -- Success
+**On `Success`**: `payload` is <code>list&#91;[FeesEstimateResult](walmart_apis/models/fees_estimate_result.py)&#93;</code> -- Returns fee estimate results for the requested items.
 
 **On `Failure`**: `error` is <code>[GetMyFeesEstimatesErrorBody](walmart_apis/errors/get_my_fees_estimates_error.py)</code>
 
@@ -10204,7 +10430,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [ProductPricing](walmart_apis/apis/product_pricing.py)
 
 <details>
-<summary><code>def get_competitive_pricing(marketplace_id: str, *, item_type: ItemTypeOrStr = ItemType.SKU, skus: list[str] | None = None, walmart_item_ids: list[str] | None = None, customer_type: CustomerTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetPricingResponse, GetCompetitivePricingErrorBody]</code></summary>
+<summary><code>def get_buybox_offer_expected_price_batch(body: GetBuyboxOfferExpectedPriceBatchRequest | GetBuyboxOfferExpectedPriceBatchRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetBuyboxOfferExpectedPriceBatchResponse, GetBuyboxOfferExpectedPriceBatchErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -10214,7 +10440,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns competitive pricing information for a seller's offer listings based on seller SKU or Walmart Item ID .
+**Planned — not yet available in production.** Returns the Buybox Offer Expected Price (BOEP) for a batch of seller SKUs.
 
 </dd>
 </dl>
@@ -10227,9 +10453,96 @@ Returns competitive pricing information for a seller's offer listings based on s
 **Sync**
 
 ```python
-result = client.product_pricing.with_raw_response.get_competitive_pricing(
-    "some example string", item_type=ItemType.WALMART_ITEM_ID
+result = client.product_pricing.with_raw_response.get_buybox_offer_expected_price_batch(
+    GetBuyboxOfferExpectedPriceBatchRequest()
 )
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetBuyboxOfferExpectedPriceBatchResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetBuyboxOfferExpectedPriceBatchErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.product_pricing.with_raw_response.get_buybox_offer_expected_price_batch(
+    GetBuyboxOfferExpectedPriceBatchRequest()
+)
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetBuyboxOfferExpectedPriceBatchResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetBuyboxOfferExpectedPriceBatchErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>body</code> | <code>[GetBuyboxOfferExpectedPriceBatchRequest](walmart_apis/models/get_buybox_offer_expected_price_batch_request.py) \| [GetBuyboxOfferExpectedPriceBatchRequestDict](walmart_apis/models/get_buybox_offer_expected_price_batch_request.py)</code> | The request body. |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetBuyboxOfferExpectedPriceBatchResponse](walmart_apis/models/get_buybox_offer_expected_price_batch_response.py), [GetBuyboxOfferExpectedPriceBatchErrorBody](walmart_apis/errors/get_buybox_offer_expected_price_batch_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[GetBuyboxOfferExpectedPriceBatchResponse](walmart_apis/models/get_buybox_offer_expected_price_batch_response.py)</code> -- Success
+
+**On `Failure`**: `error` is <code>[GetBuyboxOfferExpectedPriceBatchErrorBody](walmart_apis/errors/get_buybox_offer_expected_price_batch_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 403, 404, 429, 500 | <code>list&#91;[ErrorCatalogItems](walmart_apis/models/error_catalog_items.py)&#93;</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def get_competitive_pricing(*, item_type: ItemTypeOrStr = ItemType.SKU, skus: list[str] | None = None, walmart_item_ids: list[str] | None = None, customer_type: CustomerTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetPricingResponse, GetCompetitivePricingErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Returns competitive pricing information for seller offer listings identified by seller SKU or Walmart Item ID.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.product_pricing.with_raw_response.get_competitive_pricing(item_type=ItemType.WALMART_ITEM_ID)
 match result:
     case Success(payload=payload):
         ...  # TODO: Handle 'payload' of type GetPricingResponse
@@ -10241,7 +10554,7 @@ match result:
 
 ```python
 result = await async_client.product_pricing.with_raw_response.get_competitive_pricing(
-    "some example string", item_type=ItemType.WALMART_ITEM_ID
+    item_type=ItemType.WALMART_ITEM_ID
 )
 match result:
     case Success(payload=payload):
@@ -10260,11 +10573,10 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>marketplace_id</code> | <code>str</code> | A marketplace identifier. Specifies the marketplace for which prices are returned. |
-| <code>item_type</code> | <code>[ItemTypeOrStr](walmart_apis/models/enums/item_type.py)</code> | Indicates whether Walmart Item ID values or seller SKU values are used to identify items.<br>**Default**: <code>ItemType.SKU</code> |
-| <code>skus</code> | <code>list&#91;str&#93; \| None</code> | A list of up to twenty seller SKU values used to identify items in the given marketplace.<br>**Default**: <code>None</code> |
-| <code>walmart_item_ids</code> | <code>list&#91;str&#93; \| None</code> | A list of up to twenty Walmart Item ID values used to identify items in the given marketplace.<br>**Default**: <code>None</code> |
-| <code>customer_type</code> | <code>[CustomerTypeOrStr](walmart_apis/models/enums/customer_type.py) \| None</code> | Indicates whether to request pricing information from the point of view of Consumer or Business buyers. Default is Consumer.<br>**Default**: <code>None</code> |
+| <code>item_type</code> | <code>[ItemTypeOrStr](walmart_apis/models/enums/item_type.py)</code> | Indicates whether Walmart Item ID values or seller SKU values are used to identify the requested items.<br>**Default**: <code>ItemType.SKU</code> |
+| <code>skus</code> | <code>list&#91;str&#93; \| None</code> | Seller SKUs that identify the items to return. Supports up to 20 values.<br>**Default**: <code>None</code> |
+| <code>walmart_item_ids</code> | <code>list&#91;str&#93; \| None</code> | Walmart Item IDs that identify the items to return. Supports up to 20 values.<br>**Default**: <code>None</code> |
+| <code>customer_type</code> | <code>[CustomerTypeOrStr](walmart_apis/models/enums/customer_type.py) \| None</code> | Indicates whether to request `Consumer` or `Business` offers. The default is `Consumer`.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -10277,7 +10589,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetPricingResponse](walmart_apis/models/get_pricing_response.py), [GetCompetitivePricingErrorBody](walmart_apis/errors/get_competitive_pricing_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetPricingResponse](walmart_apis/models/get_pricing_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetPricingResponse](walmart_apis/models/get_pricing_response.py)</code> -- Returns competitive pricing information for the requested seller items.
 
 **On `Failure`**: `error` is <code>[GetCompetitivePricingErrorBody](walmart_apis/errors/get_competitive_pricing_error.py)</code>
 
@@ -10285,7 +10597,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>list&#91;[Error3](walmart_apis/models/error3.py)&#93;</code> |
+| 400, 403, 404, 429, 500 | <code>list&#91;[ErrorCatalogItems](walmart_apis/models/error_catalog_items.py)&#93;</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -10307,12 +10619,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-**Planned — not yet available in production.** Returns competitive summary including featured buying options and lowest priced offers
-for a batch of Walmart Item IDs .
-
-**Phase 1 stub** — no upstream data source identified.
-Returns HTTP 501 until an upstream is confirmed.
-Track: .
+**Planned — not yet available in production.** Returns competitive summary information, including featured buying options and lowest-priced offers, for a batch of Walmart Item IDs.
 
 </dd>
 </dl>
@@ -10367,7 +10674,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CompetitiveSummaryBatchResponse](walmart_apis/models/competitive_summary_batch_response.py), [GetCompetitiveSummaryErrorBody](walmart_apis/errors/get_competitive_summary_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CompetitiveSummaryBatchResponse](walmart_apis/models/competitive_summary_batch_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[CompetitiveSummaryBatchResponse](walmart_apis/models/competitive_summary_batch_response.py)</code> -- Returns competitive summary results for the requested Walmart items.
 
 **On `Failure`**: `error` is <code>[GetCompetitiveSummaryErrorBody](walmart_apis/errors/get_competitive_summary_error.py)</code>
 
@@ -10375,7 +10682,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>list&#91;[Error3](walmart_apis/models/error3.py)&#93;</code> |
+| 400, 403, 404, 429, 500 | <code>list&#91;[ErrorCatalogItems](walmart_apis/models/error_catalog_items.py)&#93;</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -10387,7 +10694,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_featured_offer_expected_price_batch(body: GetFeaturedOfferExpectedPriceBatchRequest | GetFeaturedOfferExpectedPriceBatchRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetFeaturedOfferExpectedPriceBatchResponse, GetFeaturedOfferExpectedPriceBatchErrorBody]</code></summary>
+<summary><code>def get_item_offers(item_id: str, item_condition: ConditionTypeProductPricingOrStr, *, customer_type: CustomerTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetOffersResponse, GetItemOffersErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -10397,106 +10704,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-**Planned — not yet available in production.** Returns the featured offer expected price (FOEP) for a batch of seller SKUs.
-
-**Phase 1 stub** — no upstream data source identified.
-Returns HTTP 501 until an upstream is confirmed.
-Track: .
-
-</dd>
-</dl>
-
-### Usage
-
-<dl>
-<dd>
-
-**Sync**
-
-```python
-result = client.product_pricing.with_raw_response.get_featured_offer_expected_price_batch(
-    GetFeaturedOfferExpectedPriceBatchRequest()
-)
-match result:
-    case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFeaturedOfferExpectedPriceBatchResponse
-    case Failure(error=error):
-        ...  # TODO: Handle 'error' of type GetFeaturedOfferExpectedPriceBatchErrorBody
-```
-
-**Async**
-
-```python
-result = await async_client.product_pricing.with_raw_response.get_featured_offer_expected_price_batch(
-    GetFeaturedOfferExpectedPriceBatchRequest()
-)
-match result:
-    case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFeaturedOfferExpectedPriceBatchResponse
-    case Failure(error=error):
-        ...  # TODO: Handle 'error' of type GetFeaturedOfferExpectedPriceBatchErrorBody
-```
-
-</dd>
-</dl>
-
-### Parameters
-
-<dl>
-<dd>
-
-| Name | Type | Description |
-| --- | --- | --- |
-| <code>body</code> | <code>[GetFeaturedOfferExpectedPriceBatchRequest](walmart_apis/models/get_featured_offer_expected_price_batch_request.py) \| [GetFeaturedOfferExpectedPriceBatchRequestDict](walmart_apis/models/get_featured_offer_expected_price_batch_request.py)</code> | The request body. |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
-
-</dd>
-</dl>
-
-### Response
-
-<dl>
-<dd>
-
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetFeaturedOfferExpectedPriceBatchResponse](walmart_apis/models/get_featured_offer_expected_price_batch_response.py), [GetFeaturedOfferExpectedPriceBatchErrorBody](walmart_apis/errors/get_featured_offer_expected_price_batch_error.py)&#93;</code>
-
-**On `Success`**: `payload` is <code>[GetFeaturedOfferExpectedPriceBatchResponse](walmart_apis/models/get_featured_offer_expected_price_batch_response.py)</code> -- Success
-
-**On `Failure`**: `error` is <code>[GetFeaturedOfferExpectedPriceBatchErrorBody](walmart_apis/errors/get_featured_offer_expected_price_batch_error.py)</code>
-
-Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
-
-| Status | `error` is |
-| --- | --- |
-| 400, 403, 404, 429, 500 | <code>list&#91;[Error3](walmart_apis/models/error3.py)&#93;</code> |
-| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
-
-</dd>
-</dl>
-
-</dd>
-</dl>
-
-</details>
-
-<details>
-<summary><code>def get_item_offers(item_id: str, marketplace_id: str, item_condition: ConditionType2OrStr, *, customer_type: CustomerTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetOffersResponse, GetItemOffersErrorBody]</code></summary>
-
-<dl>
-<dd>
-
-### Description
-
-<dl>
-<dd>
-
-Returns the lowest priced offers for a single item based on Walmart Item ID and item condition.
-
-Uses Walmart Item ID as the primary identifier(ASIN not supported —
-no ASIN resolver exists in the Walmart platform; IQS queries by product.item_id).
-
-Backed by IQS catalog_index cross-seller query (same as getListingOffers hop-2).
-Returns 404 when no offers are found for the given itemId.
+Returns the lowest-priced offers for a Walmart item with the specified item condition.
 
 </dd>
 </dl>
@@ -10510,7 +10718,7 @@ Returns 404 when no offers are found for the given itemId.
 
 ```python
 result = client.product_pricing.with_raw_response.get_item_offers(
-    "some example string", "some example string", ConditionType2.NEW
+    "some example string", ConditionTypeProductPricing.NEW
 )
 match result:
     case Success(payload=payload):
@@ -10523,7 +10731,7 @@ match result:
 
 ```python
 result = await async_client.product_pricing.with_raw_response.get_item_offers(
-    "some example string", "some example string", ConditionType2.NEW
+    "some example string", ConditionTypeProductPricing.NEW
 )
 match result:
     case Success(payload=payload):
@@ -10542,10 +10750,9 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>item_id</code> | <code>str</code> | The Walmart Item ID of the item. |
-| <code>marketplace_id</code> | <code>str</code> | A marketplace identifier. Specifies the marketplace for which prices are returned. |
-| <code>item_condition</code> | <code>[ConditionType2OrStr](walmart_apis/models/enums/condition_type2.py)</code> | Filters the offer listings based on item condition. Possible values: New, Used, Collectible, Refurbished, Club. |
-| <code>customer_type</code> | <code>[CustomerTypeOrStr](walmart_apis/models/enums/customer_type.py) \| None</code> | Indicates whether to request Consumer or Business offers. Default is Consumer.<br>**Default**: <code>None</code> |
+| <code>item_id</code> | <code>str</code> | Walmart Item ID that identifies the item. |
+| <code>item_condition</code> | <code>[ConditionTypeProductPricingOrStr](walmart_apis/models/enums/condition_type_product_pricing.py)</code> | Filters the offer listings based on item condition. Possible values are `New`, `Restored`, and `Pre-Owned`. |
+| <code>customer_type</code> | <code>[CustomerTypeOrStr](walmart_apis/models/enums/customer_type.py) \| None</code> | Indicates whether to request `Consumer` or `Business` offers. The default is `Consumer`.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -10558,7 +10765,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetOffersResponse](walmart_apis/models/get_offers_response.py), [GetItemOffersErrorBody](walmart_apis/errors/get_item_offers_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetOffersResponse](walmart_apis/models/get_offers_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetOffersResponse](walmart_apis/models/get_offers_response.py)</code> -- Returns the lowest-priced offers for the requested Walmart item.
 
 **On `Failure`**: `error` is <code>[GetItemOffersErrorBody](walmart_apis/errors/get_item_offers_error.py)</code>
 
@@ -10566,7 +10773,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>list&#91;[Error3](walmart_apis/models/error3.py)&#93;</code> |
+| 400, 403, 404, 429, 500 | <code>list&#91;[ErrorCatalogItems](walmart_apis/models/error_catalog_items.py)&#93;</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -10588,13 +10795,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Batch version of getItemOffers. Accepts up to 20 Walmart Item ID requests.
-Uses Walmart Item ID as the primary identifier.
-
-Implemented as in-process fan-out over getItemOffers.
-Each item gets its own per-item HTTP status code in the response body;
-the outer HTTP response is always 200.
-Implemented: .
+Returns offer information for up to 20 Walmart Item ID requests. Each response entry contains an HTTP status for its corresponding item request.
 
 </dd>
 </dl>
@@ -10649,7 +10850,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetItemOffersBatchResponse](walmart_apis/models/get_item_offers_batch_response.py), [GetItemOffersBatchErrorBody](walmart_apis/errors/get_item_offers_batch_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetItemOffersBatchResponse](walmart_apis/models/get_item_offers_batch_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetItemOffersBatchResponse](walmart_apis/models/get_item_offers_batch_response.py)</code> -- Returns the results for the requested Walmart items.
 
 **On `Failure`**: `error` is <code>[GetItemOffersBatchErrorBody](walmart_apis/errors/get_item_offers_batch_error.py)</code>
 
@@ -10657,7 +10858,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>list&#91;[Error3](walmart_apis/models/error3.py)&#93;</code> |
+| 400, 403, 404, 429, 500 | <code>list&#91;[ErrorCatalogItems](walmart_apis/models/error_catalog_items.py)&#93;</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -10669,7 +10870,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_listing_offers(seller_sku: str, marketplace_id: str, item_condition: ConditionType2OrStr, *, customer_type: CustomerTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetOffersResponse, GetListingOffersErrorBody]</code></summary>
+<summary><code>def get_listing_offers(seller_sku: str, item_condition: ConditionTypeProductPricingOrStr, *, customer_type: CustomerTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetOffersResponse, GetListingOffersErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -10679,7 +10880,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns the lowest priced offers for a single SKU listing, based on SKU and item condition.
+Returns the lowest-priced offers for a single SKU listing, based on SKU and item condition.
 
 </dd>
 </dl>
@@ -10693,7 +10894,7 @@ Returns the lowest priced offers for a single SKU listing, based on SKU and item
 
 ```python
 result = client.product_pricing.with_raw_response.get_listing_offers(
-    "some example string", "some example string", ConditionType2.NEW
+    "some example string", ConditionTypeProductPricing.NEW
 )
 match result:
     case Success(payload=payload):
@@ -10706,7 +10907,7 @@ match result:
 
 ```python
 result = await async_client.product_pricing.with_raw_response.get_listing_offers(
-    "some example string", "some example string", ConditionType2.NEW
+    "some example string", ConditionTypeProductPricing.NEW
 )
 match result:
     case Success(payload=payload):
@@ -10725,10 +10926,9 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>seller_sku</code> | <code>str</code> | Identifies an item in the given marketplace. SellerSKU is qualified by the seller's SellerId. |
-| <code>marketplace_id</code> | <code>str</code> | A marketplace identifier. Specifies the marketplace for which prices are returned. |
-| <code>item_condition</code> | <code>[ConditionType2OrStr](walmart_apis/models/enums/condition_type2.py)</code> | Filters the offer listings based on item condition. Possible values: New, Used, Collectible, Refurbished, Club. |
-| <code>customer_type</code> | <code>[CustomerTypeOrStr](walmart_apis/models/enums/customer_type.py) \| None</code> | Indicates whether to request Consumer or Business offers. Default is Consumer.<br>**Default**: <code>None</code> |
+| <code>seller_sku</code> | <code>str</code> | Seller SKU that identifies the item in the specified marketplace. The `SellerSKU` value is qualified by the seller's `SellerId`. |
+| <code>item_condition</code> | <code>[ConditionTypeProductPricingOrStr](walmart_apis/models/enums/condition_type_product_pricing.py)</code> | Filters the offer listings based on item condition. Possible values are `New`, `Restored`, and `Pre-Owned`. |
+| <code>customer_type</code> | <code>[CustomerTypeOrStr](walmart_apis/models/enums/customer_type.py) \| None</code> | Indicates whether to request `Consumer` or `Business` offers. The default is `Consumer`.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -10741,7 +10941,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetOffersResponse](walmart_apis/models/get_offers_response.py), [GetListingOffersErrorBody](walmart_apis/errors/get_listing_offers_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetOffersResponse](walmart_apis/models/get_offers_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetOffersResponse](walmart_apis/models/get_offers_response.py)</code> -- Returns the lowest-priced offers for the requested seller SKU.
 
 **On `Failure`**: `error` is <code>[GetListingOffersErrorBody](walmart_apis/errors/get_listing_offers_error.py)</code>
 
@@ -10749,7 +10949,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>list&#91;[Error3](walmart_apis/models/error3.py)&#93;</code> |
+| 400, 403, 404, 429, 500 | <code>list&#91;[ErrorCatalogItems](walmart_apis/models/error_catalog_items.py)&#93;</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -10771,12 +10971,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Batch version of getListingOffers. Accepts up to 20 SKU requests.
-
-Implemented as in-process fan-out over getListingOffers (IQS-backed).
-Each SKU gets its own per-item HTTP status code in the response body;
-the outer HTTP response is always 200.
-Implemented: .
+Returns offer information for up to 20 seller SKU requests. Each response entry contains an HTTP status for its corresponding seller SKU request.
 
 </dd>
 </dl>
@@ -10831,7 +11026,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetListingOffersBatchResponse](walmart_apis/models/get_listing_offers_batch_response.py), [GetListingOffersBatchErrorBody](walmart_apis/errors/get_listing_offers_batch_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetListingOffersBatchResponse](walmart_apis/models/get_listing_offers_batch_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetListingOffersBatchResponse](walmart_apis/models/get_listing_offers_batch_response.py)</code> -- Returns the results for the requested seller SKUs.
 
 **On `Failure`**: `error` is <code>[GetListingOffersBatchErrorBody](walmart_apis/errors/get_listing_offers_batch_error.py)</code>
 
@@ -10839,7 +11034,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>list&#91;[Error3](walmart_apis/models/error3.py)&#93;</code> |
+| 400, 403, 404, 429, 500 | <code>list&#91;[ErrorCatalogItems](walmart_apis/models/error_catalog_items.py)&#93;</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -10851,7 +11046,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_pricing(marketplace_id: str, *, item_type: ItemTypeOrStr = ItemType.SKU, skus: list[str] | None = None, walmart_item_ids: list[str] | None = None, item_condition: ConditionType2OrStr | None = None, offer_type: OfferTypeOrStr | None = None, customer_type: CustomerTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetPricingResponse, GetPricingErrorBody]</code></summary>
+<summary><code>def get_pricing(*, item_type: ItemTypeOrStr = ItemType.SKU, skus: list[str] | None = None, walmart_item_ids: list[str] | None = None, item_condition: ConditionTypeProductPricingOrStr | None = None, offer_type: OfferCustomerTypeOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetPricingResponse, GetPricingErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -10861,7 +11056,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Returns pricing information for a seller's active offer listings based on seller SKU or Walmart Item ID .
+Returns pricing information for the seller's listings, identified by seller SKU or Walmart Item ID.
 
 </dd>
 </dl>
@@ -10874,7 +11069,7 @@ Returns pricing information for a seller's active offer listings based on seller
 **Sync**
 
 ```python
-result = client.product_pricing.with_raw_response.get_pricing("some example string", item_type=ItemType.WALMART_ITEM_ID)
+result = client.product_pricing.with_raw_response.get_pricing(item_type=ItemType.WALMART_ITEM_ID)
 match result:
     case Success(payload=payload):
         ...  # TODO: Handle 'payload' of type GetPricingResponse
@@ -10885,9 +11080,7 @@ match result:
 **Async**
 
 ```python
-result = await async_client.product_pricing.with_raw_response.get_pricing(
-    "some example string", item_type=ItemType.WALMART_ITEM_ID
-)
+result = await async_client.product_pricing.with_raw_response.get_pricing(item_type=ItemType.WALMART_ITEM_ID)
 match result:
     case Success(payload=payload):
         ...  # TODO: Handle 'payload' of type GetPricingResponse
@@ -10905,13 +11098,11 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>marketplace_id</code> | <code>str</code> | A marketplace identifier. Specifies the marketplace for which prices are returned. |
-| <code>item_type</code> | <code>[ItemTypeOrStr](walmart_apis/models/enums/item_type.py)</code> | Indicates whether Walmart Item ID values or seller SKU values are used to identify items.<br>**Default**: <code>ItemType.SKU</code> |
-| <code>skus</code> | <code>list&#91;str&#93; \| None</code> | A list of up to twenty seller SKU values used to identify items in the given marketplace.<br>**Default**: <code>None</code> |
-| <code>walmart_item_ids</code> | <code>list&#91;str&#93; \| None</code> | A list of up to twenty Walmart Item ID values used to identify items in the given marketplace.<br>**Default**: <code>None</code> |
-| <code>item_condition</code> | <code>[ConditionType2OrStr](walmart_apis/models/enums/condition_type2.py) \| None</code> | Filters the offer listings based on item condition. Possible values: New, Used, Collectible, Refurbished, Club.<br>**Default**: <code>None</code> |
-| <code>offer_type</code> | <code>[OfferTypeOrStr](walmart_apis/models/enums/offer_type.py) \| None</code> | Indicates whether to request pricing information for the seller's B2C or B2B offers. Default is B2C.<br>**Default**: <code>None</code> |
-| <code>customer_type</code> | <code>[CustomerTypeOrStr](walmart_apis/models/enums/customer_type.py) \| None</code> | Indicates whether to request Consumer or Business offers. Default is Consumer.<br>**Default**: <code>None</code> |
+| <code>item_type</code> | <code>[ItemTypeOrStr](walmart_apis/models/enums/item_type.py)</code> | Indicates whether Walmart Item ID values or seller SKU values are used to identify the requested items.<br>**Default**: <code>ItemType.SKU</code> |
+| <code>skus</code> | <code>list&#91;str&#93; \| None</code> | Seller SKUs that identify the items to return. Supports up to 20 values.<br>**Default**: <code>None</code> |
+| <code>walmart_item_ids</code> | <code>list&#91;str&#93; \| None</code> | Walmart Item IDs that identify the items to return. Supports up to 20 values.<br>**Default**: <code>None</code> |
+| <code>item_condition</code> | <code>[ConditionTypeProductPricingOrStr](walmart_apis/models/enums/condition_type_product_pricing.py) \| None</code> | Filters the offer listings based on item condition. Possible values are `New`, `Restored`, and `Pre-Owned`.<br>**Default**: <code>None</code> |
+| <code>offer_type</code> | <code>[OfferCustomerTypeOrStr](walmart_apis/models/enums/offer_customer_type.py) \| None</code> | Filters pricing information by business-to-consumer (`B2C`) or business-to-business (`B2B`) offer type. Default is `B2C`.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -10924,7 +11115,7 @@ match result:
 
 **Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetPricingResponse](walmart_apis/models/get_pricing_response.py), [GetPricingErrorBody](walmart_apis/errors/get_pricing_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetPricingResponse](walmart_apis/models/get_pricing_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[GetPricingResponse](walmart_apis/models/get_pricing_response.py)</code> -- Returns pricing information for the requested seller items.
 
 **On `Failure`**: `error` is <code>[GetPricingErrorBody](walmart_apis/errors/get_pricing_error.py)</code>
 
@@ -10932,7 +11123,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>list&#91;[Error3](walmart_apis/models/error3.py)&#93;</code> |
+| 400, 403, 404, 429, 500 | <code>list&#91;[ErrorCatalogItems](walmart_apis/models/error_catalog_items.py)&#93;</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -11050,7 +11241,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [Shipping](walmart_apis/apis/shipping.py)
 
 <details>
-<summary><code>def cancel_shipment2(shipment_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelShipmentResponse1, CancelShipment2ErrorBody]</code></summary>
+<summary><code>def cancel_shipment2(shipment_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelShipmentResponseShipping, CancelShipment2ErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -11078,7 +11269,7 @@ cancellation status to confirm.
 result = client.shipping.with_raw_response.cancel_shipment2("some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelShipmentResponse1
+        ...  # TODO: Handle 'payload' of type CancelShipmentResponseShipping
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type CancelShipment2ErrorBody
 ```
@@ -11089,7 +11280,7 @@ match result:
 result = await async_client.shipping.with_raw_response.cancel_shipment2("some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelShipmentResponse1
+        ...  # TODO: Handle 'payload' of type CancelShipmentResponseShipping
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type CancelShipment2ErrorBody
 ```
@@ -11115,9 +11306,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelShipmentResponse1](walmart_apis/models/cancel_shipment_response1.py), [CancelShipment2ErrorBody](walmart_apis/errors/cancel_shipment2_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelShipmentResponseShipping](walmart_apis/models/cancel_shipment_response_shipping.py), [CancelShipment2ErrorBody](walmart_apis/errors/cancel_shipment2_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelShipmentResponse1](walmart_apis/models/cancel_shipment_response1.py)</code> -- Cancellation processed
+**On `Success`**: `payload` is <code>[CancelShipmentResponseShipping](walmart_apis/models/cancel_shipment_response_shipping.py)</code> -- Cancellation processed
 
 **On `Failure`**: `error` is <code>[CancelShipment2ErrorBody](walmart_apis/errors/cancel_shipment2_error.py)</code>
 
@@ -11322,7 +11513,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_rates(body: GetRatesRequest | GetRatesRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetFulfillmentOrderResponse, GetRatesErrorBody]</code></summary>
+<summary><code>def get_rates(body: GetRatesRequest | GetRatesRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetRatesResponse, GetRatesErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -11349,7 +11540,7 @@ selected rateId to commit to a label purchase.
 ```python
 result = client.shipping.with_raw_response.get_rates(
     GetRatesRequest(
-        ship_to=Address1(
+        ship_to=AddressMerchantFulfillmentSellerFulfilledLabels(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -11357,7 +11548,7 @@ result = client.shipping.with_raw_response.get_rates(
             postal_code="some example string",
             country_code="some example string",
         ),
-        ship_from=Address1(
+        ship_from=AddressMerchantFulfillmentSellerFulfilledLabels(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -11377,7 +11568,7 @@ result = client.shipping.with_raw_response.get_rates(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderResponse
+        ...  # TODO: Handle 'payload' of type GetRatesResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GetRatesErrorBody
 ```
@@ -11387,7 +11578,7 @@ match result:
 ```python
 result = await async_client.shipping.with_raw_response.get_rates(
     GetRatesRequest(
-        ship_to=Address1(
+        ship_to=AddressMerchantFulfillmentSellerFulfilledLabels(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -11395,7 +11586,7 @@ result = await async_client.shipping.with_raw_response.get_rates(
             postal_code="some example string",
             country_code="some example string",
         ),
-        ship_from=Address1(
+        ship_from=AddressMerchantFulfillmentSellerFulfilledLabels(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -11415,7 +11606,7 @@ result = await async_client.shipping.with_raw_response.get_rates(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderResponse
+        ...  # TODO: Handle 'payload' of type GetRatesResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GetRatesErrorBody
 ```
@@ -11441,9 +11632,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetFulfillmentOrderResponse](walmart_apis/models/get_fulfillment_order_response.py), [GetRatesErrorBody](walmart_apis/errors/get_rates_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetRatesResponse](walmart_apis/models/get_rates_response.py), [GetRatesErrorBody](walmart_apis/errors/get_rates_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetFulfillmentOrderResponse](walmart_apis/models/get_fulfillment_order_response.py)</code> -- Rate quotes returned successfully
+**On `Success`**: `payload` is <code>[GetRatesResponse](walmart_apis/models/get_rates_response.py)</code> -- Rate quotes returned successfully
 
 **On `Failure`**: `error` is <code>[GetRatesErrorBody](walmart_apis/errors/get_rates_error.py)</code>
 
@@ -11463,7 +11654,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_shipment_documents(shipment_id: str, *, package_client_reference_id: str | None = None, format_: Format1OrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetShipmentDocumentsResponse, GetShipmentDocumentsErrorBody]</code></summary>
+<summary><code>def get_shipment_documents(shipment_id: str, *, package_client_reference_id: str | None = None, format_: FormatShippingOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetShipmentDocumentsResponse, GetShipmentDocumentsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -11518,7 +11709,7 @@ match result:
 | --- | --- | --- |
 | <code>shipment_id</code> | <code>str</code> | Identifier of the shipment whose documents to retrieve. |
 | <code>package_client_reference_id</code> | <code>str \| None</code> | Optional package-level reference id to retrieve documents<br>for a specific package within a multi-package shipment.<br>**Default**: <code>None</code> |
-| <code>format_</code> | <code>[Format1OrStr](walmart_apis/models/enums/format1.py) \| None</code> | Requested document format (defaults to PDF).<br>**Default**: <code>None</code> |
+| <code>format_</code> | <code>[FormatShippingOrStr](walmart_apis/models/enums/format_shipping.py) \| None</code> | Requested document format (defaults to PDF).<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -11643,7 +11834,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def one_click_shipment(body: OneClickShipmentRequest | OneClickShipmentRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetFulfillmentOrderShipmentsResponse, OneClickShipmentErrorBody]</code></summary>
+<summary><code>def one_click_shipment(body: OneClickShipmentRequest | OneClickShipmentRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[OneClickShipmentResponse, OneClickShipmentErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -11670,7 +11861,7 @@ service level. Returns the purchased shipment record directly.
 ```python
 result = client.shipping.with_raw_response.one_click_shipment(
     OneClickShipmentRequest(
-        ship_to=Address1(
+        ship_to=AddressMerchantFulfillmentSellerFulfilledLabels(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -11678,7 +11869,7 @@ result = client.shipping.with_raw_response.one_click_shipment(
             postal_code="some example string",
             country_code="some example string",
         ),
-        ship_from=Address1(
+        ship_from=AddressMerchantFulfillmentSellerFulfilledLabels(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -11695,14 +11886,14 @@ result = client.shipping.with_raw_response.one_click_shipment(
         ],
         service_selection=ServiceSelection(),
         requested_document_specification=RequestedDocumentSpecification(
-            format=Format1.PDF, size=LabelDimensions(), dpi=Dpi.VALUE_203
+            format=FormatShipping.PDF, size=Size(), dpi=Dpi.VALUE_203
         ),
         channel_details=ChannelDetails(channel_type=ChannelType.WALMART_MARKETPLACE),
     ),
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderShipmentsResponse
+        ...  # TODO: Handle 'payload' of type OneClickShipmentResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type OneClickShipmentErrorBody
 ```
@@ -11712,7 +11903,7 @@ match result:
 ```python
 result = await async_client.shipping.with_raw_response.one_click_shipment(
     OneClickShipmentRequest(
-        ship_to=Address1(
+        ship_to=AddressMerchantFulfillmentSellerFulfilledLabels(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -11720,7 +11911,7 @@ result = await async_client.shipping.with_raw_response.one_click_shipment(
             postal_code="some example string",
             country_code="some example string",
         ),
-        ship_from=Address1(
+        ship_from=AddressMerchantFulfillmentSellerFulfilledLabels(
             name="some example string",
             address_line1="some example string",
             city="some example string",
@@ -11737,14 +11928,14 @@ result = await async_client.shipping.with_raw_response.one_click_shipment(
         ],
         service_selection=ServiceSelection(),
         requested_document_specification=RequestedDocumentSpecification(
-            format=Format1.PDF, size=LabelDimensions(), dpi=Dpi.VALUE_203
+            format=FormatShipping.PDF, size=Size(), dpi=Dpi.VALUE_203
         ),
         channel_details=ChannelDetails(channel_type=ChannelType.WALMART_MARKETPLACE),
     ),
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderShipmentsResponse
+        ...  # TODO: Handle 'payload' of type OneClickShipmentResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type OneClickShipmentErrorBody
 ```
@@ -11770,9 +11961,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetFulfillmentOrderShipmentsResponse](walmart_apis/models/get_fulfillment_order_shipments_response.py), [OneClickShipmentErrorBody](walmart_apis/errors/one_click_shipment_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[OneClickShipmentResponse](walmart_apis/models/one_click_shipment_response.py), [OneClickShipmentErrorBody](walmart_apis/errors/one_click_shipment_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetFulfillmentOrderShipmentsResponse](walmart_apis/models/get_fulfillment_order_shipments_response.py)</code> -- Shipment purchased successfully
+**On `Success`**: `payload` is <code>[OneClickShipmentResponse](walmart_apis/models/one_click_shipment_response.py)</code> -- Shipment purchased successfully
 
 **On `Failure`**: `error` is <code>[OneClickShipmentErrorBody](walmart_apis/errors/one_click_shipment_error.py)</code>
 
@@ -11792,7 +11983,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def purchase_shipment(body: PurchaseShipmentRequest | PurchaseShipmentRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetFulfillmentOrderShipmentsResponse, PurchaseShipmentErrorBody]</code></summary>
+<summary><code>def purchase_shipment(body: PurchaseShipmentRequest | PurchaseShipmentRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[PurchaseShipmentResponse, PurchaseShipmentErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -11822,13 +12013,13 @@ result = client.shipping.with_raw_response.purchase_shipment(
         request_token="some example string",
         rate_id="some example string",
         requested_document_specification=RequestedDocumentSpecification(
-            format=Format1.PDF, size=LabelDimensions(), dpi=Dpi.VALUE_203
+            format=FormatShipping.PDF, size=Size(), dpi=Dpi.VALUE_203
         ),
     ),
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderShipmentsResponse
+        ...  # TODO: Handle 'payload' of type PurchaseShipmentResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type PurchaseShipmentErrorBody
 ```
@@ -11841,13 +12032,13 @@ result = await async_client.shipping.with_raw_response.purchase_shipment(
         request_token="some example string",
         rate_id="some example string",
         requested_document_specification=RequestedDocumentSpecification(
-            format=Format1.PDF, size=LabelDimensions(), dpi=Dpi.VALUE_203
+            format=FormatShipping.PDF, size=Size(), dpi=Dpi.VALUE_203
         ),
     ),
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type GetFulfillmentOrderShipmentsResponse
+        ...  # TODO: Handle 'payload' of type PurchaseShipmentResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type PurchaseShipmentErrorBody
 ```
@@ -11873,9 +12064,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetFulfillmentOrderShipmentsResponse](walmart_apis/models/get_fulfillment_order_shipments_response.py), [PurchaseShipmentErrorBody](walmart_apis/errors/purchase_shipment_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[PurchaseShipmentResponse](walmart_apis/models/purchase_shipment_response.py), [PurchaseShipmentErrorBody](walmart_apis/errors/purchase_shipment_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[GetFulfillmentOrderShipmentsResponse](walmart_apis/models/get_fulfillment_order_shipments_response.py)</code> -- Shipment purchased successfully
+**On `Success`**: `payload` is <code>[PurchaseShipmentResponse](walmart_apis/models/purchase_shipment_response.py)</code> -- Shipment purchased successfully
 
 **On `Failure`**: `error` is <code>[PurchaseShipmentErrorBody](walmart_apis/errors/purchase_shipment_error.py)</code>
 
@@ -12068,7 +12259,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -12158,7 +12349,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
+| 400, 401, 403, 404, 429, 500 | <code>[ErrorList](walmart_apis/models/error_list.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -12174,7 +12365,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [WfsInbound](walmart_apis/apis/wfs_inbound.py)
 
 <details>
-<summary><code>def cancel_inbound_plan(inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, CancelInboundPlanErrorBody]</code></summary>
+<summary><code>def cancel_inbound_plan(plan_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, CancelInboundPlanErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -12184,7 +12375,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `PUT` request.
+Cancels an inbound plan when its current status allows cancellation.
 
 </dd>
 </dl>
@@ -12226,7 +12417,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Unique identifier of the inbound plan. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -12247,7 +12438,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -12259,7 +12450,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def cancel_self_ship_appointment(inbound_plan_id: str, shipment_id: str, body: CancelSelfShipAppointmentRequest | CancelSelfShipAppointmentRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, CancelSelfShipAppointmentErrorBody]</code></summary>
+<summary><code>def cancel_self_ship_appointment(plan_id: str, shipment_id: str, body: CancelSelfShipAppointmentRequest | CancelSelfShipAppointmentRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelSelfShipAppointmentResponse, CancelSelfShipAppointmentErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -12287,7 +12478,7 @@ result = client.wfs_inbound.with_raw_response.cancel_self_ship_appointment(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type CancelSelfShipAppointmentResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type CancelSelfShipAppointmentErrorBody
 ```
@@ -12300,7 +12491,7 @@ result = await async_client.wfs_inbound.with_raw_response.cancel_self_ship_appoi
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type CancelSelfShipAppointmentResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type CancelSelfShipAppointmentErrorBody
 ```
@@ -12315,7 +12506,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>body</code> | <code>[CancelSelfShipAppointmentRequest](walmart_apis/models/cancel_self_ship_appointment_request.py) \| [CancelSelfShipAppointmentRequestDict](walmart_apis/models/cancel_self_ship_appointment_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -12328,9 +12519,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [CancelSelfShipAppointmentErrorBody](walmart_apis/errors/cancel_self_ship_appointment_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelSelfShipAppointmentResponse](walmart_apis/models/cancel_self_ship_appointment_response.py), [CancelSelfShipAppointmentErrorBody](walmart_apis/errors/cancel_self_ship_appointment_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[CancelSelfShipAppointmentResponse](walmart_apis/models/cancel_self_ship_appointment_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[CancelSelfShipAppointmentErrorBody](walmart_apis/errors/cancel_self_ship_appointment_error.py)</code>
 
@@ -12338,7 +12529,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -12350,7 +12541,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def confirm_delivery_window_options(inbound_plan_id: str, shipment_id: str, delivery_window_option_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, ConfirmDeliveryWindowOptionsErrorBody]</code></summary>
+<summary><code>def confirm_delivery_window_options(plan_id: str, shipment_id: str, delivery_window_option_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ConfirmDeliveryWindowOptionsResponse, ConfirmDeliveryWindowOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -12378,7 +12569,7 @@ result = client.wfs_inbound.with_raw_response.confirm_delivery_window_options(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmDeliveryWindowOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmDeliveryWindowOptionsErrorBody
 ```
@@ -12391,7 +12582,7 @@ result = await async_client.wfs_inbound.with_raw_response.confirm_delivery_windo
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmDeliveryWindowOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmDeliveryWindowOptionsErrorBody
 ```
@@ -12406,7 +12597,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | The shipment to confirm the delivery window option for. |
 | <code>delivery_window_option_id</code> | <code>str</code> | The ID of the delivery window option to be confirmed. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -12419,9 +12610,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [ConfirmDeliveryWindowOptionsErrorBody](walmart_apis/errors/confirm_delivery_window_options_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ConfirmDeliveryWindowOptionsResponse](walmart_apis/models/confirm_delivery_window_options_response.py), [ConfirmDeliveryWindowOptionsErrorBody](walmart_apis/errors/confirm_delivery_window_options_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[ConfirmDeliveryWindowOptionsResponse](walmart_apis/models/confirm_delivery_window_options_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[ConfirmDeliveryWindowOptionsErrorBody](walmart_apis/errors/confirm_delivery_window_options_error.py)</code>
 
@@ -12429,7 +12620,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -12441,7 +12632,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def confirm_packing_option(inbound_plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, ConfirmPackingOptionErrorBody]</code></summary>
+<summary><code>def confirm_packing_option(plan_id: str, packing_option_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ConfirmPackingOptionResponse, ConfirmPackingOptionErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -12467,7 +12658,7 @@ Send a `POST` request.
 result = client.wfs_inbound.with_raw_response.confirm_packing_option("some example string", "some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmPackingOptionResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmPackingOptionErrorBody
 ```
@@ -12480,7 +12671,7 @@ result = await async_client.wfs_inbound.with_raw_response.confirm_packing_option
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmPackingOptionResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmPackingOptionErrorBody
 ```
@@ -12495,7 +12686,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>packing_option_id</code> | <code>str</code> | Identifier of a packing option. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -12507,9 +12698,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [ConfirmPackingOptionErrorBody](walmart_apis/errors/confirm_packing_option_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ConfirmPackingOptionResponse](walmart_apis/models/confirm_packing_option_response.py), [ConfirmPackingOptionErrorBody](walmart_apis/errors/confirm_packing_option_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[ConfirmPackingOptionResponse](walmart_apis/models/confirm_packing_option_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[ConfirmPackingOptionErrorBody](walmart_apis/errors/confirm_packing_option_error.py)</code>
 
@@ -12517,7 +12708,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -12529,7 +12720,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def confirm_placement_option(inbound_plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, ConfirmPlacementOptionErrorBody]</code></summary>
+<summary><code>def confirm_placement_option(plan_id: str, placement_option_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ConfirmPlacementOptionResponse, ConfirmPlacementOptionErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -12555,7 +12746,7 @@ Send a `POST` request.
 result = client.wfs_inbound.with_raw_response.confirm_placement_option("some example string", "some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmPlacementOptionResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmPlacementOptionErrorBody
 ```
@@ -12568,7 +12759,7 @@ result = await async_client.wfs_inbound.with_raw_response.confirm_placement_opti
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmPlacementOptionResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmPlacementOptionErrorBody
 ```
@@ -12583,7 +12774,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>placement_option_id</code> | <code>str</code> | The identifier of a placement option. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -12595,9 +12786,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [ConfirmPlacementOptionErrorBody](walmart_apis/errors/confirm_placement_option_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ConfirmPlacementOptionResponse](walmart_apis/models/confirm_placement_option_response.py), [ConfirmPlacementOptionErrorBody](walmart_apis/errors/confirm_placement_option_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[ConfirmPlacementOptionResponse](walmart_apis/models/confirm_placement_option_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[ConfirmPlacementOptionErrorBody](walmart_apis/errors/confirm_placement_option_error.py)</code>
 
@@ -12605,7 +12796,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -12617,7 +12808,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def confirm_shipment_content_update_preview(inbound_plan_id: str, shipment_id: str, content_update_preview_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, ConfirmShipmentContentUpdatePreviewErrorBody]</code></summary>
+<summary><code>def confirm_shipment_content_update_preview(plan_id: str, shipment_id: str, content_update_preview_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ConfirmShipmentContentUpdatePreviewResponse, ConfirmShipmentContentUpdatePreviewErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -12645,7 +12836,7 @@ result = client.wfs_inbound.with_raw_response.confirm_shipment_content_update_pr
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmShipmentContentUpdatePreviewResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmShipmentContentUpdatePreviewErrorBody
 ```
@@ -12658,7 +12849,7 @@ result = await async_client.wfs_inbound.with_raw_response.confirm_shipment_conte
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmShipmentContentUpdatePreviewResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmShipmentContentUpdatePreviewErrorBody
 ```
@@ -12673,7 +12864,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>content_update_preview_id</code> | <code>str</code> | Identifier of a content update preview. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -12686,9 +12877,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [ConfirmShipmentContentUpdatePreviewErrorBody](walmart_apis/errors/confirm_shipment_content_update_preview_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ConfirmShipmentContentUpdatePreviewResponse](walmart_apis/models/confirm_shipment_content_update_preview_response.py), [ConfirmShipmentContentUpdatePreviewErrorBody](walmart_apis/errors/confirm_shipment_content_update_preview_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[ConfirmShipmentContentUpdatePreviewResponse](walmart_apis/models/confirm_shipment_content_update_preview_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[ConfirmShipmentContentUpdatePreviewErrorBody](walmart_apis/errors/confirm_shipment_content_update_preview_error.py)</code>
 
@@ -12696,7 +12887,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -12708,7 +12899,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def confirm_transportation_options(inbound_plan_id: str, body: ConfirmTransportationOptionsRequest | ConfirmTransportationOptionsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, ConfirmTransportationOptionsErrorBody]</code></summary>
+<summary><code>def confirm_transportation_options(plan_id: str, body: ConfirmTransportationOptionsRequest | ConfirmTransportationOptionsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ConfirmTransportationOptionsResponse, ConfirmTransportationOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -12743,7 +12934,7 @@ result = client.wfs_inbound.with_raw_response.confirm_transportation_options(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmTransportationOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmTransportationOptionsErrorBody
 ```
@@ -12763,7 +12954,7 @@ result = await async_client.wfs_inbound.with_raw_response.confirm_transportation
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type ConfirmTransportationOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ConfirmTransportationOptionsErrorBody
 ```
@@ -12778,7 +12969,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>body</code> | <code>[ConfirmTransportationOptionsRequest](walmart_apis/models/confirm_transportation_options_request.py) \| [ConfirmTransportationOptionsRequestDict](walmart_apis/models/confirm_transportation_options_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -12790,9 +12981,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [ConfirmTransportationOptionsErrorBody](walmart_apis/errors/confirm_transportation_options_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ConfirmTransportationOptionsResponse](walmart_apis/models/confirm_transportation_options_response.py), [ConfirmTransportationOptionsErrorBody](walmart_apis/errors/confirm_transportation_options_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[ConfirmTransportationOptionsResponse](walmart_apis/models/confirm_transportation_options_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[ConfirmTransportationOptionsErrorBody](walmart_apis/errors/confirm_transportation_options_error.py)</code>
 
@@ -12800,7 +12991,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -12822,7 +13013,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `POST` request.
+Creates an inbound plan for items to be shipped to Walmart fulfillment centers.
 
 </dd>
 </dl>
@@ -12925,7 +13116,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13022,7 +13213,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13034,7 +13225,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def generate_delivery_window_options(inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, GenerateDeliveryWindowOptionsErrorBody]</code></summary>
+<summary><code>def generate_delivery_window_options(plan_id: str, shipment_id: str, *, scac: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GenerateDeliveryWindowOptionsResponse, GenerateDeliveryWindowOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -13062,7 +13253,7 @@ result = client.wfs_inbound.with_raw_response.generate_delivery_window_options(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GenerateDeliveryWindowOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GenerateDeliveryWindowOptionsErrorBody
 ```
@@ -13075,7 +13266,7 @@ result = await async_client.wfs_inbound.with_raw_response.generate_delivery_wind
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GenerateDeliveryWindowOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GenerateDeliveryWindowOptionsErrorBody
 ```
@@ -13090,8 +13281,9 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | The shipment to generate delivery window options for. |
+| <code>scac</code> | <code>str \| None</code> | Walmart extension (not in SP-API). Standard Carrier Alpha Code of the carrier delivering the shipment, case preserved. Supplying it generates drop trailer windows; omitting it generates live unload windows. The delivery type chosen here is kept when a generated window is confirmed. Carrier existence and drop trailer eligibility are validated when the window is confirmed.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -13102,9 +13294,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [GenerateDeliveryWindowOptionsErrorBody](walmart_apis/errors/generate_delivery_window_options_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GenerateDeliveryWindowOptionsResponse](walmart_apis/models/generate_delivery_window_options_response.py), [GenerateDeliveryWindowOptionsErrorBody](walmart_apis/errors/generate_delivery_window_options_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[GenerateDeliveryWindowOptionsResponse](walmart_apis/models/generate_delivery_window_options_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[GenerateDeliveryWindowOptionsErrorBody](walmart_apis/errors/generate_delivery_window_options_error.py)</code>
 
@@ -13112,7 +13304,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13124,7 +13316,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def generate_packing_options(inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, GeneratePackingOptionsErrorBody]</code></summary>
+<summary><code>def generate_packing_options(plan_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GeneratePackingOptionsResponse, GeneratePackingOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -13150,7 +13342,7 @@ Send a `POST` request.
 result = client.wfs_inbound.with_raw_response.generate_packing_options("some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GeneratePackingOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GeneratePackingOptionsErrorBody
 ```
@@ -13161,7 +13353,7 @@ match result:
 result = await async_client.wfs_inbound.with_raw_response.generate_packing_options("some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GeneratePackingOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GeneratePackingOptionsErrorBody
 ```
@@ -13176,7 +13368,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -13187,9 +13379,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [GeneratePackingOptionsErrorBody](walmart_apis/errors/generate_packing_options_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GeneratePackingOptionsResponse](walmart_apis/models/generate_packing_options_response.py), [GeneratePackingOptionsErrorBody](walmart_apis/errors/generate_packing_options_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[GeneratePackingOptionsResponse](walmart_apis/models/generate_packing_options_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[GeneratePackingOptionsErrorBody](walmart_apis/errors/generate_packing_options_error.py)</code>
 
@@ -13197,7 +13389,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13209,7 +13401,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def generate_placement_options(inbound_plan_id: str, body: GeneratePlacementOptionsRequest | GeneratePlacementOptionsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, GeneratePlacementOptionsErrorBody]</code></summary>
+<summary><code>def generate_placement_options(plan_id: str, body: GeneratePlacementOptionsRequest | GeneratePlacementOptionsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GeneratePlacementOptionsResponse, GeneratePlacementOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -13237,7 +13429,7 @@ result = client.wfs_inbound.with_raw_response.generate_placement_options(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GeneratePlacementOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GeneratePlacementOptionsErrorBody
 ```
@@ -13250,7 +13442,7 @@ result = await async_client.wfs_inbound.with_raw_response.generate_placement_opt
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GeneratePlacementOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GeneratePlacementOptionsErrorBody
 ```
@@ -13265,7 +13457,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>body</code> | <code>[GeneratePlacementOptionsRequest](walmart_apis/models/generate_placement_options_request.py) \| [GeneratePlacementOptionsRequestDict](walmart_apis/models/generate_placement_options_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -13277,9 +13469,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [GeneratePlacementOptionsErrorBody](walmart_apis/errors/generate_placement_options_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GeneratePlacementOptionsResponse](walmart_apis/models/generate_placement_options_response.py), [GeneratePlacementOptionsErrorBody](walmart_apis/errors/generate_placement_options_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[GeneratePlacementOptionsResponse](walmart_apis/models/generate_placement_options_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[GeneratePlacementOptionsErrorBody](walmart_apis/errors/generate_placement_options_error.py)</code>
 
@@ -13287,7 +13479,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13299,7 +13491,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def generate_self_ship_appointment_slots(inbound_plan_id: str, shipment_id: str, body: GenerateSelfShipAppointmentSlotsRequest | GenerateSelfShipAppointmentSlotsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, GenerateSelfShipAppointmentSlotsErrorBody]</code></summary>
+<summary><code>def generate_self_ship_appointment_slots(plan_id: str, shipment_id: str, body: GenerateSelfShipAppointmentSlotsRequest | GenerateSelfShipAppointmentSlotsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GenerateSelfShipAppointmentSlotsResponse, GenerateSelfShipAppointmentSlotsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -13327,7 +13519,7 @@ result = client.wfs_inbound.with_raw_response.generate_self_ship_appointment_slo
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GenerateSelfShipAppointmentSlotsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GenerateSelfShipAppointmentSlotsErrorBody
 ```
@@ -13340,7 +13532,7 @@ result = await async_client.wfs_inbound.with_raw_response.generate_self_ship_app
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GenerateSelfShipAppointmentSlotsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GenerateSelfShipAppointmentSlotsErrorBody
 ```
@@ -13355,7 +13547,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>body</code> | <code>[GenerateSelfShipAppointmentSlotsRequest](walmart_apis/models/generate_self_ship_appointment_slots_request.py) \| [GenerateSelfShipAppointmentSlotsRequestDict](walmart_apis/models/generate_self_ship_appointment_slots_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -13368,9 +13560,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [GenerateSelfShipAppointmentSlotsErrorBody](walmart_apis/errors/generate_self_ship_appointment_slots_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GenerateSelfShipAppointmentSlotsResponse](walmart_apis/models/generate_self_ship_appointment_slots_response.py), [GenerateSelfShipAppointmentSlotsErrorBody](walmart_apis/errors/generate_self_ship_appointment_slots_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[GenerateSelfShipAppointmentSlotsResponse](walmart_apis/models/generate_self_ship_appointment_slots_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[GenerateSelfShipAppointmentSlotsErrorBody](walmart_apis/errors/generate_self_ship_appointment_slots_error.py)</code>
 
@@ -13378,7 +13570,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13390,7 +13582,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def generate_shipment_content_update_previews(inbound_plan_id: str, shipment_id: str, body: GenerateShipmentContentUpdatePreviewsRequest | GenerateShipmentContentUpdatePreviewsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, GenerateShipmentContentUpdatePreviewsErrorBody]</code></summary>
+<summary><code>def generate_shipment_content_update_previews(plan_id: str, shipment_id: str, body: GenerateShipmentContentUpdatePreviewsRequest | GenerateShipmentContentUpdatePreviewsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GenerateShipmentContentUpdatePreviewsResponse, GenerateShipmentContentUpdatePreviewsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -13439,7 +13631,7 @@ result = client.wfs_inbound.with_raw_response.generate_shipment_content_update_p
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GenerateShipmentContentUpdatePreviewsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GenerateShipmentContentUpdatePreviewsErrorBody
 ```
@@ -13473,7 +13665,7 @@ result = await async_client.wfs_inbound.with_raw_response.generate_shipment_cont
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GenerateShipmentContentUpdatePreviewsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GenerateShipmentContentUpdatePreviewsErrorBody
 ```
@@ -13488,7 +13680,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>body</code> | <code>[GenerateShipmentContentUpdatePreviewsRequest](walmart_apis/models/generate_shipment_content_update_previews_request.py) \| [GenerateShipmentContentUpdatePreviewsRequestDict](walmart_apis/models/generate_shipment_content_update_previews_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -13501,9 +13693,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [GenerateShipmentContentUpdatePreviewsErrorBody](walmart_apis/errors/generate_shipment_content_update_previews_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GenerateShipmentContentUpdatePreviewsResponse](walmart_apis/models/generate_shipment_content_update_previews_response.py), [GenerateShipmentContentUpdatePreviewsErrorBody](walmart_apis/errors/generate_shipment_content_update_previews_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[GenerateShipmentContentUpdatePreviewsResponse](walmart_apis/models/generate_shipment_content_update_previews_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[GenerateShipmentContentUpdatePreviewsErrorBody](walmart_apis/errors/generate_shipment_content_update_previews_error.py)</code>
 
@@ -13511,7 +13703,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13523,7 +13715,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def generate_transportation_options(inbound_plan_id: str, body: GenerateTransportationOptionsRequest | GenerateTransportationOptionsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, GenerateTransportationOptionsErrorBody]</code></summary>
+<summary><code>def generate_transportation_options(plan_id: str, body: GenerateTransportationOptionsRequest | GenerateTransportationOptionsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GenerateTransportationOptionsResponse, GenerateTransportationOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -13560,7 +13752,7 @@ result = client.wfs_inbound.with_raw_response.generate_transportation_options(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GenerateTransportationOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GenerateTransportationOptionsErrorBody
 ```
@@ -13582,7 +13774,7 @@ result = await async_client.wfs_inbound.with_raw_response.generate_transportatio
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type GenerateTransportationOptionsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type GenerateTransportationOptionsErrorBody
 ```
@@ -13597,7 +13789,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>body</code> | <code>[GenerateTransportationOptionsRequest](walmart_apis/models/generate_transportation_options_request.py) \| [GenerateTransportationOptionsRequestDict](walmart_apis/models/generate_transportation_options_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -13609,9 +13801,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [GenerateTransportationOptionsErrorBody](walmart_apis/errors/generate_transportation_options_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GenerateTransportationOptionsResponse](walmart_apis/models/generate_transportation_options_response.py), [GenerateTransportationOptionsErrorBody](walmart_apis/errors/generate_transportation_options_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[GenerateTransportationOptionsResponse](walmart_apis/models/generate_transportation_options_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[GenerateTransportationOptionsErrorBody](walmart_apis/errors/generate_transportation_options_error.py)</code>
 
@@ -13619,7 +13811,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13631,7 +13823,92 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_delivery_challan_document(inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetDeliveryChallanDocumentResponse, GetDeliveryChallanDocumentErrorBody]</code></summary>
+<summary><code>def get_bill_of_lading(shipment_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetBillOfLadingResponse, GetBillOfLadingErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Send a `GET` request.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.wfs_inbound.with_raw_response.get_bill_of_lading("some example string")
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetBillOfLadingResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetBillOfLadingErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.wfs_inbound.with_raw_response.get_bill_of_lading("some example string")
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetBillOfLadingResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetBillOfLadingErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetBillOfLadingResponse](walmart_apis/models/get_bill_of_lading_response.py), [GetBillOfLadingErrorBody](walmart_apis/errors/get_bill_of_lading_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[GetBillOfLadingResponse](walmart_apis/models/get_bill_of_lading_response.py)</code> -- Success
+
+**On `Failure`**: `error` is <code>[GetBillOfLadingErrorBody](walmart_apis/errors/get_bill_of_lading_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def get_delivery_challan_document(plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetDeliveryChallanDocumentResponse, GetDeliveryChallanDocumentErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -13687,7 +13964,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -13709,7 +13986,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13731,7 +14008,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `GET` request.
+Retrieves the status of an inbound plan operation, such as creating or canceling a plan.
 
 </dd>
 </dl>
@@ -13773,7 +14050,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>operation_id</code> | <code>str</code> | Identifier of an asynchronous operation. |
+| <code>operation_id</code> | <code>str</code> | Unique identifier for the operation. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -13794,7 +14071,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13806,7 +14083,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_inbound_plan(inbound_plan_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[InboundPlan, GetInboundPlanErrorBody]</code></summary>
+<summary><code>def get_inbound_plan(plan_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[InboundPlan, GetInboundPlanErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -13816,7 +14093,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `GET` request.
+Retrieves the details of an inbound plan.
 
 </dd>
 </dl>
@@ -13858,7 +14135,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Unique identifier of the inbound plan. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -13879,7 +14156,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13891,7 +14168,276 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_self_ship_appointment_slots(inbound_plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetSelfShipAppointmentSlotsResponse, GetSelfShipAppointmentSlotsErrorBody]</code></summary>
+<summary><code>def get_item_eligibility_preview(item_id: str, program: Program1OrStr, *, marketplace_ids: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetItemEligibilityPreviewResponse, GetItemEligibilityPreviewErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Checks whether an item is eligible for the specified program.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.wfs_inbound.with_raw_response.get_item_eligibility_preview("some example string", Program1.INBOUND)
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetItemEligibilityPreviewResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetItemEligibilityPreviewErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.wfs_inbound.with_raw_response.get_item_eligibility_preview(
+    "some example string", Program1.INBOUND
+)
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetItemEligibilityPreviewResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetItemEligibilityPreviewErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>item_id</code> | <code>str</code> | Walmart item identifier for which to retrieve an eligibility preview. |
+| <code>program</code> | <code>[Program1OrStr](walmart_apis/models/enums/program1.py)</code> | Program for which to evaluate item eligibility. |
+| <code>marketplace_ids</code> | <code>str \| None</code> | Marketplace identifier to use when determining item eligibility.<br>**Default**: <code>None</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetItemEligibilityPreviewResponse](walmart_apis/models/get_item_eligibility_preview_response.py), [GetItemEligibilityPreviewErrorBody](walmart_apis/errors/get_item_eligibility_preview_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[GetItemEligibilityPreviewResponse](walmart_apis/models/get_item_eligibility_preview_response.py)</code> -- Eligibility preview resolved successfully.
+
+**On `Failure`**: `error` is <code>[GetItemEligibilityPreviewErrorBody](walmart_apis/errors/get_item_eligibility_preview_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def get_labels(shipment_id: str, page_type: PageTypeOrStr, label_type: LabelTypeOrStr, *, page_size: int | None = None, page_start_index: int | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetLabelsResponse, GetLabelsErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Returns package/pallet labels for faster and more accurate shipment processing at the Walmart fulfillment center.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.wfs_inbound.with_raw_response.get_labels(
+    "some example string", PageType.PACKAGE_LABEL_4X6, LabelType.UNIQUE
+)
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetLabelsResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetLabelsErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.wfs_inbound.with_raw_response.get_labels(
+    "some example string", PageType.PACKAGE_LABEL_4X6, LabelType.UNIQUE
+)
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetLabelsResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetLabelsErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
+| <code>page_type</code> | <code>[PageTypeOrStr](walmart_apis/models/enums/page_type.py)</code> | The page size/format to use for label printing (upstream `PageType`). Determines the physical layout of the generated label file. |
+| <code>label_type</code> | <code>[LabelTypeOrStr](walmart_apis/models/enums/label_type.py)</code> | The type of label to retrieve (upstream `LabelType`). `UNIQUE` is a carrier-assigned unique shipping label (PARCEL shipments only); `BARCODE_2D` is a 2D barcode receiving/box label; `PALLET` is a pallet receiving label (non-PARCEL modes only). |
+| <code>page_size</code> | <code>int \| None</code> | The page size for paginating through the total packages' labels. Maximum 1000 (upstream `PageSize`, default 100).<br>**Default**: <code>None</code> |
+| <code>page_start_index</code> | <code>int \| None</code> | The zero-based page start index for paginating through the total packages' labels (upstream `PageStartIndex`, default 0).<br>**Default**: <code>None</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetLabelsResponse](walmart_apis/models/get_labels_response.py), [GetLabelsErrorBody](walmart_apis/errors/get_labels_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[GetLabelsResponse](walmart_apis/models/get_labels_response.py)</code> -- Success
+
+**On `Failure`**: `error` is <code>[GetLabelsErrorBody](walmart_apis/errors/get_labels_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def get_prep_instructions(ship_to_country_code: str, *, seller_sku_list: list[str] | None = None, asin_list: list[str] | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetPrepInstructionsResponse, GetPrepInstructionsErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+Send a `GET` request.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.wfs_inbound.with_raw_response.get_prep_instructions("some example string")
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetPrepInstructionsResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetPrepInstructionsErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.wfs_inbound.with_raw_response.get_prep_instructions("some example string")
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetPrepInstructionsResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetPrepInstructionsErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>ship_to_country_code</code> | <code>str</code> | The two-letter country code of the destination the item(s) will ship to. |
+| <code>seller_sku_list</code> | <code>list&#91;str&#93; \| None</code> | A list of seller SKUs to retrieve prep instructions for.<br>**Default**: <code>None</code> |
+| <code>asin_list</code> | <code>list&#91;str&#93; \| None</code> | A list of ASINs to retrieve prep instructions for.<br>**Default**: <code>None</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetPrepInstructionsResponse](walmart_apis/models/get_prep_instructions_response.py), [GetPrepInstructionsErrorBody](walmart_apis/errors/get_prep_instructions_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[GetPrepInstructionsResponse](walmart_apis/models/get_prep_instructions_response.py)</code> -- Success
+
+**On `Failure`**: `error` is <code>[GetPrepInstructionsErrorBody](walmart_apis/errors/get_prep_instructions_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def get_self_ship_appointment_slots(plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetSelfShipAppointmentSlotsResponse, GetSelfShipAppointmentSlotsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -13947,7 +14493,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>page_size</code> | <code>int \| None</code> | The number of self ship appointment slots to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
@@ -13971,7 +14517,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -13983,7 +14529,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_shipment(inbound_plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CommonShipment, GetShipmentErrorBody]</code></summary>
+<summary><code>def get_shipment(plan_id: str, shipment_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CommonShipment, GetShipmentErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -14035,7 +14581,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. A shipment contains the boxes and units being inbounded. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -14057,7 +14603,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14069,7 +14615,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_shipment_content_update_preview(inbound_plan_id: str, shipment_id: str, content_update_preview_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CommonContentUpdatePreview, GetShipmentContentUpdatePreviewErrorBody]</code></summary>
+<summary><code>def get_shipment_content_update_preview(plan_id: str, shipment_id: str, content_update_preview_id: str, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CommonContentUpdatePreview, GetShipmentContentUpdatePreviewErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -14125,7 +14671,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>content_update_preview_id</code> | <code>str</code> | Identifier of a content update preview. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -14148,7 +14694,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14160,7 +14706,280 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_delivery_window_options(inbound_plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListDeliveryWindowOptionsResponse, ListDeliveryWindowOptionsErrorBody]</code></summary>
+<summary><code>def get_shipment_items(*, date_range_filter: DateRangeFilterOrStr | None = None, date_range_value: str | None = None, page_size: int | None = 10, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetShipmentItemsResponse, GetShipmentItemsErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike `getShipmentItemsByShipmentId` and `listShipmentItems`, this op is NOT shipment- or plan-scoped -- it searches item rows across ALL of a seller's shipments, date- filtered. Field naming deliberately uses the Amazon SP-API-parity names `sellerSku`/ `fulfillmentNetworkSKU` (per explicit mapping instructions) rather than the `msku`/`fnsku` shorthand its shipment-/plan-scoped siblings settled on -- this is a genuinely new v4 response shape with no naming precedent of its own to preserve.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.wfs_inbound.with_raw_response.get_shipment_items()
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetShipmentItemsResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetShipmentItemsErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.wfs_inbound.with_raw_response.get_shipment_items()
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetShipmentItemsResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetShipmentItemsErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>date_range_filter</code> | <code>[DateRangeFilterOrStr](walmart_apis/models/enums/date_range_filter.py) \| None</code> | Which date field `dateRangeValue` filters on (upstream `dateRangeFilter`).<br>**Default**: <code>None</code> |
+| <code>date_range_value</code> | <code>str \| None</code> | ISO 8601 datetime paired with `dateRangeFilter` (upstream `dateRangeValue`).<br>**Default**: <code>None</code> |
+| <code>page_size</code> | <code>int \| None</code> | The number of items to return in the response matching the given query.<br>**Default**: <code>10</code> |
+| <code>pagination_token</code> | <code>str \| None</code> | A token to fetch the next page of a previous `getShipmentItems` query. Pass the value of `pagination.nextToken` from a previous response. Forwarded upstream as `nextToken` (already lowerCamelCase on this op, unlike `getShipments`' `NextToken`).<br>**Default**: <code>None</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetShipmentItemsResponse](walmart_apis/models/get_shipment_items_response.py), [GetShipmentItemsErrorBody](walmart_apis/errors/get_shipment_items_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[GetShipmentItemsResponse](walmart_apis/models/get_shipment_items_response.py)</code> -- Success
+
+**On `Failure`**: `error` is <code>[GetShipmentItemsErrorBody](walmart_apis/errors/get_shipment_items_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 403, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def get_shipment_items_by_shipment_id(shipment_id: str, *, page_size: int | None = 10, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetShipmentItemsByShipmentIdResponse, GetShipmentItemsByShipmentIdErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike listShipmentItems, this op is NOT inboundPlan-scoped -- it reads a CONFIRMED shipment directly by shipmentId (the upstream shipmentRefId / externalReferenceId), with no draft-lookup fallback.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.wfs_inbound.with_raw_response.get_shipment_items_by_shipment_id("some example string")
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetShipmentItemsByShipmentIdResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetShipmentItemsByShipmentIdErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.wfs_inbound.with_raw_response.get_shipment_items_by_shipment_id("some example string")
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetShipmentItemsByShipmentIdResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetShipmentItemsByShipmentIdErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>shipment_id</code> | <code>str</code> | Identifier of a confirmed shipment (shipmentRefId / externalReferenceId). |
+| <code>page_size</code> | <code>int \| None</code> | The number of items to return in the response matching the given query.<br>**Default**: <code>10</code> |
+| <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results. Pass the value of `pagination.nextToken` from a previous response to fetch the next page. Upstream Inbound Order Workflow returns this cursor as `NextToken` in the response payload ; it is mapped through unchanged into `pagination.nextToken` here -- the request-side parameter name stays `paginationToken` for consistency with every other list operation in this API.<br>**Default**: <code>None</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetShipmentItemsByShipmentIdResponse](walmart_apis/models/get_shipment_items_by_shipment_id_response.py), [GetShipmentItemsByShipmentIdErrorBody](walmart_apis/errors/get_shipment_items_by_shipment_id_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[GetShipmentItemsByShipmentIdResponse](walmart_apis/models/get_shipment_items_by_shipment_id_response.py)</code> -- Success
+
+**On `Failure`**: `error` is <code>[GetShipmentItemsByShipmentIdErrorBody](walmart_apis/errors/get_shipment_items_by_shipment_id_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def get_shipments(query_type: ShipmentsQueryTypeOrStr, *, shipment_id_list: list[str] | None = None, shipment_status_list: list[ShipmentStatusOrStr] | None = None, last_updated_after: str | None = None, last_updated_before: str | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[GetShipmentsResponse, GetShipmentsErrorBody]</code></summary>
+
+<dl>
+<dd>
+
+### Description
+
+<dl>
+<dd>
+
+: net-new v4 operation (source-to-target: SAME operationId upstream and downstream). Unlike every shipment op above, this is NOT plan- or shipment-scoped -- it searches across ALL of a seller's shipments. Behavior is driven by `queryType`:
+  - `SHIPMENT`: requires exactly one of `shipmentIdList` or `shipmentStatusList` (never
+    both, never neither -- , tightened to match an upstream spec update).
+  - `DATE_RANGE`: requires `lastUpdatedAfter` (`lastUpdatedBefore` is optional);
+    `shipmentStatusList` may be supplied as an additional filter.
+  - `NEXT_TOKEN`: requires `paginationToken` (the value returned in a previous response's
+    `pagination.nextToken`) to fetch the next page of the SAME query; resend the original
+    `shipmentIdList`/`shipmentStatusList`/`lastUpdatedAfter`/`lastUpdatedBefore` filters,
+    since `paginationToken` only encodes the paging cursor, not the filters themselves.
+
+</dd>
+</dl>
+
+### Usage
+
+<dl>
+<dd>
+
+**Sync**
+
+```python
+result = client.wfs_inbound.with_raw_response.get_shipments(ShipmentsQueryType.SHIPMENT)
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetShipmentsResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetShipmentsErrorBody
+```
+
+**Async**
+
+```python
+result = await async_client.wfs_inbound.with_raw_response.get_shipments(ShipmentsQueryType.SHIPMENT)
+match result:
+    case Success(payload=payload):
+        ...  # TODO: Handle 'payload' of type GetShipmentsResponse
+    case Failure(error=error):
+        ...  # TODO: Handle 'error' of type GetShipmentsErrorBody
+```
+
+</dd>
+</dl>
+
+### Parameters
+
+<dl>
+<dd>
+
+| Name | Type | Description |
+| --- | --- | --- |
+| <code>query_type</code> | <code>[ShipmentsQueryTypeOrStr](walmart_apis/models/enums/shipments_query_type.py)</code> | Determines which combination of filters below is required (upstream `QueryType`). |
+| <code>shipment_id_list</code> | <code>list&#91;str&#93; \| None</code> | Shipment identifiers (external reference ids) to filter by. When `queryType=SHIPMENT`, exactly one of `shipmentIdList`/`shipmentStatusList` is required -- never both, never neither . Maximum 999 entries (upstream `ShipmentIdList`).<br>**Default**: <code>None</code> |
+| <code>shipment_status_list</code> | <code>list&#91;[ShipmentStatusOrStr](walmart_apis/models/enums/shipment_status.py)&#93; \| None</code> | Shipment statuses to filter by (upstream `ShipmentStatusList`; same vocabulary as `getShipment`'s free-string `status` field, minus `UNCONFIRMED`, which upstream documents as never applying to a confirmed shipment). When `queryType=SHIPMENT`, exactly one of `shipmentIdList`/`shipmentStatusList` is required -- never both, never neither ; for `queryType=DATE_RANGE` it remains an optional additional filter.<br>**Default**: <code>None</code> |
+| <code>last_updated_after</code> | <code>str \| None</code> | Only return shipments last updated at or after this date, ISO 8601 datetime. Required when `queryType=DATE_RANGE` (upstream `LastUpdatedAfter`).<br>**Default**: <code>None</code> |
+| <code>last_updated_before</code> | <code>str \| None</code> | Only return shipments last updated at or before this date, ISO 8601 datetime. Optional when `queryType=DATE_RANGE`, defaults to now (upstream `LastUpdatedBefore`).<br>**Default**: <code>None</code> |
+| <code>pagination_token</code> | <code>str \| None</code> | A token to fetch the next page of a previous `getShipments` query. Pass the value of `pagination.nextToken` from a previous response. Required when `queryType=NEXT_TOKEN`. Forwarded upstream as `NextToken`.<br>**Default**: <code>None</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
+
+</dd>
+</dl>
+
+### Response
+
+<dl>
+<dd>
+
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[GetShipmentsResponse](walmart_apis/models/get_shipments_response.py), [GetShipmentsErrorBody](walmart_apis/errors/get_shipments_error.py)&#93;</code>
+
+**On `Success`**: `payload` is <code>[GetShipmentsResponse](walmart_apis/models/get_shipments_response.py)</code> -- Success
+
+**On `Failure`**: `error` is <code>[GetShipmentsErrorBody](walmart_apis/errors/get_shipments_error.py)</code>
+
+Mapped in first-match order -- an earlier row wins over a later range that also covers the status:
+
+| Status | `error` is |
+| --- | --- |
+| 400, 403, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
+| anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+</details>
+
+<details>
+<summary><code>def list_delivery_window_options(plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListDeliveryWindowOptionsResponse, ListDeliveryWindowOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -14214,7 +15033,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | The shipment to get delivery window options for. |
 | <code>page_size</code> | <code>int \| None</code> | The number of delivery window options to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
@@ -14238,7 +15057,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14250,7 +15069,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_inbound_plan_boxes(inbound_plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanBoxesResponse, ListInboundPlanBoxesErrorBody]</code></summary>
+<summary><code>def list_inbound_plan_boxes(plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanBoxesResponse, ListInboundPlanBoxesErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -14260,7 +15079,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `GET` request.
+Retrieves a paginated list of shipping boxes included in an inbound plan.
 
 </dd>
 </dl>
@@ -14302,9 +15121,9 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
-| <code>page_size</code> | <code>int \| None</code> | The number of boxes to return in the response matching the given query.<br>**Default**: <code>None</code> |
-| <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
+| <code>plan_id</code> | <code>str</code> | Unique identifier of the inbound plan. |
+| <code>page_size</code> | <code>int \| None</code> | Maximum number of boxes to return in the response.<br>**Default**: <code>None</code> |
+| <code>pagination_token</code> | <code>str \| None</code> | Pagination token returned in a previous response. Specify this parameter to retrieve the next page of results.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -14325,7 +15144,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14337,7 +15156,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_inbound_plan_items(inbound_plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanItemsResponse, ListInboundPlanItemsErrorBody]</code></summary>
+<summary><code>def list_inbound_plan_items(plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanItemsResponse, ListInboundPlanItemsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -14347,7 +15166,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `GET` request.
+Retrieves a paginated list of items in an inbound plan.
 
 </dd>
 </dl>
@@ -14389,9 +15208,9 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
-| <code>page_size</code> | <code>int \| None</code> | The number of items to return in the response matching the given query.<br>**Default**: <code>None</code> |
-| <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
+| <code>plan_id</code> | <code>str</code> | Unique identifier of the inbound plan. |
+| <code>page_size</code> | <code>int \| None</code> | Maximum number of items to return in the response.<br>**Default**: <code>None</code> |
+| <code>pagination_token</code> | <code>str \| None</code> | Pagination token returned in a previous response. Specify this parameter to retrieve the next page of results.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -14412,7 +15231,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14424,7 +15243,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_inbound_plan_pallets(inbound_plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanPalletsResponse, ListInboundPlanPalletsErrorBody]</code></summary>
+<summary><code>def list_inbound_plan_pallets(plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanPalletsResponse, ListInboundPlanPalletsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -14476,9 +15295,9 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
-| <code>page_size</code> | <code>int \| None</code> | The number of pallets to return in the response matching the given query.<br>**Default**: <code>None</code> |
-| <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
+| <code>plan_id</code> | <code>str</code> | Unique identifier of the inbound plan. |
+| <code>page_size</code> | <code>int \| None</code> | Maximum number of pallets to return in the response.<br>**Default**: <code>None</code> |
+| <code>pagination_token</code> | <code>str \| None</code> | Pagination token returned in a previous response. Specify this parameter to retrieve the next page of results.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -14499,7 +15318,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14521,7 +15340,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `GET` request.
+Retrieves a paginated list of inbound plans. Filter by status, sort the results, and use `paginationToken` to retrieve subsequent pages.
 
 </dd>
 </dl>
@@ -14563,11 +15382,11 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>page_size</code> | <code>int \| None</code> | The number of inbound plans to return in the response matching the given query.<br>**Default**: <code>10</code> |
-| <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
-| <code>status</code> | <code>str \| None</code> | The status of an inbound plan. Possible values: `ACTIVE`, `VOIDED`, `SHIPPED`, `ERRORED`.<br>**Default**: <code>None</code> |
-| <code>sort_by</code> | <code>str \| None</code> | Sort by field.<br>**Default**: <code>None</code> |
-| <code>sort_order</code> | <code>str \| None</code> | The sort order. Possible values: `ASC`, `DESC`.<br>**Default**: <code>None</code> |
+| <code>page_size</code> | <code>int \| None</code> | Maximum number of inbound plans to return in the response.<br>**Default**: <code>10</code> |
+| <code>pagination_token</code> | <code>str \| None</code> | Pagination token returned in a previous response. Specify this parameter to retrieve the next page of results.<br>**Default**: <code>None</code> |
+| <code>status</code> | <code>str \| None</code> | Filters results by inbound plan status. Supported values are `ACTIVE`, `VOIDED`, `SHIPPED`, and `ERRORED`.<br>**Default**: <code>None</code> |
+| <code>sort_by</code> | <code>str \| None</code> | Field used to sort the returned inbound plans.<br>**Default**: <code>None</code> |
+| <code>sort_order</code> | <code>str \| None</code> | Sort direction for the returned inbound plans. Supported values are `ASC` and `DESC`.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
@@ -14588,7 +15407,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14678,7 +15497,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14690,7 +15509,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_packing_group_boxes(inbound_plan_id: str, packing_group_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanBoxesResponse, ListPackingGroupBoxesErrorBody]</code></summary>
+<summary><code>def list_packing_group_boxes(plan_id: str, packing_group_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListPackingGroupBoxesResponse, ListPackingGroupBoxesErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -14716,7 +15535,7 @@ Send a `GET` request.
 result = client.wfs_inbound.with_raw_response.list_packing_group_boxes("some example string", "some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanBoxesResponse
+        ...  # TODO: Handle 'payload' of type ListPackingGroupBoxesResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListPackingGroupBoxesErrorBody
 ```
@@ -14729,7 +15548,7 @@ result = await async_client.wfs_inbound.with_raw_response.list_packing_group_box
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanBoxesResponse
+        ...  # TODO: Handle 'payload' of type ListPackingGroupBoxesResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListPackingGroupBoxesErrorBody
 ```
@@ -14744,7 +15563,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>packing_group_id</code> | <code>str</code> | Identifier of a packing group. |
 | <code>page_size</code> | <code>int \| None</code> | The number of packing group boxes to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
@@ -14758,9 +15577,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListInboundPlanBoxesResponse](walmart_apis/models/list_inbound_plan_boxes_response.py), [ListPackingGroupBoxesErrorBody](walmart_apis/errors/list_packing_group_boxes_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListPackingGroupBoxesResponse](walmart_apis/models/list_packing_group_boxes_response.py), [ListPackingGroupBoxesErrorBody](walmart_apis/errors/list_packing_group_boxes_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[ListInboundPlanBoxesResponse](walmart_apis/models/list_inbound_plan_boxes_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[ListPackingGroupBoxesResponse](walmart_apis/models/list_packing_group_boxes_response.py)</code> -- Success
 
 **On `Failure`**: `error` is <code>[ListPackingGroupBoxesErrorBody](walmart_apis/errors/list_packing_group_boxes_error.py)</code>
 
@@ -14768,7 +15587,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14780,7 +15599,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_packing_group_items(inbound_plan_id: str, packing_group_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanItemsResponse, ListPackingGroupItemsErrorBody]</code></summary>
+<summary><code>def list_packing_group_items(plan_id: str, packing_group_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListPackingGroupItemsResponse, ListPackingGroupItemsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -14806,7 +15625,7 @@ Send a `GET` request.
 result = client.wfs_inbound.with_raw_response.list_packing_group_items("some example string", "some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanItemsResponse
+        ...  # TODO: Handle 'payload' of type ListPackingGroupItemsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListPackingGroupItemsErrorBody
 ```
@@ -14819,7 +15638,7 @@ result = await async_client.wfs_inbound.with_raw_response.list_packing_group_ite
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanItemsResponse
+        ...  # TODO: Handle 'payload' of type ListPackingGroupItemsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListPackingGroupItemsErrorBody
 ```
@@ -14834,7 +15653,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>packing_group_id</code> | <code>str</code> | Identifier of a packing group. |
 | <code>page_size</code> | <code>int \| None</code> | The number of packing group items to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
@@ -14848,9 +15667,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListInboundPlanItemsResponse](walmart_apis/models/list_inbound_plan_items_response.py), [ListPackingGroupItemsErrorBody](walmart_apis/errors/list_packing_group_items_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListPackingGroupItemsResponse](walmart_apis/models/list_packing_group_items_response.py), [ListPackingGroupItemsErrorBody](walmart_apis/errors/list_packing_group_items_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[ListInboundPlanItemsResponse](walmart_apis/models/list_inbound_plan_items_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[ListPackingGroupItemsResponse](walmart_apis/models/list_packing_group_items_response.py)</code> -- Success
 
 **On `Failure`**: `error` is <code>[ListPackingGroupItemsErrorBody](walmart_apis/errors/list_packing_group_items_error.py)</code>
 
@@ -14858,7 +15677,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14870,7 +15689,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_packing_options(inbound_plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListPackingOptionsResponse, ListPackingOptionsErrorBody]</code></summary>
+<summary><code>def list_packing_options(plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListPackingOptionsResponse, ListPackingOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -14922,7 +15741,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>page_size</code> | <code>int \| None</code> | The number of packing options to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -14945,7 +15764,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -14957,7 +15776,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_placement_options(inbound_plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListPlacementOptionsResponse, ListPlacementOptionsErrorBody]</code></summary>
+<summary><code>def list_placement_options(plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListPlacementOptionsResponse, ListPlacementOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15009,7 +15828,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>page_size</code> | <code>int \| None</code> | The number of placement options to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -15032,7 +15851,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15120,7 +15939,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15132,7 +15951,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_shipment_boxes(inbound_plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanBoxesResponse, ListShipmentBoxesErrorBody]</code></summary>
+<summary><code>def list_shipment_boxes(plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListShipmentBoxesResponse, ListShipmentBoxesErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15158,7 +15977,7 @@ Send a `GET` request.
 result = client.wfs_inbound.with_raw_response.list_shipment_boxes("some example string", "some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanBoxesResponse
+        ...  # TODO: Handle 'payload' of type ListShipmentBoxesResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListShipmentBoxesErrorBody
 ```
@@ -15171,7 +15990,7 @@ result = await async_client.wfs_inbound.with_raw_response.list_shipment_boxes(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanBoxesResponse
+        ...  # TODO: Handle 'payload' of type ListShipmentBoxesResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListShipmentBoxesErrorBody
 ```
@@ -15186,7 +16005,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. A shipment contains the boxes and units being inbounded. |
 | <code>page_size</code> | <code>int \| None</code> | The number of boxes to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
@@ -15200,9 +16019,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListInboundPlanBoxesResponse](walmart_apis/models/list_inbound_plan_boxes_response.py), [ListShipmentBoxesErrorBody](walmart_apis/errors/list_shipment_boxes_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListShipmentBoxesResponse](walmart_apis/models/list_shipment_boxes_response.py), [ListShipmentBoxesErrorBody](walmart_apis/errors/list_shipment_boxes_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[ListInboundPlanBoxesResponse](walmart_apis/models/list_inbound_plan_boxes_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[ListShipmentBoxesResponse](walmart_apis/models/list_shipment_boxes_response.py)</code> -- Success
 
 **On `Failure`**: `error` is <code>[ListShipmentBoxesErrorBody](walmart_apis/errors/list_shipment_boxes_error.py)</code>
 
@@ -15210,7 +16029,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15222,7 +16041,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_shipment_content_update_previews(inbound_plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListShipmentContentUpdatePreviewsResponse, ListShipmentContentUpdatePreviewsErrorBody]</code></summary>
+<summary><code>def list_shipment_content_update_previews(plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListShipmentContentUpdatePreviewsResponse, ListShipmentContentUpdatePreviewsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15278,7 +16097,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>page_size</code> | <code>int \| None</code> | The number of content update previews to return.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
@@ -15302,7 +16121,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15314,7 +16133,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_shipment_items(inbound_plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanItemsResponse, ListShipmentItemsErrorBody]</code></summary>
+<summary><code>def list_shipment_items(plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListShipmentItemsResponse, ListShipmentItemsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15340,7 +16159,7 @@ Send a `GET` request.
 result = client.wfs_inbound.with_raw_response.list_shipment_items("some example string", "some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanItemsResponse
+        ...  # TODO: Handle 'payload' of type ListShipmentItemsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListShipmentItemsErrorBody
 ```
@@ -15353,7 +16172,7 @@ result = await async_client.wfs_inbound.with_raw_response.list_shipment_items(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanItemsResponse
+        ...  # TODO: Handle 'payload' of type ListShipmentItemsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListShipmentItemsErrorBody
 ```
@@ -15368,7 +16187,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. A shipment contains the boxes and units being inbounded. |
 | <code>page_size</code> | <code>int \| None</code> | The number of items to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
@@ -15382,9 +16201,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListInboundPlanItemsResponse](walmart_apis/models/list_inbound_plan_items_response.py), [ListShipmentItemsErrorBody](walmart_apis/errors/list_shipment_items_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListShipmentItemsResponse](walmart_apis/models/list_shipment_items_response.py), [ListShipmentItemsErrorBody](walmart_apis/errors/list_shipment_items_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[ListInboundPlanItemsResponse](walmart_apis/models/list_inbound_plan_items_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[ListShipmentItemsResponse](walmart_apis/models/list_shipment_items_response.py)</code> -- Success
 
 **On `Failure`**: `error` is <code>[ListShipmentItemsErrorBody](walmart_apis/errors/list_shipment_items_error.py)</code>
 
@@ -15392,7 +16211,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15404,7 +16223,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_shipment_pallets(inbound_plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListInboundPlanPalletsResponse, ListShipmentPalletsErrorBody]</code></summary>
+<summary><code>def list_shipment_pallets(plan_id: str, shipment_id: str, *, page_size: int | None = None, pagination_token: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListShipmentPalletsResponse, ListShipmentPalletsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15430,7 +16249,7 @@ Send a `GET` request.
 result = client.wfs_inbound.with_raw_response.list_shipment_pallets("some example string", "some example string")
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanPalletsResponse
+        ...  # TODO: Handle 'payload' of type ListShipmentPalletsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListShipmentPalletsErrorBody
 ```
@@ -15443,7 +16262,7 @@ result = await async_client.wfs_inbound.with_raw_response.list_shipment_pallets(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type ListInboundPlanPalletsResponse
+        ...  # TODO: Handle 'payload' of type ListShipmentPalletsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type ListShipmentPalletsErrorBody
 ```
@@ -15458,7 +16277,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>page_size</code> | <code>int \| None</code> | The number of pallets to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
@@ -15472,9 +16291,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListInboundPlanPalletsResponse](walmart_apis/models/list_inbound_plan_pallets_response.py), [ListShipmentPalletsErrorBody](walmart_apis/errors/list_shipment_pallets_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[ListShipmentPalletsResponse](walmart_apis/models/list_shipment_pallets_response.py), [ListShipmentPalletsErrorBody](walmart_apis/errors/list_shipment_pallets_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[ListInboundPlanPalletsResponse](walmart_apis/models/list_inbound_plan_pallets_response.py)</code> -- Success
+**On `Success`**: `payload` is <code>[ListShipmentPalletsResponse](walmart_apis/models/list_shipment_pallets_response.py)</code> -- Success
 
 **On `Failure`**: `error` is <code>[ListShipmentPalletsErrorBody](walmart_apis/errors/list_shipment_pallets_error.py)</code>
 
@@ -15482,7 +16301,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15494,7 +16313,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def list_transportation_options(inbound_plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, placement_option_id: str | None = None, shipment_id: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListTransportationOptionsResponse, ListTransportationOptionsErrorBody]</code></summary>
+<summary><code>def list_transportation_options(plan_id: str, *, page_size: int | None = None, pagination_token: str | None = None, placement_option_id: str | None = None, shipment_id: str | None = None, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ListTransportationOptionsResponse, ListTransportationOptionsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15546,7 +16365,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>page_size</code> | <code>int \| None</code> | The number of transportation options to return in the response matching the given query.<br>**Default**: <code>None</code> |
 | <code>pagination_token</code> | <code>str \| None</code> | A token to fetch a certain page when there are multiple pages worth of results.<br>**Default**: <code>None</code> |
 | <code>placement_option_id</code> | <code>str \| None</code> | The placement option to get transportation options for. Either `placementOptionId` or `shipmentId` must be specified.<br>**Default**: <code>None</code> |
@@ -15571,7 +16390,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15583,7 +16402,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def schedule_self_ship_appointment(inbound_plan_id: str, shipment_id: str, slot_id: str, body: ScheduleSelfShipAppointmentRequest | ScheduleSelfShipAppointmentRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ScheduleSelfShipAppointmentResponse, ScheduleSelfShipAppointmentErrorBody]</code></summary>
+<summary><code>def schedule_self_ship_appointment(plan_id: str, shipment_id: str, slot_id: str, body: ScheduleSelfShipAppointmentRequest | ScheduleSelfShipAppointmentRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[ScheduleSelfShipAppointmentResponse, ScheduleSelfShipAppointmentErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15639,7 +16458,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>slot_id</code> | <code>str</code> | An identifier to a self-ship appointment slot. |
 | <code>body</code> | <code>[ScheduleSelfShipAppointmentRequest](walmart_apis/models/schedule_self_ship_appointment_request.py) \| [ScheduleSelfShipAppointmentRequestDict](walmart_apis/models/schedule_self_ship_appointment_request.py)</code> | The request body. |
@@ -15663,7 +16482,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15675,7 +16494,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def set_packing_information(inbound_plan_id: str, body: SetPackingInformationRequest | SetPackingInformationRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, SetPackingInformationErrorBody]</code></summary>
+<summary><code>def set_packing_information(plan_id: str, body: SetPackingInformationRequest | SetPackingInformationRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[SetPackingInformationResponse, SetPackingInformationErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15717,7 +16536,7 @@ result = client.wfs_inbound.with_raw_response.set_packing_information(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type SetPackingInformationResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type SetPackingInformationErrorBody
 ```
@@ -15744,7 +16563,7 @@ result = await async_client.wfs_inbound.with_raw_response.set_packing_informatio
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type SetPackingInformationResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type SetPackingInformationErrorBody
 ```
@@ -15759,7 +16578,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>body</code> | <code>[SetPackingInformationRequest](walmart_apis/models/set_packing_information_request.py) \| [SetPackingInformationRequestDict](walmart_apis/models/set_packing_information_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -15771,9 +16590,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [SetPackingInformationErrorBody](walmart_apis/errors/set_packing_information_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[SetPackingInformationResponse](walmart_apis/models/set_packing_information_response.py), [SetPackingInformationErrorBody](walmart_apis/errors/set_packing_information_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[SetPackingInformationResponse](walmart_apis/models/set_packing_information_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[SetPackingInformationErrorBody](walmart_apis/errors/set_packing_information_error.py)</code>
 
@@ -15781,7 +16600,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15793,7 +16612,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def set_prep_details(body: SetPrepDetailsRequest | SetPrepDetailsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, SetPrepDetailsErrorBody]</code></summary>
+<summary><code>def set_prep_details(body: SetPrepDetailsRequest | SetPrepDetailsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[SetPrepDetailsResponse, SetPrepDetailsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15830,7 +16649,7 @@ result = client.wfs_inbound.with_raw_response.set_prep_details(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type SetPrepDetailsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type SetPrepDetailsErrorBody
 ```
@@ -15852,7 +16671,7 @@ result = await async_client.wfs_inbound.with_raw_response.set_prep_details(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type SetPrepDetailsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type SetPrepDetailsErrorBody
 ```
@@ -15878,9 +16697,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [SetPrepDetailsErrorBody](walmart_apis/errors/set_prep_details_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[SetPrepDetailsResponse](walmart_apis/models/set_prep_details_response.py), [SetPrepDetailsErrorBody](walmart_apis/errors/set_prep_details_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[SetPrepDetailsResponse](walmart_apis/models/set_prep_details_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[SetPrepDetailsErrorBody](walmart_apis/errors/set_prep_details_error.py)</code>
 
@@ -15888,7 +16707,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15900,7 +16719,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def update_inbound_plan_name(inbound_plan_id: str, body: UpdateInboundPlanNameRequest | UpdateInboundPlanNameRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[None, UpdateInboundPlanNameErrorBody]</code></summary>
+<summary><code>def update_inbound_plan_name(plan_id: str, body: UpdateInboundPlanNameRequest | UpdateInboundPlanNameRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[None, UpdateInboundPlanNameErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -15910,7 +16729,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 <dl>
 <dd>
 
-Send a `PUT` request.
+Updates the name of an existing inbound plan.
 
 </dd>
 </dl>
@@ -15956,7 +16775,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Unique identifier of the inbound plan. |
 | <code>body</code> | <code>[UpdateInboundPlanNameRequest](walmart_apis/models/update_inbound_plan_name_request.py) \| [UpdateInboundPlanNameRequestDict](walmart_apis/models/update_inbound_plan_name_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
@@ -15978,7 +16797,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -15990,7 +16809,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def update_item_compliance_details(marketplace_id: str, body: UpdateItemComplianceDetailsRequest | UpdateItemComplianceDetailsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, UpdateItemComplianceDetailsErrorBody]</code></summary>
+<summary><code>def update_item_compliance_details(marketplace_id: str, body: UpdateItemComplianceDetailsRequest | UpdateItemComplianceDetailsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[UpdateItemComplianceDetailsResponse, UpdateItemComplianceDetailsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -16019,7 +16838,7 @@ result = client.wfs_inbound.with_raw_response.update_item_compliance_details(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type UpdateItemComplianceDetailsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type UpdateItemComplianceDetailsErrorBody
 ```
@@ -16033,7 +16852,7 @@ result = await async_client.wfs_inbound.with_raw_response.update_item_compliance
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type UpdateItemComplianceDetailsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type UpdateItemComplianceDetailsErrorBody
 ```
@@ -16060,9 +16879,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [UpdateItemComplianceDetailsErrorBody](walmart_apis/errors/update_item_compliance_details_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[UpdateItemComplianceDetailsResponse](walmart_apis/models/update_item_compliance_details_response.py), [UpdateItemComplianceDetailsErrorBody](walmart_apis/errors/update_item_compliance_details_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[UpdateItemComplianceDetailsResponse](walmart_apis/models/update_item_compliance_details_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[UpdateItemComplianceDetailsErrorBody](walmart_apis/errors/update_item_compliance_details_error.py)</code>
 
@@ -16070,7 +16889,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -16082,7 +16901,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def update_shipment_name(inbound_plan_id: str, shipment_id: str, body: UpdateShipmentNameRequest | UpdateShipmentNameRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[None, UpdateShipmentNameErrorBody]</code></summary>
+<summary><code>def update_shipment_name(plan_id: str, shipment_id: str, body: UpdateShipmentNameRequest | UpdateShipmentNameRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[None, UpdateShipmentNameErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -16138,7 +16957,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>body</code> | <code>[UpdateShipmentNameRequest](walmart_apis/models/update_shipment_name_request.py) \| [UpdateShipmentNameRequestDict](walmart_apis/models/update_shipment_name_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -16161,7 +16980,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -16173,7 +16992,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def update_shipment_source_address(inbound_plan_id: str, shipment_id: str, body: UpdateShipmentSourceAddressRequest | UpdateShipmentSourceAddressRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, UpdateShipmentSourceAddressErrorBody]</code></summary>
+<summary><code>def update_shipment_source_address(plan_id: str, shipment_id: str, body: UpdateShipmentSourceAddressRequest | UpdateShipmentSourceAddressRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[UpdateShipmentSourceAddressResponse, UpdateShipmentSourceAddressErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -16200,7 +17019,7 @@ result = client.wfs_inbound.with_raw_response.update_shipment_source_address(
     "some example string",
     "some example string",
     UpdateShipmentSourceAddressRequest(
-        address=CommonAddressInput(
+        address=AddressInput(
             address_line1="some example string",
             city="some example string",
             country_code="some example string",
@@ -16212,7 +17031,7 @@ result = client.wfs_inbound.with_raw_response.update_shipment_source_address(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type UpdateShipmentSourceAddressResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type UpdateShipmentSourceAddressErrorBody
 ```
@@ -16224,7 +17043,7 @@ result = await async_client.wfs_inbound.with_raw_response.update_shipment_source
     "some example string",
     "some example string",
     UpdateShipmentSourceAddressRequest(
-        address=CommonAddressInput(
+        address=AddressInput(
             address_line1="some example string",
             city="some example string",
             country_code="some example string",
@@ -16236,7 +17055,7 @@ result = await async_client.wfs_inbound.with_raw_response.update_shipment_source
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type UpdateShipmentSourceAddressResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type UpdateShipmentSourceAddressErrorBody
 ```
@@ -16251,7 +17070,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>body</code> | <code>[UpdateShipmentSourceAddressRequest](walmart_apis/models/update_shipment_source_address_request.py) \| [UpdateShipmentSourceAddressRequestDict](walmart_apis/models/update_shipment_source_address_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -16264,9 +17083,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [UpdateShipmentSourceAddressErrorBody](walmart_apis/errors/update_shipment_source_address_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[UpdateShipmentSourceAddressResponse](walmart_apis/models/update_shipment_source_address_response.py), [UpdateShipmentSourceAddressErrorBody](walmart_apis/errors/update_shipment_source_address_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[UpdateShipmentSourceAddressResponse](walmart_apis/models/update_shipment_source_address_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[UpdateShipmentSourceAddressErrorBody](walmart_apis/errors/update_shipment_source_address_error.py)</code>
 
@@ -16274,7 +17093,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>
@@ -16286,7 +17105,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def update_shipment_tracking_details(inbound_plan_id: str, shipment_id: str, body: UpdateShipmentTrackingDetailsRequest | UpdateShipmentTrackingDetailsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[CancelInboundPlanResponse, UpdateShipmentTrackingDetailsErrorBody]</code></summary>
+<summary><code>def update_shipment_tracking_details(plan_id: str, shipment_id: str, body: UpdateShipmentTrackingDetailsRequest | UpdateShipmentTrackingDetailsRequestDict, *, request_options: RequestOptionsOrDict | None = None) -> ApiResult[UpdateShipmentTrackingDetailsResponse, UpdateShipmentTrackingDetailsErrorBody]</code></summary>
 
 <dl>
 <dd>
@@ -16316,7 +17135,7 @@ result = client.wfs_inbound.with_raw_response.update_shipment_tracking_details(
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type UpdateShipmentTrackingDetailsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type UpdateShipmentTrackingDetailsErrorBody
 ```
@@ -16331,7 +17150,7 @@ result = await async_client.wfs_inbound.with_raw_response.update_shipment_tracki
 )
 match result:
     case Success(payload=payload):
-        ...  # TODO: Handle 'payload' of type CancelInboundPlanResponse
+        ...  # TODO: Handle 'payload' of type UpdateShipmentTrackingDetailsResponse
     case Failure(error=error):
         ...  # TODO: Handle 'error' of type UpdateShipmentTrackingDetailsErrorBody
 ```
@@ -16346,7 +17165,7 @@ match result:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>inbound_plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
+| <code>plan_id</code> | <code>str</code> | Identifier of an inbound plan. |
 | <code>shipment_id</code> | <code>str</code> | Identifier of a shipment. |
 | <code>body</code> | <code>[UpdateShipmentTrackingDetailsRequest](walmart_apis/models/update_shipment_tracking_details_request.py) \| [UpdateShipmentTrackingDetailsRequestDict](walmart_apis/models/update_shipment_tracking_details_request.py)</code> | The request body. |
 | <code>request_options</code> | <code>[RequestOptionsOrDict](walmart_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
@@ -16359,9 +17178,9 @@ match result:
 <dl>
 <dd>
 
-**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py), [UpdateShipmentTrackingDetailsErrorBody](walmart_apis/errors/update_shipment_tracking_details_error.py)&#93;</code>
+**Returns**: <code>[ApiResult](walmart_apis/core/results.py)&#91;[UpdateShipmentTrackingDetailsResponse](walmart_apis/models/update_shipment_tracking_details_response.py), [UpdateShipmentTrackingDetailsErrorBody](walmart_apis/errors/update_shipment_tracking_details_error.py)&#93;</code>
 
-**On `Success`**: `payload` is <code>[CancelInboundPlanResponse](walmart_apis/models/cancel_inbound_plan_response.py)</code> -- Accepted — operation submitted asynchronously.
+**On `Success`**: `payload` is <code>[UpdateShipmentTrackingDetailsResponse](walmart_apis/models/update_shipment_tracking_details_response.py)</code> -- Accepted — operation submitted asynchronously.
 
 **On `Failure`**: `error` is <code>[UpdateShipmentTrackingDetailsErrorBody](walmart_apis/errors/update_shipment_tracking_details_error.py)</code>
 
@@ -16369,7 +17188,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 
 | Status | `error` is |
 | --- | --- |
-| 400, 403, 404, 429, 500 | <code>[CommonErrorList](walmart_apis/models/common_error_list.py)</code> |
+| 400, 403, 404, 429, 500 | <code>[CommonErrorListFulfillmentInboundPlans](walmart_apis/models/common_error_list_fulfillment_inbound_plans.py)</code> |
 | anything unmapped | <code>[RawError](walmart_apis/core/results.py)</code> |
 
 </dd>

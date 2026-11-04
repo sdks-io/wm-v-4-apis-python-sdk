@@ -10,12 +10,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /sellers/v4/account`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_account(*, request_options: RequestOptionsOrDict | None = None)`
 - **Returns (parsed)**: `SellerAccount`
 - **Returns (raw)**: `ApiResult[SellerAccount, GetAccountErrorBody]`
 - **Error**: `GetAccountErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 403, 429, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 403, 404, 429, 500] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -27,12 +27,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /sellers/v4/marketplaceParticipations`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_marketplace_participations(*, request_options: RequestOptionsOrDict | None = None)`
 - **Returns (parsed)**: `GetMarketplaceParticipationsResponse`
 - **Returns (raw)**: `ApiResult[GetMarketplaceParticipationsResponse, GetMarketplaceParticipationsErrorBody]`
 - **Error**: `GetMarketplaceParticipationsErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 403, 429, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 403, 404, 429, 500] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |

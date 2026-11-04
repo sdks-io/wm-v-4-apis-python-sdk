@@ -6,8 +6,10 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 
 class ValueAddedService(SdkBaseModel):
+    """Additional service associated with an order’s regulated delivery requirements."""
+
     code: str
-    """Short service code (e.g. ADULT_SIGNATURE)."""
+    """Identifier for the value-added service, such as ``ADULT_SIGNATURE``."""
 
     description: Optional[str] = UNSET
     """Human-readable description of the service."""

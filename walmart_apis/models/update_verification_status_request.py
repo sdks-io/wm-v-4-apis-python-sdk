@@ -9,15 +9,15 @@ from .enums.verification_status import VerificationStatusOrStr
 
 
 class UpdateVerificationStatusRequest(SdkBaseModel):
-    """Records the seller's verification decision for a regulated order. REJECTED requires a ``rejectionReason``;
-    APPROVED leaves ``rejectionReason`` unset."""
+    """Records the verification outcome for a regulated order. If ``verificationStatus`` is ``REJECTED``, you must
+    provide the ``rejectionReason``."""
 
     verification_status: VerificationStatusOrStr = Field(alias="verificationStatus")
-    """Outcome of the doorstep / pickup identity verification."""
+    """Outcome of buyer identity or age verification at pickup."""
 
     rejection_reason: Optional[RejectionReasonOrStr] = Field(default=UNSET, alias="rejectionReason")
-    """Reason the verification was rejected. Required when ``verificationStatus=REJECTED``; ignored otherwise. Mirrors
-    Amazon SP-API's enumerated rejection reasons."""
+    """Reason verification was rejected. Required when ``verificationStatus`` is ``REJECTED``. Ignored for
+    ``APPROVED``."""
 
 
 class UpdateVerificationStatusRequestDict(TypedDict):

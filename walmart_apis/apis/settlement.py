@@ -42,7 +42,7 @@ class Settlement:
         Args:
             partner_id: Numeric partner/seller ID
             report_date: Report date in MMddyyyy format (e.g. 06172026)
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -70,7 +70,7 @@ class Settlement:
         /v3/report/reconreport/v1/availableReconFiles.
 
         Args:
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -97,13 +97,17 @@ class Settlement:
         request_options: RequestOptionsOrDict | None = None,
     ) -> TransactionSearchResponse:
         """Returns a paginated list of payment transactions for the authenticated seller filtered by optional date
-        range. Contains PII (purchase order IDs). Delegates to GMPPaymentsPlatform (Phase 5).
+        range. Contains PII (purchase order IDs).
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for a general date-ranged transaction search
+        across all transaction types. Kept in the spec for SDK/client parity and contract completeness , including the
+        SP-API ``listTransactions`` alias above; always returns 501..
 
         Args:
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
-            posted_after: Value sent with the request.
-            posted_before: Value sent with the request.
+            posted_after: Only return transactions posted after (or on) this date/time (ISO 8601).
+            posted_before: Only return transactions posted before (but not on) this date/time (ISO 8601).
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -111,8 +115,10 @@ class Settlement:
             Success
 
         Raises:
-            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error
-                ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error Not
+                Implemented — this operation is spec-defined (kept for SDK/client parity and contract completeness) but
+                is permanently unsupported: no backend/upstream exists and none is planned.. ``error`` is ``ErrorList |
+                RawError``."""
         return unwrap(
             self._with_raw_response.search_transactions(
                 page_size=page_size,
@@ -148,7 +154,7 @@ class AsyncSettlement:
         Args:
             partner_id: Numeric partner/seller ID
             report_date: Report date in MMddyyyy format (e.g. 06172026)
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -176,7 +182,7 @@ class AsyncSettlement:
         /v3/report/reconreport/v1/availableReconFiles.
 
         Args:
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -203,13 +209,17 @@ class AsyncSettlement:
         request_options: RequestOptionsOrDict | None = None,
     ) -> TransactionSearchResponse:
         """Returns a paginated list of payment transactions for the authenticated seller filtered by optional date
-        range. Contains PII (purchase order IDs). Delegates to GMPPaymentsPlatform (Phase 5).
+        range. Contains PII (purchase order IDs).
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for a general date-ranged transaction search
+        across all transaction types. Kept in the spec for SDK/client parity and contract completeness , including the
+        SP-API ``listTransactions`` alias above; always returns 501..
 
         Args:
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
-            posted_after: Value sent with the request.
-            posted_before: Value sent with the request.
+            posted_after: Only return transactions posted after (or on) this date/time (ISO 8601).
+            posted_before: Only return transactions posted before (but not on) this date/time (ISO 8601).
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -217,8 +227,10 @@ class AsyncSettlement:
             Success
 
         Raises:
-            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error
-                ``error`` is ``ErrorList | RawError``."""
+            ApiError: Bad Request Unauthorized — missing, expired, or invalid OAuth2 token Internal Server Error Not
+                Implemented — this operation is spec-defined (kept for SDK/client parity and contract completeness) but
+                is permanently unsupported: no backend/upstream exists and none is planned.. ``error`` is ``ErrorList |
+                RawError``."""
         return unwrap(
             await self._with_raw_response.search_transactions(
                 page_size=page_size,
@@ -251,7 +263,7 @@ class SettlementWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         Args:
             partner_id: Numeric partner/seller ID
             report_date: Report date in MMddyyyy format (e.g. 06172026)
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -260,7 +272,7 @@ class SettlementWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/settlementDetails"),
+            url_template=self._server.default_catalog_items("/v4/payments/settlement-details"),
             query_params=[
                 param[str]("partnerId", partner_id),
                 param[str]("reportDate", report_date),
@@ -284,7 +296,7 @@ class SettlementWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         /v3/report/reconreport/v1/availableReconFiles.
 
         Args:
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -293,7 +305,7 @@ class SettlementWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/settlementPeriods"),
+            url_template=self._server.default_catalog_items("/v4/payments/settlement-periods"),
             query_params=[param[int | None]("pageSize", page_size), param[str | None]("nextToken", next_token)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[SettlementPeriodsResponse],
@@ -311,13 +323,17 @@ class SettlementWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[TransactionSearchResponse, SearchTransactionsErrorBody]:
         """Returns a paginated list of payment transactions for the authenticated seller filtered by optional date
-        range. Contains PII (purchase order IDs). Delegates to GMPPaymentsPlatform (Phase 5).
+        range. Contains PII (purchase order IDs).
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for a general date-ranged transaction search
+        across all transaction types. Kept in the spec for SDK/client parity and contract completeness , including the
+        SP-API ``listTransactions`` alias above; always returns 501..
 
         Args:
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
-            posted_after: Value sent with the request.
-            posted_before: Value sent with the request.
+            posted_after: Only return transactions posted after (or on) this date/time (ISO 8601).
+            posted_before: Only return transactions posted before (but not on) this date/time (ISO 8601).
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -325,7 +341,7 @@ class SettlementWithRawResponse(SecuredRawResponse[RawClient, Server, AuthScheme
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/search/transactions"),
+            url_template=self._server.default_catalog_items("/v4/payments/transactions"),
             query_params=[
                 param[int | None]("pageSize", page_size),
                 param[str | None]("nextToken", next_token),
@@ -356,7 +372,7 @@ class AsyncSettlementWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         Args:
             partner_id: Numeric partner/seller ID
             report_date: Report date in MMddyyyy format (e.g. 06172026)
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -365,7 +381,7 @@ class AsyncSettlementWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/settlementDetails"),
+            url_template=self._server.default_catalog_items("/v4/payments/settlement-details"),
             query_params=[
                 param[str]("partnerId", partner_id),
                 param[str]("reportDate", report_date),
@@ -389,7 +405,7 @@ class AsyncSettlementWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         /v3/report/reconreport/v1/availableReconFiles.
 
         Args:
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
@@ -398,7 +414,7 @@ class AsyncSettlementWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/settlementPeriods"),
+            url_template=self._server.default_catalog_items("/v4/payments/settlement-periods"),
             query_params=[param[int | None]("pageSize", page_size), param[str | None]("nextToken", next_token)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[SettlementPeriodsResponse],
@@ -416,13 +432,17 @@ class AsyncSettlementWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[TransactionSearchResponse, SearchTransactionsErrorBody]:
         """Returns a paginated list of payment transactions for the authenticated seller filtered by optional date
-        range. Contains PII (purchase order IDs). Delegates to GMPPaymentsPlatform (Phase 5).
+        range. Contains PII (purchase order IDs).
+
+        **Status: not supported** — no GMPPaymentsPlatform endpoint exists for a general date-ranged transaction search
+        across all transaction types. Kept in the spec for SDK/client parity and contract completeness , including the
+        SP-API ``listTransactions`` alias above; always returns 501..
 
         Args:
-            page_size: Value sent with the request.
+            page_size: Maximum number of results to return per page.
             next_token: Opaque cursor from a prior response; omit for first page
-            posted_after: Value sent with the request.
-            posted_before: Value sent with the request.
+            posted_after: Only return transactions posted after (or on) this date/time (ISO 8601).
+            posted_before: Only return transactions posted before (but not on) this date/time (ISO 8601).
             request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
                 count and statuses.
 
@@ -430,7 +450,7 @@ class AsyncSettlementWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, 
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/disbursements/v4/payment/search/transactions"),
+            url_template=self._server.default_catalog_items("/v4/payments/transactions"),
             query_params=[
                 param[int | None]("pageSize", page_size),
                 param[str | None]("nextToken", next_token),

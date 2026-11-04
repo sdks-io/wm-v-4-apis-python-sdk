@@ -25,6 +25,7 @@ from .sellers import AsyncSellers, Sellers
 from .settlement import AsyncSettlement, Settlement
 from .shipping import AsyncShipping, Shipping
 from .solicitations import AsyncSolicitations, Solicitations
+from .supply_source_api import AsyncSupplySourceApi, SupplySourceApi
 from .uploads import AsyncUploads, Uploads
 from .wfs_inbound import AsyncWfsInbound, WfsInbound
 from .wfs_inventory import AsyncWfsInventory, WfsInventory
@@ -57,6 +58,7 @@ __all__ = [
     "AsyncSettlement",
     "AsyncShipping",
     "AsyncSolicitations",
+    "AsyncSupplySourceApi",
     "AsyncUploads",
     "AsyncWfsInbound",
     "AsyncWfsInventory",
@@ -87,6 +89,7 @@ __all__ = [
     "Settlement",
     "Shipping",
     "Solicitations",
+    "SupplySourceApi",
     "Uploads",
     "WfsInbound",
     "WfsInventory",

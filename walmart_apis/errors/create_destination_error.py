@@ -12,7 +12,7 @@ CreateDestinationErrorBody: TypeAlias = RawError
 class _CreateDestinationError:
     def map(self, status_code: int, content: bytes) -> CreateDestinationErrorBody:
         match status_code:
-            case 400 | 403 | 404 | 429 | 500:
+            case 400 | 401 | 403 | 404 | 429 | 500:
                 return RawError(status_code, content)
             case _:
                 return RawError(status_code, content)

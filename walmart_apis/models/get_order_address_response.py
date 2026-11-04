@@ -3,12 +3,15 @@ from __future__ import annotations
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .payload21 import Payload21, Payload21Dict
+from .payload2 import Payload2, Payload2Dict
 
 
 class GetOrderAddressResponse(SdkBaseModel):
-    payload: Optional[Payload21] = UNSET
+    """Order identifier and shipping address."""
+
+    payload: Optional[Payload2] = UNSET
+    """Shipping address for the purchase order. Do not log response bodies containing shipping addresses."""
 
 
 class GetOrderAddressResponseDict(TypedDict):
-    payload: NotRequired[Payload21Dict]
+    payload: NotRequired[Payload2Dict]

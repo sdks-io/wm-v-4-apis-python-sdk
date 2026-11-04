@@ -8,14 +8,14 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.final_payout.get_final_payout_case_status
 
-- **Route**: `GET /disbursements/v4/finalPayout/case/status`
+- **Route**: `GET /v4/payments/final-payout-cases/status`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_final_payout_case_status(*, request_options: RequestOptionsOrDict | None = None)`
 - **Returns (parsed)**: `FinalPayoutCaseStatusResponse`
 - **Returns (raw)**: `ApiResult[FinalPayoutCaseStatusResponse, GetFinalPayoutCaseStatusErrorBody]`
 - **Error**: `GetFinalPayoutCaseStatusErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 401, 404, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 404, 500, 501] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -25,21 +25,21 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.final_payout.update_final_payout_case_status
 
-- **Route**: `PUT /disbursements/v4/finalPayout/case/updateStatus`
+- **Route**: `PUT /v4/payments/final-payout-cases/status`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def update_final_payout_case_status(body: DisbursementsV4FinalPayoutCaseUpdateStatusRequest | DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
+- **Server**: `default_catalog_items`
+- **Signature**: `def update_final_payout_case_status(body: UpdateFinalPayoutCaseStatusRequest | UpdateFinalPayoutCaseStatusRequestDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
 - **Returns (parsed)**: `FinalPayoutCaseStatusResponse`
 - **Returns (raw)**: `ApiResult[FinalPayoutCaseStatusResponse, UpdateFinalPayoutCaseStatusErrorBody]`
 - **Error**: `UpdateFinalPayoutCaseStatusErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 404, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 404, 500, 501] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
-| `DisbursementsV4FinalPayoutCaseUpdateStatusRequest` | `walmart_apis/models/disbursements_v4_final_payout_case_update_status_request.py` |
-| `DisbursementsV4FinalPayoutCaseUpdateStatusRequestDict` | `walmart_apis/models/disbursements_v4_final_payout_case_update_status_request.py` |
+| `UpdateFinalPayoutCaseStatusRequest` | `walmart_apis/models/update_final_payout_case_status_request.py` |
+| `UpdateFinalPayoutCaseStatusRequestDict` | `walmart_apis/models/update_final_payout_case_status_request.py` |
 | `FinalPayoutCaseStatusResponse` | `walmart_apis/models/final_payout_case_status_response.py` |
 | `UpdateFinalPayoutCaseStatusErrorBody` | `walmart_apis/errors/update_final_payout_case_status_error.py` |
 | `ErrorList` | `walmart_apis/models/error_list.py` |

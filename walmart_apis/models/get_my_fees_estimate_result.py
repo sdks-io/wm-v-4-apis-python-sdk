@@ -8,11 +8,10 @@ from .fees_estimate_result import FeesEstimateResult, FeesEstimateResultDict
 
 
 class GetMyFeesEstimateResult(SdkBaseModel):
-    """Wraps the fee estimate result for a single-item endpoint."""
+    """Fee estimate result returned for a single-item request."""
 
     fees_estimate_result: Optional[FeesEstimateResult] = Field(default=UNSET, alias="FeesEstimateResult")
-    """Fee estimate result for one item. Status indicates Success, ClientError, or ServiceError. Mirrors SP-API
-    FeesEstimateResult."""
+    """Fee estimate result for one item, including the outcome, estimated fees, or error information."""
 
 
 class GetMyFeesEstimateResultDict(TypedDict):

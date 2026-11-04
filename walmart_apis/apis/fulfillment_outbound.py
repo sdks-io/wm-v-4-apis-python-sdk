@@ -408,8 +408,10 @@ class FulfillmentOutboundWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}/cancel"),
-            path_params=[param[str]("sellerFulfillmentOrderId", seller_fulfillment_order_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}/cancel"
+            ),
+            path_params=[param[str]("seller-fulfillment-order-id", seller_fulfillment_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[CancelFulfillmentOrderResponse],
@@ -434,7 +436,7 @@ class FulfillmentOutboundWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/outbound/orders"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateFulfillmentOrderRequest | CreateFulfillmentOrderRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -457,8 +459,10 @@ class FulfillmentOutboundWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}"),
-            path_params=[param[str]("sellerFulfillmentOrderId", seller_fulfillment_order_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}"
+            ),
+            path_params=[param[str]("seller-fulfillment-order-id", seller_fulfillment_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetFulfillmentOrderResponse],
             error_mapper=get_fulfillment_order_error_mapper,
@@ -479,10 +483,10 @@ class FulfillmentOutboundWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}/shipments"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}/shipments"
             ),
-            path_params=[param[str]("sellerFulfillmentOrderId", seller_fulfillment_order_id)],
+            path_params=[param[str]("seller-fulfillment-order-id", seller_fulfillment_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=json_decoder[GetFulfillmentOrderShipmentsResponse],
             error_mapper=get_fulfillment_order_shipments_error_mapper,
@@ -507,7 +511,7 @@ class FulfillmentOutboundWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders/preview"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/outbound/orders/preview"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GetFulfillmentPreviewRequest | GetFulfillmentPreviewRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -535,7 +539,7 @@ class FulfillmentOutboundWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/outbound/orders"),
             query_params=[
                 param[RFC3339DateTime | None]("queryStartDate", query_start_date),
                 param[str | None]("nextToken", next_token),
@@ -565,8 +569,10 @@ class FulfillmentOutboundWithRawResponse(SecuredRawResponse[RawClient, Server, A
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}"),
-            path_params=[param[str]("sellerFulfillmentOrderId", seller_fulfillment_order_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}"
+            ),
+            path_params=[param[str]("seller-fulfillment-order-id", seller_fulfillment_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateFulfillmentOrderRequest | UpdateFulfillmentOrderRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -591,8 +597,10 @@ class AsyncFulfillmentOutboundWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}/cancel"),
-            path_params=[param[str]("sellerFulfillmentOrderId", seller_fulfillment_order_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}/cancel"
+            ),
+            path_params=[param[str]("seller-fulfillment-order-id", seller_fulfillment_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[CancelFulfillmentOrderResponse],
@@ -617,7 +625,7 @@ class AsyncFulfillmentOutboundWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/outbound/orders"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[CreateFulfillmentOrderRequest | CreateFulfillmentOrderRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -640,8 +648,10 @@ class AsyncFulfillmentOutboundWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}"),
-            path_params=[param[str]("sellerFulfillmentOrderId", seller_fulfillment_order_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}"
+            ),
+            path_params=[param[str]("seller-fulfillment-order-id", seller_fulfillment_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetFulfillmentOrderResponse],
             error_mapper=get_fulfillment_order_error_mapper,
@@ -662,10 +672,10 @@ class AsyncFulfillmentOutboundWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1(
-                "/wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}/shipments"
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}/shipments"
             ),
-            path_params=[param[str]("sellerFulfillmentOrderId", seller_fulfillment_order_id)],
+            path_params=[param[str]("seller-fulfillment-order-id", seller_fulfillment_order_id)],
             auth_scheme=self._auth.wallet_auth,
             decoder=async_json_decoder[GetFulfillmentOrderShipmentsResponse],
             error_mapper=get_fulfillment_order_shipments_error_mapper,
@@ -690,7 +700,7 @@ class AsyncFulfillmentOutboundWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="POST",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders/preview"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/outbound/orders/preview"),
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[GetFulfillmentPreviewRequest | GetFulfillmentPreviewRequestDict](body),
             auth_scheme=self._auth.wallet_auth,
@@ -718,7 +728,7 @@ class AsyncFulfillmentOutboundWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders"),
+            url_template=self._server.default_catalog_items("/v4/fulfillment/outbound/orders"),
             query_params=[
                 param[RFC3339DateTime | None]("queryStartDate", query_start_date),
                 param[str | None]("nextToken", next_token),
@@ -748,8 +758,10 @@ class AsyncFulfillmentOutboundWithRawResponse(SecuredRawResponse[AsyncRawClient,
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="PUT",
-            url_template=self._server.default1("/wfs/outbound/v4/fulfillmentOrders/{sellerFulfillmentOrderId}"),
-            path_params=[param[str]("sellerFulfillmentOrderId", seller_fulfillment_order_id)],
+            url_template=self._server.default_catalog_items(
+                "/v4/fulfillment/outbound/orders/{seller-fulfillment-order-id}"
+            ),
+            path_params=[param[str]("seller-fulfillment-order-id", seller_fulfillment_order_id)],
             headers=[param[UUID]("Idempotency-Key", uuid4())],
             body=json_body[UpdateFulfillmentOrderRequest | UpdateFulfillmentOrderRequestDict](body),
             auth_scheme=self._auth.wallet_auth,

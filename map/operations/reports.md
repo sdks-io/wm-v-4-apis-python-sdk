@@ -8,12 +8,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reports.cancel_report
 
-- **Route**: `DELETE /reports/v4/reports/{reportId}`
+- **Route**: `DELETE /v4/reports/{report-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def cancel_report(report_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `report_id`
-- **Params**: `report_id` — path `reportId`
+- **Params**: `report_id` — path `report-id`
 - **Returns (parsed)**: `CancelReportResponse`
 - **Returns (raw)**: `ApiResult[CancelReportResponse, CancelReportErrorBody]`
 - **Error**: `CancelReportErrorBody` — **Case A (typed)**
@@ -27,9 +27,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reports.create_report
 
-- **Route**: `POST /reports/v4/reports`
+- **Route**: `POST /v4/reports`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def create_report(body: CreateReportSpecification | CreateReportSpecificationDict, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
@@ -48,16 +48,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reports.download_new_report
 
-- **Route**: `GET /disbursements/v4/payment/summary/newReportDownload`
+- **Route**: `GET /v4/payments/reports/summary-reports/new/{summary-report-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def download_new_report(partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `partner_id`, `report_date`
-- **Params**: `partner_id` — query `partnerId` · `report_date` — query `reportDate`
+- **Server**: `default_catalog_items`
+- **Signature**: `def download_new_report(summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None)`
+  - required, positional: `summary_report_id`, `partner_id`
+- **Params**: `summary_report_id` — path `summary-report-id` · `partner_id` — query `partnerId`
 - **Returns (parsed)**: `FileResponse`
 - **Returns (raw)**: `ApiResult[FileResponse, DownloadNewReportErrorBody]`
 - **Error**: `DownloadNewReportErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 404, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 404, 500] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -66,16 +66,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reports.download_old_report
 
-- **Route**: `GET /disbursements/v4/payment/summary/oldReportDownload`
+- **Route**: `GET /v4/payments/reports/summary-reports/legacy/{summary-report-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def download_old_report(partner_id: str, report_date: str, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `partner_id`, `report_date`
-- **Params**: `partner_id` — query `partnerId` · `report_date` — query `reportDate`
+- **Server**: `default_catalog_items`
+- **Signature**: `def download_old_report(summary_report_id: str, partner_id: str, *, request_options: RequestOptionsOrDict | None = None)`
+  - required, positional: `summary_report_id`, `partner_id`
+- **Params**: `summary_report_id` — path `summary-report-id` · `partner_id` — query `partnerId`
 - **Returns (parsed)**: `FileResponse`
 - **Returns (raw)**: `ApiResult[FileResponse, DownloadOldReportErrorBody]`
 - **Error**: `DownloadOldReportErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 404, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 404, 500] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -84,12 +84,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reports.get_report
 
-- **Route**: `GET /reports/v4/reports/{reportId}`
+- **Route**: `GET /v4/reports/{report-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_report(report_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `report_id`
-- **Params**: `report_id` — path `reportId`
+- **Params**: `report_id` — path `report-id`
 - **Returns (parsed)**: `Report`
 - **Returns (raw)**: `ApiResult[Report, GetReportErrorBody]`
 - **Error**: `GetReportErrorBody` — **Case A (typed)**
@@ -103,12 +103,12 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reports.get_report_document
 
-- **Route**: `GET /reports/v4/documents/{reportDocumentId}`
+- **Route**: `GET /v4/reports/documents/{document-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
-- **Signature**: `def get_report_document(report_document_id: str, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `report_document_id`
-- **Params**: `report_document_id` — path `reportDocumentId`
+- **Server**: `default_catalog_items`
+- **Signature**: `def get_report_document(document_id: str, *, request_options: RequestOptionsOrDict | None = None)`
+  - required, positional: `document_id`
+- **Params**: `document_id` — path `document-id`
 - **Returns (parsed)**: `ReportDocument`
 - **Returns (raw)**: `ApiResult[ReportDocument, GetReportDocumentErrorBody]`
 - **Error**: `GetReportDocumentErrorBody` — **Case A (typed)**
@@ -122,9 +122,9 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.reports.get_reports
 
-- **Route**: `GET /reports/v4/reports`
+- **Route**: `GET /v4/reports`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_reports(*, report_types: list[ReportType1OrStr] | None = None, processing_statuses: list[ProcessingStatusOrStr] | None = None, created_since: RFC3339DateTime | None = None, created_until: RFC3339DateTime | None = None, page_size: int | None = 10, next_token: str | None = None, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `report_types` — query `reportTypes` · `processing_statuses` — query `processingStatuses` · `created_since` — query `createdSince` · `created_until` — query `createdUntil` · `page_size` — query `pageSize` · `next_token` — query `nextToken`
 - **Returns (parsed)**: `GetReportsResponse`

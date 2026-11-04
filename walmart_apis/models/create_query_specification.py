@@ -8,7 +8,7 @@ from .pagination2 import Pagination2, Pagination2Dict
 
 class CreateQuerySpecification(SdkBaseModel):
     query: str
-    """Structured query string. Format TBD pending ADR: GraphQL vs Walmart-native query DSL (Pod 4)."""
+    """Structured query string. Format is not yet finalized pending ADR: GraphQL vs Walmart-native query DSL (Pod 4)."""
 
     pagination: Optional[Pagination2] = UNSET
 

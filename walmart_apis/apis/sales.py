@@ -265,7 +265,7 @@ class SalesWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             An ``ApiResult`` holding the deserialized response or the error body."""
         return self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/sales/v4/orderMetrics"),
+            url_template=self._server.default_catalog_items("/sales/v4/orderMetrics"),
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[str]("interval", interval),
@@ -349,7 +349,7 @@ class AsyncSalesWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Async
             An ``ApiResult`` holding the deserialized response or the error body."""
         return await self._client.execute(
             http_method="GET",
-            url_template=self._server.default1("/sales/v4/orderMetrics"),
+            url_template=self._server.default_catalog_items("/sales/v4/orderMetrics"),
             query_params=[
                 param[list[str]]("marketplaceIds", marketplace_ids),
                 param[str]("interval", interval),

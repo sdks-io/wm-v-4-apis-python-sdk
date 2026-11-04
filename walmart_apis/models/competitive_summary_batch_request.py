@@ -7,10 +7,10 @@ from .competitive_summary_request import CompetitiveSummaryRequest, CompetitiveS
 
 
 class CompetitiveSummaryBatchRequest(SdkBaseModel):
-    """The request body for the getCompetitiveSummary operation."""
+    """Request body for the ``getCompetitiveSummary`` operation."""
 
     requests: Optional[list[CompetitiveSummaryRequest]] = UNSET
-    """A batched list of competitive summary requests."""
+    """Competitive summary requests to process in the batch. Contains at least one request."""
 
 
 class CompetitiveSummaryBatchRequestDict(TypedDict):

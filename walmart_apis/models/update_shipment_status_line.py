@@ -8,8 +8,13 @@ from .quantity_with_unit import QuantityWithUnit, QuantityWithUnitDict
 
 
 class UpdateShipmentStatusLine(SdkBaseModel):
+    """Order line affected by the shipment status update."""
+
     line_number: str = Field(alias="lineNumber")
+    """Line identifier within the purchase order."""
+
     status_quantity: Optional[QuantityWithUnit] = Field(default=UNSET, alias="statusQuantity")
+    """Numeric quantity and its unit of measure."""
 
 
 class UpdateShipmentStatusLineDict(TypedDict):

@@ -5,7 +5,7 @@ from ...core import open_enum_validator
 
 
 class CustomerType(str, Enum):
-    """Indicates whether to request Consumer or Business offers. Default is Consumer."""
+    """Indicates whether to request ``Consumer`` or ``Business`` offers. The default is ``Consumer``."""
 
     CONSUMER = "Consumer"
     BUSINESS = "Business"

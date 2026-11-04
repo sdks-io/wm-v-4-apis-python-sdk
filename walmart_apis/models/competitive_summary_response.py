@@ -8,13 +8,13 @@ from .get_offers_http_status_line import GetOffersHttpStatusLine, GetOffersHttpS
 
 
 class CompetitiveSummaryResponse(SdkBaseModel):
-    """An individual competitive summary response."""
+    """Competitive summary response for one item in the batch."""
 
     status: Optional[GetOffersHttpStatusLine] = UNSET
-    """The HTTP status line associated with the response."""
+    """HTTP status information associated with the response."""
 
     body: Optional[CompetitiveSummaryResponseBody] = UNSET
-    """The body of a competitive summary response."""
+    """Competitive summary information returned for a Walmart item."""
 
 
 class CompetitiveSummaryResponseDict(TypedDict):

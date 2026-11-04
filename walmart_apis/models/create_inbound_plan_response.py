@@ -7,13 +7,13 @@ from ..core import SdkBaseModel
 
 
 class CreateInboundPlanResponse(SdkBaseModel):
-    """The ``createInboundPlan`` response."""
+    """Response returned after creating an inbound plan."""
 
     inbound_plan_id: str = Field(alias="inboundPlanId")
-    """Identifier of the newly created inbound plan."""
+    """Unique identifier of the newly created inbound plan."""
 
     operation_id: str = Field(alias="operationId")
-    """UUID for the given operation."""
+    """Unique identifier for the given operation."""
 
 
 class CreateInboundPlanResponseDict(TypedDict):

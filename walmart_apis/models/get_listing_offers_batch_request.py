@@ -7,10 +7,10 @@ from .listing_offers_request import ListingOffersRequest, ListingOffersRequestDi
 
 
 class GetListingOffersBatchRequest(SdkBaseModel):
-    """The request associated with the getListingOffersBatch API call."""
+    """Request containing listing-offer requests for the ``getListingOffersBatch`` operation."""
 
     requests: Optional[list[ListingOffersRequest]] = UNSET
-    """A list of getListingOffers batched requests to run."""
+    """List of ``getListingOffers`` requests to process in a batch. Contains 1–20 requests."""
 
 
 class GetListingOffersBatchRequestDict(TypedDict):

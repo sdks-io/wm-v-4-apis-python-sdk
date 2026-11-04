@@ -5,10 +5,8 @@ from ...core import open_enum_validator
 
 
 class Type1(str, Enum):
-    LABEL = "LABEL"
-    RECEIPT = "RECEIPT"
-    CUSTOMS_FORM = "CUSTOMS_FORM"
-    COMMERCIAL_INVOICE = "COMMERCIAL_INVOICE"
+    PICKUP = "PICKUP"
+    DROPOFF = "DROPOFF"
 
     __str__ = str.__str__
 

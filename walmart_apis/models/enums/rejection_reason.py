@@ -5,8 +5,8 @@ from ...core import open_enum_validator
 
 
 class RejectionReason(str, Enum):
-    """Reason the verification was rejected. Required when ``verificationStatus=REJECTED``; ignored otherwise. Mirrors
-    Amazon SP-API's enumerated rejection reasons."""
+    """Reason verification was rejected. Required when ``verificationStatus`` is ``REJECTED``. Ignored for
+    ``APPROVED``."""
 
     BUYER_CANCELED = "BUYER_CANCELED"
     BUYER_REJECTED = "BUYER_REJECTED"

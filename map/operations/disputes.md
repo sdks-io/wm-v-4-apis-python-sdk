@@ -8,14 +8,14 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.disputes.check_dispute_eligibility
 
-- **Route**: `GET /disbursements/v4/payment/disputeEligibilityCheck`
+- **Route**: `GET /v4/payments/disputes/eligibility`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def check_dispute_eligibility(*, request_options: RequestOptionsOrDict | None = None)`
 - **Returns (parsed)**: `DisputeEligibilityResponse`
 - **Returns (raw)**: `ApiResult[DisputeEligibilityResponse, CheckDisputeEligibilityErrorBody]`
 - **Error**: `CheckDisputeEligibilityErrorBody` — **Case A (typed)**
-- **Error arms**: `ErrorList` [400, 401, 500] · `RawError` [anything unmapped]
+- **Error arms**: `ErrorList` [400, 401, 500, 501] · `RawError` [anything unmapped]
 
 | Type | Source |
 | --- | --- |

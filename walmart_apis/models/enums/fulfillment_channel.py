@@ -5,7 +5,7 @@ from ...core import open_enum_validator
 
 
 class FulfillmentChannel(str, Enum):
-    """The fulfillment channel for the offer listing. Possible values: WFS, SELLER."""
+    """Fulfillment channel for the offer listing. Possible values are ``WFS`` and ``SELLER``."""
 
     WFS = "WFS"
     SELLER = "SELLER"

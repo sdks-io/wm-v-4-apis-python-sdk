@@ -10,10 +10,10 @@ class MoneyType(SdkBaseModel):
     """Currency type and monetary value."""
 
     currency_code: str = Field(default="USD", alias="CurrencyCode")
-    """The currency code in ISO 4217 format."""
+    """Three-letter currency code in ISO 4217 format."""
 
     amount: Optional[float] = Field(default=UNSET, alias="Amount")
-    """The monetary value."""
+    """Monetary amount."""
 
 
 class MoneyTypeDict(TypedDict):

@@ -9,6 +9,7 @@ from .money import Money, MoneyDict
 class Fee(SdkBaseModel):
     name: Optional[str] = UNSET
     amount: Optional[Money] = UNSET
+    """Canonical monetary amount (string value + ISO 4217 currency code)."""
 
 
 class FeeDict(TypedDict):

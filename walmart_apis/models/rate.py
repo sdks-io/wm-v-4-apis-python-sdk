@@ -6,7 +6,7 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, RFC3339DateTime, SdkBaseModel
-from .carrier import Carrier, CarrierDict
+from .carrier_shipping import CarrierShipping, CarrierShippingDict
 from .money import Money, MoneyDict
 from .promise import Promise, PromiseDict
 from .service import Service, ServiceDict
@@ -15,9 +15,11 @@ from .weight import Weight, WeightDict
 
 class Rate(SdkBaseModel):
     rate_id: str = Field(alias="rateId")
-    carrier: Carrier
+    carrier: CarrierShipping
     service: Service
     total_charge: Money = Field(alias="totalCharge")
+    """Canonical monetary amount (string value + ISO 4217 currency code)."""
+
     billed_weight: Optional[Weight] = Field(default=UNSET, alias="billedWeight")
     expiration_time: Optional[RFC3339DateTime] = Field(default=UNSET, alias="expirationTime")
     promise: Optional[Promise] = UNSET
@@ -25,7 +27,7 @@ class Rate(SdkBaseModel):
         default=UNSET, alias="supportedDocumentSpecifications"
     )
     """List of label/document formats supported by this rate. Each entry shape matches industry-standard
-    SupportedDocumentSpecification; tier-1 fidelity is sufficient for v4 — see TODO at top of file."""
+    SupportedDocumentSpecification; tier-1 fidelity is sufficient for v4."""
 
     available_value_added_services: Optional[list[Any]] = Field(default=UNSET, alias="availableValueAddedServices")
     """Value-added services available for purchase at this rate (signature, COD, dangerous goods, etc). Compressed
@@ -34,7 +36,7 @@ class Rate(SdkBaseModel):
 
 class RateDict(TypedDict):
     rate_id: str
-    carrier: CarrierDict
+    carrier: CarrierShippingDict
     service: ServiceDict
     total_charge: MoneyDict
     billed_weight: NotRequired[WeightDict]

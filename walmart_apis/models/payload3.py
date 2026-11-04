@@ -4,19 +4,18 @@ from pydantic import Field
 from typing_extensions import NotRequired, TypedDict
 
 from ..core import UNSET, Optional, SdkBaseModel
-from .ineligible_rate import IneligibleRate, IneligibleRateDict
-from .rate import Rate, RateDict
+from .enums.cancellation_status import CancellationStatusOrStr
 
 
 class Payload3(SdkBaseModel):
-    rates: Optional[list[Rate]] = UNSET
-    ineligible_rates: Optional[list[IneligibleRate]] = Field(default=UNSET, alias="ineligibleRates")
-    request_token: Optional[str] = Field(default=UNSET, alias="requestToken")
-    """Opaque token to be passed back on subsequent purchaseShipment or getAdditionalInputs calls to identify this rate
-    quote session."""
+    cancelled: Optional[bool] = UNSET
+    """Whether the cancellation was accepted by the carrier."""
+
+    cancellation_status: Optional[CancellationStatusOrStr] = Field(default=UNSET, alias="cancellationStatus")
+    message: Optional[str] = UNSET
 
 
 class Payload3Dict(TypedDict):
-    rates: NotRequired[list[RateDict]]
-    ineligible_rates: NotRequired[list[IneligibleRateDict]]
-    request_token: NotRequired[str]
+    cancelled: NotRequired[bool]
+    cancellation_status: NotRequired[CancellationStatusOrStr]
+    message: NotRequired[str]

@@ -22,6 +22,8 @@ class ShippingService(SdkBaseModel):
         default=UNSET, alias="latestEstimatedDeliveryDate"
     )
     rate: Optional[Money] = UNSET
+    """Canonical monetary amount (string value + ISO 4217 currency code)."""
+
     shipping_service_options: Optional[ShippingServiceOptions] = Field(default=UNSET, alias="shippingServiceOptions")
 
 

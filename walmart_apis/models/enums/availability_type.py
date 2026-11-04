@@ -5,7 +5,8 @@ from ...core import open_enum_validator
 
 
 class AvailabilityType(str, Enum):
-    """Indicates whether the item is available for shipping now, or on a known or an unknown date in the future."""
+    """Indicates whether the item is available for shipping now, on a known future date, or on an unspecified future
+    date."""
 
     NOW = "NOW"
     FUTURE_WITHOUT_DATE = "FUTURE_WITHOUT_DATE"

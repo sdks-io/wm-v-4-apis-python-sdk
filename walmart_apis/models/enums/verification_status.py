@@ -5,7 +5,7 @@ from ...core import open_enum_validator
 
 
 class VerificationStatus(str, Enum):
-    """Outcome of the doorstep / pickup identity verification."""
+    """Outcome of buyer identity or age verification at pickup."""
 
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"

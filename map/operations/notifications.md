@@ -8,16 +8,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.notifications.create_destination
 
-- **Route**: `POST /notifications/v4/destinations`
+- **Route**: `POST /v4/notifications/destinations`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def create_destination(body: Any, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `body`
 - **Params**: `body` — JSON body
 - **Returns (parsed)**: `Channel`
 - **Returns (raw)**: `ApiResult[Channel, CreateDestinationErrorBody]`
 - **Error**: `CreateDestinationErrorBody` — **Case A (typed)**
-- **Error arms**: `RawError` [400, 403, 404, 429, 500, anything unmapped]
+- **Error arms**: `RawError` [400, 401, 403, 404, 429, 500, anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -26,16 +26,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.notifications.create_subscription
 
-- **Route**: `POST /notifications/v4/subscriptions/{notificationType}`
+- **Route**: `POST /v4/notifications/subscriptions/{notification-type}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def create_subscription(notification_type: str, body: Any, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `notification_type`, `body`
-- **Params**: `notification_type` — path `notificationType` · `body` — JSON body
+- **Params**: `notification_type` — path `notification-type` · `body` — JSON body
 - **Returns (parsed)**: `Any`
 - **Returns (raw)**: `ApiResult[Any, CreateSubscriptionErrorBody]`
 - **Error**: `CreateSubscriptionErrorBody` — **Case A (typed)**
-- **Error arms**: `RawError` [400, 403, 404, 429, 500, anything unmapped]
+- **Error arms**: `RawError` [400, 401, 403, 404, 429, 500, anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -43,16 +43,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.notifications.delete_destination
 
-- **Route**: `DELETE /notifications/v4/destinations/{destinationId}`
+- **Route**: `DELETE /v4/notifications/destinations/{destination-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def delete_destination(destination_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `destination_id`
-- **Params**: `destination_id` — path `destinationId`
+- **Params**: `destination_id` — path `destination-id`
 - **Returns (parsed)**: `Channel`
 - **Returns (raw)**: `ApiResult[Channel, DeleteDestinationErrorBody]`
 - **Error**: `DeleteDestinationErrorBody` — **Case A (typed)**
-- **Error arms**: `RawError` [400, 403, 404, 429, 500, anything unmapped]
+- **Error arms**: `RawError` [400, 401, 403, 404, 429, 500, anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -61,16 +61,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.notifications.delete_subscription_by_id
 
-- **Route**: `DELETE /notifications/v4/subscriptions/{notificationType}/{subscriptionId}`
+- **Route**: `DELETE /v4/notifications/{notification-type}/subscriptions/{subscription-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def delete_subscription_by_id(subscription_id: str, notification_type: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `subscription_id`, `notification_type`
-- **Params**: `subscription_id` — path `subscriptionId` · `notification_type` — path `notificationType`
+- **Params**: `subscription_id` — path `subscription-id` · `notification_type` — path `notification-type`
 - **Returns (parsed)**: `Any`
 - **Returns (raw)**: `ApiResult[Any, DeleteSubscriptionByIdErrorBody]`
 - **Error**: `DeleteSubscriptionByIdErrorBody` — **Case A (typed)**
-- **Error arms**: `RawError` [400, 403, 404, 429, 500, anything unmapped]
+- **Error arms**: `RawError` [400, 401, 403, 404, 429, 500, anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -78,16 +78,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.notifications.get_destination
 
-- **Route**: `GET /notifications/v4/destinations/{destinationId}`
+- **Route**: `GET /v4/notifications/destinations/{destination-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_destination(destination_id: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `destination_id`
-- **Params**: `destination_id` — path `destinationId`
+- **Params**: `destination_id` — path `destination-id`
 - **Returns (parsed)**: `Channel`
 - **Returns (raw)**: `ApiResult[Channel, GetDestinationErrorBody]`
 - **Error**: `GetDestinationErrorBody` — **Case A (typed)**
-- **Error arms**: `RawError` [400, 403, 404, 429, 500, anything unmapped]
+- **Error arms**: `RawError` [400, 401, 403, 404, 429, 500, anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -96,14 +96,14 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.notifications.get_destinations
 
-- **Route**: `GET /notifications/v4/destinations`
+- **Route**: `GET /v4/notifications/destinations`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_destinations(*, request_options: RequestOptionsOrDict | None = None)`
 - **Returns (parsed)**: `ChannelList`
 - **Returns (raw)**: `ApiResult[ChannelList, GetDestinationsErrorBody]`
 - **Error**: `GetDestinationsErrorBody` — **Case A (typed)**
-- **Error arms**: `RawError` [400, 403, 404, 429, 500, anything unmapped]
+- **Error arms**: `RawError` [400, 401, 403, 404, 429, 500, anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -112,16 +112,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.notifications.get_subscription
 
-- **Route**: `GET /notifications/v4/subscriptions/{notificationType}`
+- **Route**: `GET /v4/notifications/subscriptions/{notification-type}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_subscription(notification_type: str, *, payload_version: str | None = None, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `notification_type`
-- **Params**: `notification_type` — path `notificationType` · `payload_version` — query `payloadVersion`
+- **Params**: `notification_type` — path `notification-type` · `payload_version` — query `payloadVersion`
 - **Returns (parsed)**: `Any`
 - **Returns (raw)**: `ApiResult[Any, GetSubscriptionErrorBody]`
 - **Error**: `GetSubscriptionErrorBody` — **Case A (typed)**
-- **Error arms**: `RawError` [400, 403, 404, 429, 500, anything unmapped]
+- **Error arms**: `RawError` [400, 401, 403, 404, 429, 500, anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -129,16 +129,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.notifications.get_subscription_by_id
 
-- **Route**: `GET /notifications/v4/subscriptions/{notificationType}/{subscriptionId}`
+- **Route**: `GET /v4/notifications/{notification-type}/subscriptions/{subscription-id}`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def get_subscription_by_id(subscription_id: str, notification_type: str, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `subscription_id`, `notification_type`
-- **Params**: `subscription_id` — path `subscriptionId` · `notification_type` — path `notificationType`
+- **Params**: `subscription_id` — path `subscription-id` · `notification_type` — path `notification-type`
 - **Returns (parsed)**: `Any`
 - **Returns (raw)**: `ApiResult[Any, GetSubscriptionByIdErrorBody]`
 - **Error**: `GetSubscriptionByIdErrorBody` — **Case A (typed)**
-- **Error arms**: `RawError` [400, 403, 404, 429, 500, anything unmapped]
+- **Error arms**: `RawError` [400, 401, 403, 404, 429, 500, anything unmapped]
 
 | Type | Source |
 | --- | --- |
@@ -146,16 +146,16 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 ### client.notifications.send_test_notification
 
-- **Route**: `POST /notifications/v4/subscriptions/{notificationType}/testNotification`
+- **Route**: `POST /v4/notifications/{notification-type}/test-notification`
 - **Auth**: `wallet_auth`
-- **Server**: `default1`
+- **Server**: `default_catalog_items`
 - **Signature**: `def send_test_notification(notification_type: str, body: Any, *, request_options: RequestOptionsOrDict | None = None)`
   - required, positional: `notification_type`, `body`
-- **Params**: `notification_type` — path `notificationType` · `body` — JSON body
+- **Params**: `notification_type` — path `notification-type` · `body` — JSON body
 - **Returns (parsed)**: `Any`
 - **Returns (raw)**: `ApiResult[Any, SendTestNotificationErrorBody]`
 - **Error**: `SendTestNotificationErrorBody` — **Case A (typed)**
-- **Error arms**: `RawError` [400, 403, 404, 429, 500, anything unmapped]
+- **Error arms**: `RawError` [400, 401, 403, 404, 429, 500, anything unmapped]
 
 | Type | Source |
 | --- | --- |

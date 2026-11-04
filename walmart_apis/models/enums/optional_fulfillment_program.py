@@ -5,7 +5,7 @@ from ...core import open_enum_validator
 
 
 class OptionalFulfillmentProgram(str, Enum):
-    """Optional fulfillment program override for WFS items."""
+    """Fulfillment program used for the fee estimate."""
 
     WFS_STANDARD = "WFS_STANDARD"
     WFS_EXPEDITED = "WFS_EXPEDITED"

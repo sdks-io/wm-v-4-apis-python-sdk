@@ -7,13 +7,13 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 
 class GetOffersHttpStatusLine(SdkBaseModel):
-    """The HTTP status line associated with the response."""
+    """HTTP status information associated with the response."""
 
     status_code: Optional[int] = Field(default=UNSET, alias="statusCode")
-    """The HTTP response Status Code."""
+    """HTTP status code returned for the response."""
 
     reason_phrase: Optional[str] = Field(default=UNSET, alias="reasonPhrase")
-    """The HTTP response Reason-Phrase."""
+    """HTTP reason phrase returned for the response."""
 
 
 class GetOffersHttpStatusLineDict(TypedDict):

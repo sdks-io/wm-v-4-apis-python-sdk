@@ -7,9 +7,10 @@ from .buyer_info import BuyerInfo, BuyerInfoDict
 
 
 class GetOrderBuyerInfoResponse(SdkBaseModel):
+    """Response containing the requested order's buyer information."""
+
     payload: Optional[BuyerInfo] = UNSET
-    """Buyer contact projection. ``buyerPhoneAnonymized`` is masked to the last 4 digits (e.g. ``***-***-0100``); the
-    unmasked phone number is never returned by the v4 API."""
+    """Buyer name, email address, and anonymized phone number."""
 
 
 class GetOrderBuyerInfoResponseDict(TypedDict):

@@ -10,30 +10,28 @@ from .value_added_service import ValueAddedService, ValueAddedServiceDict
 
 
 class RegulatedInfo(SdkBaseModel):
-    """Verification requirements for an order containing regulated items. Mirrors Amazon SP-API Orders v0
-    ``RegulatedInformation`` plus a ``regulatedCategory`` discriminator so a caller can short- circuit when the order is
-    not regulated at all."""
+    """Age and identity verification requirements associated with an order."""
 
     regulated_category: RegulatedCategoryOrStr = Field(alias="regulatedCategory")
-    """Top-level category of regulation that applies. NOT_REGULATED means no verification is required and the rest of
-    the fields are informational only."""
+    """Category of regulation associated with the order. ``NOT_REGULATED`` indicates that no regulated category has been
+    identified."""
 
     required_verification_method: RequiredVerificationMethodOrStr = Field(alias="requiredVerificationMethod")
-    """How the buyer must prove identity at delivery. NONE means no verification is required (NOT_REGULATED orders
-    always return NONE)."""
+    """Identification method required at delivery. ``NONE`` indicates no verification method."""
 
     required_age_minimum: Optional[int] = Field(default=UNSET, alias="requiredAgeMinimum")
-    """Minimum buyer age in years (e.g. 21 for alcohol in the US)."""
+    """Minimum buyer age, in years, required for the order. For example, 21 for alcohol. Zero indicates no age
+    requirement."""
 
     signature_required: Optional[bool] = Field(default=UNSET, alias="signatureRequired")
-    """True when the carrier must capture a signature on delivery."""
+    """Indicates whether a signature is required at delivery."""
 
     buyer_date_of_birth_required: Optional[bool] = Field(default=UNSET, alias="buyerDateOfBirthRequired")
-    """True when the buyer's date of birth must be captured / cross-checked."""
+    """Indicates whether the buyer’s date of birth must be collected or verified."""
 
     value_added_services: Optional[list[ValueAddedService]] = Field(default=UNSET, alias="valueAddedServices")
-    """Any value-added services attached to the order that are relevant to the regulated workflow (e.g. signed-delivery,
-    adult-signature). Empty when none apply."""
+    """Value-added services associated with an order containing regulated items, such as adult-signature delivery. Empty
+    when no additional services apply."""
 
 
 class RegulatedInfoDict(TypedDict):

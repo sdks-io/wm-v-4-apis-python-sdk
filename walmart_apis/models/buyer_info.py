@@ -7,14 +7,19 @@ from ..core import UNSET, Optional, SdkBaseModel
 
 
 class BuyerInfo(SdkBaseModel):
-    """Buyer contact projection. ``buyerPhoneAnonymized`` is masked to the last 4 digits (e.g. ``***-***-0100``); the
-    unmasked phone number is never returned by the v4 API."""
+    """Buyer name, email address, and anonymized phone number."""
 
     purchase_order_id: Optional[str] = Field(default=UNSET, alias="purchaseOrderId")
+    """Purchase order identifier assigned by Walmart."""
+
     buyer_name: Optional[str] = Field(default=UNSET, alias="buyerName")
+    """Name of the buyer associated with the order."""
+
     buyer_email: Optional[EmailStr] = Field(default=UNSET, alias="buyerEmail")
+    """Email address of the buyer associated with the order."""
+
     buyer_phone_anonymized: Optional[str] = Field(default=UNSET, alias="buyerPhoneAnonymized")
-    """Phone with everything but the last four digits masked."""
+    """Buyer phone number with only the last four digits visible. All other digits are hidden."""
 
 
 class BuyerInfoDict(TypedDict):

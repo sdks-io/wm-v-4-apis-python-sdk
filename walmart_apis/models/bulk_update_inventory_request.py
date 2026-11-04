@@ -8,6 +8,7 @@ from .bulk_inventory_item import BulkInventoryItem, BulkInventoryItemDict
 
 class BulkUpdateInventoryRequest(SdkBaseModel):
     items: list[BulkInventoryItem]
+    """Max 10 items."""
 
 
 class BulkUpdateInventoryRequestDict(TypedDict):
